@@ -1,0 +1,58 @@
+.scroll-top {
+  position: fixed;
+  right: 1.25rem;
+  /* Sit above the 54px WhatsApp button + gap */
+  bottom: calc(1.25rem + 54px + 0.75rem);
+  z-index: 60;
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(8px);
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease,
+    visibility 0.25s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease,
+    color 0.2s ease;
+  /* Soft fill/hover lives in global.css */
+}
+
+.scroll-top.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.scroll-top.is-visible:hover {
+  transform: translateY(-2px);
+}
+
+.scroll-top:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 3px;
+}
+
+.scroll-top img {
+  display: block;
+  width: 22px;
+  height: 22px;
+  pointer-events: none;
+}
+
+@media (max-width: 600px) {
+  .scroll-top {
+    right: 1rem;
+    bottom: calc(1rem + 48px + 0.7rem);
+    width: 48px;
+    height: 48px;
+  }
+}

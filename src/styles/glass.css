@@ -1,0 +1,84 @@
+/**
+ * Site-wide glass 3D treatment (mint border, inset glow, blurred fill).
+ * Hero / nav surfaces are intentionally excluded.
+ */
+.impact-chip,
+.tx-sidebar,
+.tx-panel,
+.stack-card-shell,
+.why-card,
+.cta-card,
+.account-card,
+.contact-page-form,
+.contact-info-card,
+.panel,
+.price-panel {
+  border: var(--glass-border) !important;
+  background: var(--glass-bg) !important;
+  box-shadow: var(--glass-shadow) !important;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+.why-card:hover,
+.pp-perk:hover,
+.contact-info-card:hover,
+.stack-card-shell:hover {
+  border-color: rgba(125, 255, 192, 0.35) !important;
+  box-shadow:
+    inset 1px 1px 0 rgba(125, 255, 192, 0.24),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.25),
+    0 20px 44px rgba(0, 0, 0, 0.42) !important;
+}
+
+/* Keep image media areas opaque so photos stay crisp */
+.pro-card-media,
+.dv-thumb,
+.stack-card-media,
+.tx-visual {
+  background: #0a1612 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 0 !important;
+}
+
+/*
+ * Shared 3D glass orb for circular icon wells sitewide
+ * (same look as .why-card-icon).
+ */
+.cta-trust-icon,
+.footer-highlight-icon,
+.footer-touch-icon,
+.footer-card-icon,
+.why-card-icon,
+.stat-icon,
+.hero-feature-icon,
+.hero-play,
+.hero-rail-icon,
+.pro-benefit-icon,
+.pro-card-title-icon,
+.pp-feat-icon,
+.impact-chip-icon {
+  border-radius: 50% !important;
+  background: var(--glass-orb-bg) !important;
+  border: var(--glass-orb-border) !important;
+  box-shadow: var(--glass-orb-shadow) !important;
+  color: #7dffc0 !important;
+}
+
+.hero-feature-icon img,
+.why-card-icon img,
+.hero-play img,
+.hero-rail-icon img,
+.stat-icon img,
+.cta-trust-icon img,
+.footer-highlight-icon img,
+.footer-touch-icon img,
+.footer-card-icon img,
+.pro-benefit-icon img,
+.pro-card-title-icon img,
+.pp-feat-icon img,
+.impact-chip-icon img {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+}

@@ -1,0 +1,69 @@
+.wa-float {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.wa-float-copy {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 0.55rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  color: var(--fog);
+  box-shadow: var(--shadow-glow);
+  opacity: 0;
+  transform: translateX(8px);
+  pointer-events: none;
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+
+.wa-float:hover .wa-float-copy,
+.wa-float:focus-visible .wa-float-copy {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.wa-float-copy strong {
+  color: var(--paper);
+}
+
+.wa-float-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #25d366;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
+  flex-shrink: 0;
+}
+
+.wa-float-icon img {
+  display: block;
+  width: 28px;
+  height: 28px;
+}
+
+@media (max-width: 600px) {
+  .wa-float {
+    right: 1rem;
+    bottom: 1rem;
+  }
+
+  .wa-float-copy {
+    display: none;
+  }
+
+  .wa-float-icon {
+    width: 48px;
+    height: 48px;
+  }
+}
