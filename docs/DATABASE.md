@@ -1,4 +1,6 @@
-# Alpha Recover — Backend Database Schema (Proposal)
+# Alpha Recover — Database Schema
+
+**Last reviewed:** 2026-11-12 · Related: [ARCHITECTURE.md](ARCHITECTURE.md) · [API.md](API.md)
 
 **Database:** MySQL 8.0+ (MariaDB 10.6+ compatible subset) · **Engine:** InnoDB, `utf8mb4` · **ORM:** Drizzle (`mysql2`) · **Status:** Proposal, nothing created
 

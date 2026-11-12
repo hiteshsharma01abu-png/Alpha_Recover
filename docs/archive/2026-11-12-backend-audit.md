@@ -1,5 +1,7 @@
 # Alpha Recover — Backend Project Audit
 
+> **Archived snapshot — not maintained.** Reflects the repository on 2026-11-12. File names it mentions have since changed: `BACKEND_IMPLEMENTATION_PRD.md` → [PRD.md](../PRD.md), `BACKEND_DATABASE_SCHEMA.md` → [DATABASE.md](../DATABASE.md), `BACKEND_API_SPECIFICATION.md` → [API.md](../API.md), `BACKEND_SECURITY_AND_PERMISSIONS.md` → [SECURITY.md](../SECURITY.md), `BACKEND_QA_AND_TESTING_PLAN.md` → [TESTING.md](../TESTING.md), `BACKEND_IMPLEMENTATION_PLAN.md` → [PLAN.md](../PLAN.md); `docs/backend/` → `docs/`.
+
 **Date:** 2026-11-12
 **Scope:** Full repository inspection (`main` @ `b337bf9`), every route, component, form, CTA and data source.
 **Method:** Source read of all 57 files under `src/`, config files, build/deploy config, git history. Production build and lint run to confirm health.

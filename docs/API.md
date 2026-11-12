@@ -1,8 +1,8 @@
-# Alpha Recover — Backend API Specification
+# Alpha Recover — API Specification
 
 **Base URL:** `/api/v1` (same origin as the SPA; Node.js + Hono, host-portable: cPanel Node.js App, VPS, or Vercel during development)
 **Format:** JSON (UTF-8). Request bodies are validated with Zod schemas shared from `shared/schemas/`.
-**Date:** 2026-11-12 · **Status:** Proposal
+**Last reviewed:** 2026-11-12 · **Status:** Proposal · Related: [DATABASE.md](DATABASE.md) · [SECURITY.md](SECURITY.md)
 
 ---
 
@@ -10,7 +10,7 @@
 
 ### Authentication
 - Session cookie `ar_session` (httpOnly, Secure, SameSite=Lax, Path=/), issued by Better Auth.
-- **Auth levels:** `public` · `user` (any logged-in user) · `student` (logged in, `status=active`) · `staff:<permission>` (admin roles, see `BACKEND_SECURITY_AND_PERMISSIONS.md`).
+- **Auth levels:** `public` · `user` (any logged-in user) · `student` (logged in, `status=active`) · `staff:<permission>` (admin roles, see [SECURITY.md](SECURITY.md)).
 - Mutating requests from the browser must send `X-Requested-With: fetch` (a CSRF defence-in-depth check, alongside SameSite cookies and an Origin check).
 
 ### Envelope
@@ -102,7 +102,7 @@ Request: `{ "token": "…", "password": "…", "confirmPassword": "…" }` → `
 | GET | `/settings/public` | public | Company contact, hours, WhatsApp, social links (Footer, Contact, CTA) |
 | GET | `/blog` | public | Published posts (paginated): slug, title, excerpt, cover, publishedAt |
 | GET | `/blog/:slug` | public | Full post including `bodyMarkdown`, SEO fields |
-| GET | `/certificates/verify/:code` | public | Certificate verification (see §4-certificates) |
+| GET | `/certificates/verify/:code` | public | Certificate verification (details below) |
 
 `GET /settings/public` response:
 ```json

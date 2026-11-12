@@ -1,7 +1,7 @@
-# Alpha Recover — Backend Implementation Plan
+# Alpha Recover — Implementation Plan
 
-**Date:** 2026-11-12 · **Status:** For approval. Nothing is implemented yet.
-**Sizing:** S ≈ 1–2 dev-days, M ≈ 3–5, L ≈ 6–10, for one full-stack developer. Ranges assume decisions in PRD §6 are answered promptly.
+**Last reviewed:** 2026-11-12 · **Status:** For approval. Nothing is implemented yet.
+**Sizing:** S ≈ 1–2 dev-days, M ≈ 3–5, L ≈ 6–10, for one full-stack developer. Ranges assume decisions in [PRD.md](PRD.md) §6 are answered promptly.
 
 ---
 
@@ -11,7 +11,7 @@
 - **Ship value early.** Lead capture (money on the table today) and checkout come before the admin polish.
 - **Frontend work is a dependency.** Several backend features need new UI that doesn't exist: lesson player, student dashboard, checkout result pages, reset-password page, admin panel. These are listed per phase as **[FE]** items so the plan is honest about end-to-end delivery.
 - **Every phase ends deployable.** Each phase finishes on a staging environment, then production behind feature flags.
-- **Host-portable.** Production hosting is undecided (shared cPanel or VPS). The API is a plain Node.js app on MySQL that runs on either, and on Vercel during development. See PRD §4.1 for the host checklist.
+- **Host-portable.** Production hosting is undecided (shared cPanel or VPS). The API is a plain Node.js app on MySQL that runs on either, and on Vercel during development. See [ARCHITECTURE.md](ARCHITECTURE.md) §3 for the host checklist.
 
 ## 2. Dependency map
 
@@ -29,7 +29,7 @@ Phase 7 QA & security hardening (continuous, gate before production launch)
 ### Phase 0 — Decisions & third-party setup (non-code, start now) · S
 | Task | Owner |
 |---|---|
-| Answer PRD §6 open decisions (certificate criteria, refund policy, callback phone, session limit, international pricing, firmware software delivery, languages) | Business |
+| Answer [PRD.md](PRD.md) §6 open decisions (certificate criteria, refund policy, callback phone, session limit, international pricing, firmware software delivery, languages) | Business |
 | Create accounts: Razorpay (KYC takes days, so **start first**), Bunny (Stream + Storage), Postmark (verify `alpharecover.com` domain: SPF, DKIM, Return-Path), Cloudflare Turnstile, Sentry. A small managed MySQL for staging until the production host is chosen | Business + dev |
 | Publish legal pages (Privacy, Terms, Refund/Cancellation, Contact). **Razorpay activation requires them.** [FE + content] | Business |
 | Provide real promotion dates, a final course list, and recorded lesson videos (or a schedule) | Business |
@@ -127,7 +127,7 @@ Built module by module, right after the domain it depends on ships. The admin **
 | 17 | Coupons & offers | — | coupons | — | — | Coupon UI | **Deferred** |
 
 ### Phase 7 — QA, security & launch · M (continuous, final gate)
-See `BACKEND_QA_AND_TESTING_PLAN.md` and `BACKEND_SECURITY_AND_PERMISSIONS.md`. Gate items: auth/RBAC test suite green, payment idempotency tests, webhook replay test, rate limits verified, backups restore-tested, Sentry alerts configured, runbook written, rollback rehearsed.
+See [TESTING.md](TESTING.md) and [SECURITY.md](SECURITY.md). Gate items: auth/RBAC test suite green, payment idempotency tests, webhook replay test, rate limits verified, backups restore-tested, Sentry alerts configured, runbook written, rollback rehearsed.
 
 ## 4. Timeline (indicative, one developer)
 
@@ -155,14 +155,14 @@ Roughly **10–12 weeks** for backend plus the required new frontend screens. Wi
 | Client-trusted prices | Fraud | Server-side pricing only; amount check on verify |
 | SPA blog has weak SEO | Low organic traffic | Prerender blog/course routes at build (e.g. `vite-plugin-prerender` or a small static export step) in a later iteration |
 | Serverless cold starts / timeouts | Slow first request | Hono + Drizzle are light; keep heavy work (PDF) small; outbox for retries |
-| Shared hosting limits (no Node.js support, low RAM/process caps, cron ≥ 5 min) | API can't run, or degrades during sales | Pick the host with the PRD §4.1 checklist; the app stays portable, so moving to a VPS later means no code changes |
+| Shared hosting limits (no Node.js support, low RAM/process caps, cron ≥ 5 min) | API can't run, or degrades during sales | Pick the host with the [ARCHITECTURE.md](ARCHITECTURE.md) §3 checklist; the app stays portable, so moving to a VPS later means no code changes |
 | Concurrent editing (Cursor + Claude) on the same repo | Lost or overwritten work | Work on feature branches with PRs; one tool per branch |
 | Scope creep into a full marketing CMS | Delay | Keep static copy in `content.ts` (PRD §5) |
 
 **Recommendations**
-1. Approve the stack in PRD §4, or flag changes, before Phase 1.
+1. Approve the stack in [ARCHITECTURE.md](ARCHITECTURE.md) §2, or flag changes, before Phase 1.
 2. Start Razorpay KYC, Postmark domain verification and legal pages **this week**. They're on the critical path.
 3. Ship **Phase 2 leads first**: smallest effort, immediate business value.
 4. Use feature branches and PRs from here on; deploy every merge to a staging environment first.
 5. Decide the admin UI approach (in-SPA `/admin`, recommended) so frontend work can run in parallel.
-6. **Choose the production host using the PRD §4.1 checklist** (VPS recommended; a shared cPanel plan only if it supports Node.js 20+, SSH and 1-minute cron).
+6. **Choose the production host using the [ARCHITECTURE.md](ARCHITECTURE.md) §3 checklist** (VPS recommended; a shared cPanel plan only if it supports Node.js 20+, SSH and 1-minute cron).

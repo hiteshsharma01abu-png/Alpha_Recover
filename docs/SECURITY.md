@@ -1,6 +1,6 @@
-# Alpha Recover — Backend Security & Permissions
+# Alpha Recover — Security, Authentication & Permissions
 
-**Date:** 2026-11-12 · **Status:** Proposal
+**Last reviewed:** 2026-11-12 · **Status:** Proposal · Related: [API.md](API.md) · [DATABASE.md](DATABASE.md)
 
 ---
 

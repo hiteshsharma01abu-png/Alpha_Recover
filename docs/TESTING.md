@@ -1,6 +1,6 @@
-# Alpha Recover — Backend QA & Testing Plan
+# Alpha Recover — QA & Testing
 
-**Date:** 2026-11-12 · **Status:** Proposal
+**Last reviewed:** 2026-11-12 · **Status:** Proposal (no tests exist yet; the frontend is verified with `npm run build` + `npm run lint`)
 
 ---
 
@@ -144,4 +144,4 @@ Seed fixtures: 1 super_admin, 1 admin, 1 content_manager, 1 support, 3 students 
 
 **Rollback:** each deploy goes to a timestamped release folder with a `current` symlink (or a kept previous build on cPanel); rollback = switch back and restart the app. The schema stays backward compatible thanks to expand/contract. For data issues, restore the latest `mysqldump` into a scratch database, verify, then switch. Payment-related incidents: disable `checkout_enabled`, then reconcile orders with Razorpay before re-enabling.
 
-**Launch go/no-go:** every Phase 7 gate item in `BACKEND_IMPLEMENTATION_PLAN.md` checked; a live ₹1 transaction completed and refunded successfully in production.
+**Launch go/no-go:** every Phase 7 gate item in [PLAN.md](PLAN.md) checked; a live ₹1 transaction completed and refunded successfully in production.
