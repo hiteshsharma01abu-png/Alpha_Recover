@@ -1,0 +1,143 @@
+# Alpha Recover — Backend Security & Permissions
+
+**Date:** 2026-11-12 · **Status:** Proposal
+
+---
+
+## 1. Authentication
+
+| Control | Requirement |
+|---|---|
+| Library | Better Auth on our own Postgres (no hand-rolled crypto) |
+| Password hashing | argon2id (memory ≥ 19 MiB, iterations ≥ 2), per-hash salt |
+| Password policy | 8–128 chars; reject the top breached passwords; no composition rules (NIST 800-63B) |
+| Session | Opaque random token in cookie `ar_session`: `HttpOnly; Secure; SameSite=Lax; Path=/`. Stored server-side (`sessions`) so it's revocable |
+| Lifetime | 12h default, 30d with "Remember me"; sliding refresh on activity |
+| Session limit | Students: max 2 concurrent (setting). Staff: 3. New login evicts the oldest; the user sees a notice |
+| Rotation | New session ID on login, privilege change and password change; all sessions revoked on password reset |
+| Email verification | Token (hashed at rest), 24h, single use. Purchases require a verified email (setting) |
+| Password reset | Token (hashed), 1h, single use; response is identical whether or not the email exists |
+| Brute force | 5 failed logins / 15 min per IP + email → 429; failures logged to `activity_logs` (`auth.login_failed`) |
+| Account enumeration | Generic messages on login, register conflict and forgot password |
+| Staff accounts | Invite-only (no public staff signup); **TOTP 2FA required for `admin` and `super_admin`** (Better Auth 2FA plugin); staff login alerts by email |
+| Logout | `POST /auth/logout` deletes the server session and clears the cookie |
+
+## 2. Authorization (RBAC)
+
+### Roles
+
+| Role | Who | Summary |
+|---|---|---|
+| `student` | Registered learners | Own profile, own orders, enrolled content |
+| `support` | Sales / support staff | Leads, read students/orders/enrollments, resend emails |
+| `content_manager` | Course / content team | Courses, lessons, demo videos, blog, media |
+| `admin` | Operations manager | Everything except staff role management and destructive settings |
+| `super_admin` | Owner | Everything, including staff roles, settings, refunds above the threshold |
+
+### Permission matrix
+
+| Permission | support | content_manager | admin | super_admin |
+|---|:-:|:-:|:-:|:-:|
+| `dashboard.view` | ✓ | ✓ | ✓ | ✓ |
+| `leads.read` / `leads.write` | ✓ | | ✓ | ✓ |
+| `leads.export` | | | ✓ | ✓ |
+| `students.read` | ✓ | | ✓ | ✓ |
+| `students.write` (edit, suspend, force logout) | | | ✓ | ✓ |
+| `enrollments.read` | ✓ | | ✓ | ✓ |
+| `enrollments.write` (manual grant / revoke) | | | ✓ | ✓ |
+| `orders.read` | ✓ | | ✓ | ✓ |
+| `orders.refund` | | | ✓ (≤ ₹5,000) | ✓ |
+| `plans.read` / `plans.write` (price, promotions) | | | ✓ | ✓ |
+| `courses.read` / `courses.write` | | ✓ | ✓ | ✓ |
+| `demos.read` / `demos.write` | | ✓ | ✓ | ✓ |
+| `blog.read` / `blog.write` / `blog.publish` | | ✓ | ✓ | ✓ |
+| `certificates.read` | ✓ | | ✓ | ✓ |
+| `certificates.write` (issue / revoke) | | | ✓ | ✓ |
+| `notifications.read` / `notifications.write` | ✓ / | | ✓ | ✓ |
+| `reports.view` / `reports.export` | | | ✓ | ✓ |
+| `audit.read` | | | ✓ | ✓ |
+| `settings.read` | | | ✓ | ✓ |
+| `settings.write` | | | | ✓ |
+| `admins.manage` | | | | ✓ |
+
+Implementation: a `permissions.ts` map `role → Set<permission>`; middleware `requireStaff('orders.refund')`. A permission check happens on **every** admin route (no route-level "is staff" shortcut). Role changes revoke the target's sessions.
+
+### Resource ownership (students)
+- All `/me/*` queries are scoped by `session.userId`. IDs in URLs are never trusted for ownership (`/me/orders/:orderNumber` → `WHERE order_number = $1 AND user_id = $session`).
+- Course access = active, unexpired enrollment for a plan that grants the course (see the schema access rule). Checked server-side on every playback request, not just in the UI.
+
+### Guard rails
+- The last `super_admin` can't be demoted or suspended.
+- Staff can't change their own role.
+- Refunds above the threshold need `super_admin`.
+- All admin mutations write `activity_logs` with before/after metadata.
+
+## 3. API security
+
+| Area | Control |
+|---|---|
+| Input validation | Zod on every body, query and param; unknown keys stripped; length limits on all strings; enums for all choice fields |
+| Output | Explicit DTOs; never serialize ORM rows directly (prevents leaking `video_id`, password hashes, IP data) |
+| SQL injection | Drizzle parameterized queries only; no string-built SQL |
+| CSRF | SameSite=Lax cookie + Origin/Referer check on mutations + `X-Requested-With: fetch` header requirement; webhooks exempt (signature-verified) |
+| CORS | Same origin only (SPA and API on one domain); no wildcard |
+| XSS | React escapes by default; blog Markdown rendered without raw HTML (sanitized); CSP header (below) |
+| Security headers | `Content-Security-Policy` (self, Razorpay checkout, Bunny iframe/CDN, Turnstile, Google Fonts), `Strict-Transport-Security`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`, `frame-ancestors 'none'`. Set in `vercel.json` for static files and in middleware for the API |
+| Rate limiting | Upstash sliding window (limits in API spec §0); 429 + `Retry-After` |
+| Bot protection | Turnstile on register, forgot password, leads; honeypot field on leads |
+| Mass assignment | Admin update schemas whitelist fields; `role` changes only via a dedicated endpoint |
+| File uploads | Direct-to-Bunny signed uploads; MIME and size whitelist (images ≤ 5 MB; video via Bunny TUS); random keys; never served from our origin |
+| Errors | Generic messages to clients; full details only in logs/Sentry; `requestId` correlation |
+| Dependencies | `npm audit` / Dependabot in CI; lockfile committed |
+
+## 4. Payment security
+
+- Prices are computed **only** on the server; the client never sends an amount.
+- `POST /checkout/verify`: HMAC-SHA256 of `order_id|payment_id` with the key secret, constant-time compare, **plus** a server-side fetch of the payment to confirm `captured` and the amount.
+- Webhooks: HMAC-SHA256 over the **raw** body with the webhook secret; reject on mismatch (logged); idempotency via a unique `event_id`.
+- `activateOrder` runs in one DB transaction with `SELECT … FOR UPDATE` on the order; unique `enrollments.order_id` makes double activation impossible.
+- No card data touches our servers (Razorpay Checkout handles it), so the PCI-DSS scope is SAQ-A.
+- Razorpay keys: `key_id` is public; `key_secret` and `webhook_secret` live only in server env.
+
+## 5. Content protection (paid video)
+
+- `lessons.video_id` is never in public responses; only a signed, expiring (≤ 2h) Bunny token URL is returned to entitled users.
+- Bunny Stream: token authentication on, allowed referrer = site domain, direct-play disabled, optional MediaCage DRM and a dynamic watermark (user email) as an upgrade.
+- Session limit plus logging playback-token issuance per user (abuse detection: many tokens from many IPs).
+- Residual risk: screen recording can't be fully prevented. This is accepted.
+
+## 6. Data protection & privacy
+
+| Data | Handling |
+|---|---|
+| Passwords | argon2id hash only |
+| Tokens (session, verify, reset) | Random, hashed at rest where supported, expiring |
+| Email / phone | Stored for account and leads; never exposed in public APIs (certificate verify shows only name/program/date/status) |
+| IP addresses | Leads/audit: salted SHA-256 hash; sessions: raw IP for security display, deleted with the session |
+| Consent | `leads.whatsapp_consent`, `users.whatsapp_opt_in_at`, `users.terms_accepted_at` recorded with timestamps |
+| Retention | Spam leads purged after 90 days; expired sessions/tokens purged daily; financial records kept ≥ 8 years (Indian tax rules) |
+| User rights | Export and delete-account request handled by admin (soft delete + anonymize PII, keep orders for accounting) — aligned with India's DPDP Act 2023 |
+| Secrets | Vercel encrypted env vars per environment; never in the repo (`.env*` is already gitignored); rotate on staff exit |
+| Encryption | TLS everywhere; Neon encrypts at rest |
+
+## 7. Logging, monitoring, incident response
+
+- Structured JSON logs (`requestId`, `userId`, route, status, latency); no passwords, tokens or full card/PII in logs.
+- Sentry for API + frontend errors; alerts on: error-rate spike, webhook signature failures, payment `amount mismatch`, notification jobs reaching `dead`.
+- `activity_logs` for security events: login failures, password resets, role changes, suspensions, refunds, enrollment grants/revokes, certificate revocations, settings changes.
+- Uptime check on `/api/v1/health` (DB ping).
+- Incident runbook: rotate secrets, revoke all sessions (`DELETE FROM sessions`), disable checkout via a settings flag, restore the DB via Neon PITR.
+
+## 8. Backup & recovery
+
+| Item | Policy |
+|---|---|
+| Postgres | Neon point-in-time restore (7-day window; extend on the paid plan) + nightly `pg_dump` to Bunny Storage, kept 30 days |
+| Restore test | Quarterly restore into a Neon branch; verify row counts and app boot |
+| Media | Bunny Storage replication region enabled; original lesson video masters also kept offline by the business |
+| RPO / RTO | RPO ≤ 5 min (PITR), RTO ≤ 2h |
+
+## 9. Environment variables (planned; names only)
+
+`DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`, `BUNNY_STREAM_LIBRARY_ID`, `BUNNY_STREAM_API_KEY`, `BUNNY_STREAM_TOKEN_KEY`, `BUNNY_STORAGE_ZONE`, `BUNNY_STORAGE_KEY`, `BUNNY_CDN_TOKEN_KEY`, `POSTMARK_SERVER_TOKEN`, `POSTMARK_WEBHOOK_SECRET`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `TURNSTILE_SECRET_KEY`, `VITE_TURNSTILE_SITE_KEY`, `VITE_RAZORPAY_KEY_ID`, `SENTRY_DSN`, `VITE_SENTRY_DSN`, `CRON_SECRET`, `IP_HASH_SALT`.
+No environment configuration is changed as part of this planning task.
