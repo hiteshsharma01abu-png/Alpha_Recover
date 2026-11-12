@@ -92,11 +92,11 @@ Guard rails:
 
 ## Git workflow
 
-- **Branches:** `main` = production, `Dev` = integration. Work on a feature branch (`feat/…`, `fix/…`, `docs/…`) cut from `Dev`, then **commit and push to `Dev`**. **Never merge or push to `main`** unless the owner explicitly asks; the owner may also merge `Dev` → `main` manually.
+- **Branches:** `main` = production, `Dev` = integration. **Always commit and push finished work to `Dev` first**: no need to ask before pushing to `Dev`. Use a short-lived feature branch (`feat/…`, `fix/…`, `docs/…`) cut from `Dev` if useful, but the work must land on `Dev`. **Never merge or push to `main`** unless the owner explicitly asks; the owner usually merges `Dev` → `main` manually.
 - **One AI tool per branch.** Cursor and Claude Code must not edit the same branch at the same time.
 - **Commit messages must describe the actual diff.** Never reuse a message from a different change.
 - **Never commit or push another tool's or person's uncommitted work** without asking.
-- Don't push, merge or deploy without explicit confirmation from the user.
+- Pushing to `Dev` is pre-approved. Pushing or merging to `main`, force-pushing, and deploying need explicit confirmation from the owner.
 
 ## Don'ts
 
