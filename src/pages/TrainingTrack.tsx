@@ -1,10 +1,14 @@
 import { Link, useParams } from 'react-router-dom';
-import { trainingTracks } from '../data/content';
+import { useTrainingTracksState } from '../lib/catalog';
 import './SimplePages.css';
 
 export function TrainingTrack() {
   const { trackId } = useParams();
-  const track = trainingTracks.find((t) => t.id === trackId);
+  const { tracks, settled } = useTrainingTracksState();
+  const track = tracks.find((t) => t.id === trackId);
+
+  // A track added after this build exists only in the API: wait for it before saying "not found".
+  if (!track && !settled) return <div className="section container" aria-busy="true" />;
 
   if (!track) {
     return (

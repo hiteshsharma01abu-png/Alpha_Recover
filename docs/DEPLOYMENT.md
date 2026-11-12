@@ -11,8 +11,8 @@
 | Piece | Built with | Output | Served by |
 |---|---|---|---|
 | Frontend | `npm run build` | `dist/` (static files) | Apache/LiteSpeed (cPanel) or Nginx (VPS) |
-| API | `npm run build:api` | `dist-server/index.mjs` (+ `migrate.mjs`, `migrations/`) | Node.js 20+ (cPanel Node.js App / Passenger, or PM2) |
-| Database | `node dist-server/migrate.mjs` | schema changes | MySQL 8.0+ / MariaDB 10.6+ |
+| API | `npm run build:api` | `dist-server/index.mjs` (+ `migrate.mjs`, `seed.mjs`, `migrations/`) | Node.js 20+ (cPanel Node.js App / Passenger, or PM2) |
+| Database | `node dist-server/migrate.mjs`, then `node dist-server/seed.mjs` | schema changes; seed inserts missing catalog rows (never overwrites) | MySQL 8.0+ / MariaDB 10.6+ |
 | Scheduled jobs | host cron | — | `curl` → `/api/v1/internal/cron/*` |
 
 The API bundle includes all its dependencies, so the host needs **only Node.js**: no `npm install` on the server.
@@ -53,7 +53,7 @@ Set these in the cPanel Node.js App's environment settings, or in a `chmod 600` 
 **Each release**
 1. Build locally or in CI: `npm ci && npm run build && npm run build:api`.
 2. Upload `dist-server/` contents to the application root (SFTP/SSH), replacing the old files. Keep the previous copy as `../alpharecover-api.prev` for rollback.
-3. Run migrations: `node migrate.mjs` in the app root (SSH, or the cPanel "Run JS script" option), with `DATABASE_URL` set.
+3. Run migrations, then the seed: `node migrate.mjs && node seed.mjs` in the app root (SSH, or the cPanel "Run JS script" option), with `DATABASE_URL` set. The seed only inserts missing rows, so it's safe on every release.
 4. Restart the app: **Restart** in Setup Node.js App, or `touch tmp/restart.txt`.
 5. Upload the new `dist/` to `public_html/` (keep `.htaccess`).
 6. Smoke test (§6).
@@ -70,7 +70,7 @@ Set these in the cPanel Node.js App's environment settings, or in a `chmod 600` 
 
 **Each release**
 1. Upload the build to a new `releases/<timestamp>/` directory (`dist/` + `dist-server/`).
-2. `node releases/<timestamp>/dist-server/migrate.mjs`.
+2. `node releases/<timestamp>/dist-server/migrate.mjs && node releases/<timestamp>/dist-server/seed.mjs`.
 3. Point `current` at the new release; `pm2 reload alpharecover-api`.
 4. Smoke test (§6).
 

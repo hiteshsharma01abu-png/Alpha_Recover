@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { trainingTracks } from '../../data/content';
+import { useTrainingTracks } from '../../lib/catalog';
 import { fallbackSectionImage, trainingTrackImages } from '../../data/sectionMedia';
 import './TrainingExplorer.css';
 
@@ -70,6 +70,7 @@ function lessonMinutes(index: number, title: string) {
 }
 
 export function TrainingExplorer() {
+  const trainingTracks = useTrainingTracks();
   const [openTrack, setOpenTrack] = useState(trainingTracks[0]?.id ?? '');
   const [openModule, setOpenModule] = useState(trainingTracks[0]?.modules[0]?.id ?? '');
   const selectedPanelRef = useRef<HTMLDivElement>(null);

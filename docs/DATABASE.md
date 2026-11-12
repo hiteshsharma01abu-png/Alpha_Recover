@@ -30,7 +30,7 @@
 | 3 | `sessions` | Login sessions (cookie-backed) — Better Auth | no (expire) |
 | 4 | `verifications` | Email-verify and password-reset tokens — Better Auth | no (expire) |
 | 5 | `courses` | Training tracks (9 today) | yes |
-| 6 | `course_modules` | Modules within a track (21 today) | yes |
+| 6 | `course_modules` | Modules within a track (16 today) | yes |
 | 7 | `lessons` | Lessons (117 today) | yes |
 | 8 | `lesson_progress` | Per-student lesson progress | no |
 | 9 | `plans` | Purchasable plans ("Professional Plan") | yes |
@@ -123,6 +123,8 @@
 
 ## 5. `courses`
 
+> **Implemented (Phase 2)** with `course_modules` and `lessons`. Seeded insert-only from `src/data/content.ts` by `server/db/seed.ts` (`npm run db:seed`): existing slugs are never updated, so admin edits survive re-runs.
+
 | Column | Type | Constraints / notes |
 |---|---|---|
 | id | char(36) | PK |
@@ -167,7 +169,7 @@
 | created_at / updated_at / deleted_at | datetime(3) | |
 
 **Indexes:** unique(`module_id`, `slug`); (`module_id`, `sort_order`); (`status`).
-**Validation:** a lesson can be `published` only if `video_id` is set.
+**Rule:** `published` controls visibility in the catalog. A published lesson without `video_id` is listed as "coming soon" (`hasVideo: false` in the API) and can't be played. That matches the current site, which lists all 117 lesson titles before any video exists.
 
 ## 8. `lesson_progress`
 
@@ -506,7 +508,7 @@ demo_videos, site_settings, notification_jobs, payment_webhook_events, certifica
 ## Seed / migration-from-static plan
 
 A one-time seed script (written in Phase 2, run only after approval) imports the current `src/data/content.ts`:
-- 9 `courses`, 21 `course_modules`, 117 `lessons` (`status=draft` until videos are attached; title-only listing stays public).
+- 9 `courses`, 16 `course_modules`, 117 `lessons`, all `published` (lesson videos are attached later; until then they show as "coming soon"). **Done (Phase 2).**
 - 1 `plan` (`professional`, ₹5,999 base) plus 1 `promotion` (₹2,500, "Festival Sale – Up to 60% Off", with real start/end dates you supply).
 - 6 `demo_videos` (thumbnails re-hosted; video IDs added when uploaded).
 - 3 `blog_posts` (excerpt only; body to be written).

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { company, trainingTracks } from '../../data/content';
+import { company } from '../../data/content';
+import { useTrainingTracks } from '../../lib/catalog';
 import './Header.css';
 
 const infoLinks = [
@@ -162,6 +163,7 @@ function DrawerRow({
 }
 
 function DesktopNavLinks() {
+  const trainingTracks = useTrainingTracks();
   return (
     <>
       <NavLink to="/" end>
@@ -206,6 +208,7 @@ function DesktopNavLinks() {
 }
 
 function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const trainingTracks = useTrainingTracks();
   return (
     <div
       id="mobile-nav"

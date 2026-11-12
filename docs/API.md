@@ -160,8 +160,8 @@ DB: `enrollments` + `lessons` count + `lesson_progress` aggregate. Ownership is 
 
 | Method | Endpoint | Auth | Purpose |
 |---|---|---|---|
-| GET | `/courses` | public | Published tracks: slug, title, summary, imageUrl, lessonCount, totalDurationSeconds |
-| GET | `/courses/:slug` | public (enriched if logged in) | Track → modules → lessons (`id`, `title`, `durationSeconds`, `isPreview`, and `locked` / `completed` when logged in) |
+| GET | `/courses` | public | Published tracks: slug, title, summary, imageUrl, moduleCount, lessonCount, totalDurationSeconds. `?include=outline` adds modules → lessons (used by the site to render the whole catalog in one request). Cached `s-maxage=300`. **Implemented (Phase 2)** |
+| GET | `/courses/:slug` | public (enriched if logged in, Phase 3–4) | Track → modules → lessons (`id`, `slug`, `title`, `durationSeconds`, `isPreview`, `hasVideo`; `locked` / `completed` arrive with auth). **Implemented (Phase 2)** without the logged-in fields |
 | POST | `/lessons/:id/playback` | public for preview lessons; student + access for others | Returns a short-lived signed playback URL |
 | PUT | `/me/progress/:lessonId` | student + access | Save position / completion |
 | GET | `/me/progress?course=:slug` | student | Progress map for a course |
@@ -171,7 +171,7 @@ Response:
 ```json
 { "data": { "slug": "logical", "title": "…", "summary": "…",
   "modules": [{ "slug": "logical-core", "title": "Logical (Software) Level",
-    "lessons": [{ "id": "…", "slug": "l1", "title": "Introduction", "durationSeconds": 420, "isPreview": true, "locked": false, "completed": true }] }],
+    "lessons": [{ "id": "…", "slug": "l1", "title": "Introduction", "durationSeconds": 420, "isPreview": true, "hasVideo": true, "locked": false, "completed": true }] }],
   "access": { "enrolled": true } } }
 ```
 **Never includes `videoId`.** Errors: 404.

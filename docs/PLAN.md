@@ -79,7 +79,7 @@ Phase 7 QA & security hardening (continuous, gate before production launch)
 
 **Status**
 - [x] Leads: `leads` table, `POST /leads` (validation, phone normalization, honeypot, Turnstile, 5/hour rate limit), `lead_alert` + `lead_ack` emails via the outbox, recipients from `site_settings.lead_notification_emails` (seeded `info@alpharecover.com`). Contact form + callback form (now with required phone) wired; verified in a real browser
-- [ ] Catalog (courses, modules, lessons + seed)
+- [x] Catalog: `courses` / `course_modules` / `lessons` (9 / 16 / 117, insert-only seed), `GET /courses[?include=outline]`, `GET /courses/:slug` (video ids never exposed). Header menus, Training explorer and track pages read the API with the static catalog as fallback; verified in the browser with and without the API
 - [ ] Plans & promotions (server price, real countdown)
 - [ ] Demo videos
 - [ ] Blog

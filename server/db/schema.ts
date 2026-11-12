@@ -173,6 +173,73 @@ export const activityLogs = mysqlTable(
   ],
 );
 
+// ── Catalog (Phase 2) ────────────────────────────────────────────────────────
+
+export const PUBLISH_STATUSES = ['draft', 'published', 'archived'] as const;
+
+export const courses = mysqlTable(
+  'courses',
+  {
+    id: id(),
+    /** Existing frontend ids are kept as slugs, so /training/logical keeps working. */
+    slug: varchar('slug', { length: 64 }).notNull(),
+    title: varchar('title', { length: 160 }).notNull(),
+    summary: text('summary').notNull(),
+    imageUrl: varchar('image_url', { length: 500 }),
+    sortOrder: int('sort_order').notNull().default(0),
+    status: mysqlEnum('status', PUBLISH_STATUSES).notNull().default('draft'),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+    deletedAt: ts('deleted_at'),
+  },
+  (t) => [uniqueIndex('courses_slug_uq').on(t.slug), index('courses_status_sort_idx').on(t.status, t.sortOrder)],
+);
+
+export const courseModules = mysqlTable(
+  'course_modules',
+  {
+    id: id(),
+    courseId: char('course_id', { length: 36 })
+      .notNull()
+      .references(() => courses.id, { onDelete: 'restrict' }),
+    slug: varchar('slug', { length: 64 }).notNull(),
+    title: varchar('title', { length: 160 }).notNull(),
+    sortOrder: int('sort_order').notNull().default(0),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+    deletedAt: ts('deleted_at'),
+  },
+  (t) => [uniqueIndex('course_modules_course_slug_uq').on(t.courseId, t.slug), index('course_modules_course_sort_idx').on(t.courseId, t.sortOrder)],
+);
+
+export const lessons = mysqlTable(
+  'lessons',
+  {
+    id: id(),
+    moduleId: char('module_id', { length: 36 })
+      .notNull()
+      .references(() => courseModules.id, { onDelete: 'restrict' }),
+    slug: varchar('slug', { length: 64 }).notNull(),
+    title: varchar('title', { length: 200 }).notNull(),
+    description: text('description'),
+    videoProvider: mysqlEnum('video_provider', ['bunny', 'youtube']),
+    /** Never returned by public APIs; playback goes through signed URLs (Phase 4). */
+    videoId: varchar('video_id', { length: 128 }),
+    durationSeconds: int('duration_seconds', { unsigned: true }),
+    isPreview: boolean('is_preview').notNull().default(false),
+    sortOrder: int('sort_order').notNull().default(0),
+    status: mysqlEnum('status', PUBLISH_STATUSES).notNull().default('draft'),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+    deletedAt: ts('deleted_at'),
+  },
+  (t) => [
+    uniqueIndex('lessons_module_slug_uq').on(t.moduleId, t.slug),
+    index('lessons_module_sort_idx').on(t.moduleId, t.sortOrder),
+    index('lessons_status_idx').on(t.status),
+  ],
+);
+
 // ── Leads (Phase 2) ──────────────────────────────────────────────────────────
 
 export const LEAD_STATUSES = ['new', 'contacted', 'qualified', 'converted', 'closed', 'spam'] as const;

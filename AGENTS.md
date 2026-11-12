@@ -14,7 +14,7 @@ The frontend is complete, but its forms are still **UI stubs** (`alert()` / `set
 
 ```bash
 npm run dev        # Vite dev server → http://localhost:5173 (proxies /api → :8787)
-npm run dev:api    # API server (needs .env + MySQL: npm run db:up && npm run db:migrate)
+npm run dev:api    # API server (needs .env + MySQL: npm run db:up && npm run db:migrate && npm run db:seed)
 npm run build      # tsc -b (app + server) && vite build — use this to verify changes
 npm run build:api  # API bundle → dist-server/
 npm run lint       # oxlint (.oxlintrc.json), covers src/ and server/

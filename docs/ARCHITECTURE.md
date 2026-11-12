@@ -123,10 +123,10 @@ server/
   types.ts            ✓ Deps injected into every request (env, db, auth, mailer)
   audit.ts            ✓ logActivity() → activity_logs
   auth/               ✓ Better Auth config, requireUser / requireStaff, permission matrix
-  db/                 ✓ schema.ts, pool (UTC), migrate.ts, migrations/, docker-init/
+  db/                 ✓ schema.ts, pool (UTC), migrate.ts, seed.ts (catalog from content.ts), migrations/, docker-init/
   lib/                ✓ errors, logger, ids (UUIDv7), request/client IP, validate (Zod), ratelimit (MySQL), security
   notifications/      ✓ mailer (Postmark / dev log), templates, outbox (queue + retries)
-  routes/             ✓ health, auth (session), internal (cron) · later: public, me, checkout, webhooks, admin/*
+  routes/             ✓ health, auth (session), internal (cron), leads, catalog · later: me, checkout, webhooks, admin/*
   services/             pricing, enrollment, certificates, leads, video (Phase 2+)
   test/               ✓ Vitest global setup + helpers (real MySQL)
 shared/schemas/         Zod schemas shared with the frontend (Phase 2+)
@@ -138,6 +138,8 @@ src/lib/api.ts        ✓ typed fetch client for the frontend (not used by pages
 ```
 
 **No Vercel adapter yet.** Vercel deploys any top-level `api/` folder as functions automatically; with no database configured there, they'd deploy broken. Add it only if a Vercel staging environment with a managed MySQL is set up.
+
+**API data with static fallback:** pages that show API-backed content (so far the training catalog, via `useTrainingTracks()` in `src/lib/catalog.ts`) render the bundled data from `content.ts` immediately and switch to the API response when it arrives. The site therefore works unchanged on static hosting with no API, and reflects admin edits once the API is live.
 
 **Local development:** `npm run dev` (Vite, :5173) proxies `/api` to `npm run dev:api` (:8787), so the browser sees one origin, just like production.
 

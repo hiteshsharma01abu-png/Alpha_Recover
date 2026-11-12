@@ -28,6 +28,7 @@ Requirements: Docker (Docker Desktop or OrbStack) for the local MySQL.
 npm run db:up                 # MySQL 8.4 in Docker on localhost:3307 (creates alpharecover + alpharecover_test)
 cp .env.example .env          # then fill the three secrets: openssl rand -base64 32
 npm run db:migrate            # create tables
+npm run db:seed               # load the training catalog (safe to re-run)
 npm run dev:api               # API on http://localhost:8787 (Vite proxies /api to it)
 curl localhost:5173/api/v1/health
 ```
@@ -48,6 +49,7 @@ Without a `POSTMARK_SERVER_TOKEN`, emails are printed to the API log instead of 
 | `npm run db:up` / `db:down` | Start / stop local MySQL (Docker) |
 | `npm run db:generate` | SQL migration from schema changes |
 | `npm run db:migrate` | Apply migrations to `DATABASE_URL` |
+| `npm run db:seed` | Insert the catalog from `content.ts` (insert-only; never overwrites) |
 
 ## Stack
 
