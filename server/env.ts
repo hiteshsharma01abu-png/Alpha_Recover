@@ -19,6 +19,8 @@ const envSchema = z.object({
   POSTMARK_SERVER_TOKEN: optional,
   EMAIL_FROM: z.string().default('Alpha Recover <info@alpharecover.com>'),
   SENTRY_DSN: optional,
+  /** Cloudflare Turnstile (bot protection on public forms). Optional in development. */
+  TURNSTILE_SECRET_KEY: optional,
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -30,8 +32,11 @@ export function parseEnv(source: Record<string, string | undefined>): Env {
     const problems = result.error.issues.map((i) => `  - ${i.path.join('.')}: ${i.message}`).join('\n');
     throw new Error(`Invalid environment configuration:\n${problems}`);
   }
-  if (result.data.NODE_ENV === 'production' && !result.data.POSTMARK_SERVER_TOKEN) {
-    throw new Error('Invalid environment configuration:\n  - POSTMARK_SERVER_TOKEN: required in production');
+  if (result.data.NODE_ENV === 'production') {
+    const missing = (['POSTMARK_SERVER_TOKEN', 'TURNSTILE_SECRET_KEY'] as const).filter((k) => !result.data[k]);
+    if (missing.length) {
+      throw new Error(`Invalid environment configuration:\n${missing.map((k) => `  - ${k}: required in production`).join('\n')}`);
+    }
   }
   return result.data;
 }

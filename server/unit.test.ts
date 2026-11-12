@@ -4,6 +4,7 @@ import { can, isStaff, PERMISSIONS } from './auth/permissions';
 import { USER_ROLES } from './db/schema';
 import { parseEnv } from './env';
 import { uuidv7 } from './lib/ids';
+import { normalizePhone } from './lib/phone';
 import { backoffMs, MAX_ATTEMPTS } from './notifications/outbox';
 import { templates } from './notifications/templates';
 
@@ -90,5 +91,23 @@ describe('email templates', () => {
     expect(out.html).not.toContain('<script>');
     expect(out.html).toContain('&lt;script&gt;');
     expect(out.text).toContain('https://a.test/v?t=1&u=2');
+  });
+});
+
+describe('normalizePhone', () => {
+  it('normalizes Indian numbers to E.164', () => {
+    expect(normalizePhone('63551 97917')).toBe('+916355197917');
+    expect(normalizePhone('063551-97917')).toBe('+916355197917');
+    expect(normalizePhone('+91 63551 97917')).toBe('+916355197917');
+    expect(normalizePhone('91 6355197917')).toBe('+916355197917');
+  });
+
+  it('keeps international numbers with a + or 00 prefix', () => {
+    expect(normalizePhone('+1 (415) 555-0100')).toBe('+14155550100');
+    expect(normalizePhone('00971 50 123 4567')).toBe('+971501234567');
+  });
+
+  it('rejects things that are not phone numbers', () => {
+    for (const bad of ['', 'abc', '12345', '+1234567890123456789', '555-0100']) expect(normalizePhone(bad)).toBeNull();
   });
 });

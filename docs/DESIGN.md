@@ -67,7 +67,7 @@ Fonts load from Google Fonts at the top of `global.css`. Base body size is 16px,
 | Accent bar | `.why-accent-bar` / `.training-accent-bar` in `src/styles/sections.css` | Short gradient bar above section titles |
 | Sticky stacked cards | `stack-card*` in `components/sections/SolutionsStack.css` | Mobile/tablet sticky-sibling card stack used by three sections |
 | Tabs / filters | Account toggle, TrainingExplorer tracks, Demos filters | `role="tab"`, `aria-selected`, `is-active` class |
-| Success message | `.success` (defined in `src/pages/SimplePages.css`) | Inline confirmation text after a form submit. It's page-scoped today; move it to `global.css` before reusing it on new screens |
+| Form states | `.field-error`, `.form-error`, `.form-success`, `.hp-field` (honeypot), `.turnstile-box` in `global.css`; `.success` (page-scoped in `SimplePages.css`) | Use these for every API-backed form: errors in `--danger`, success in `--ok`. The `<Turnstile>` widget lives in `src/components/ui/Turnstile.tsx`; `submitLead()` / `formErrors()` in `src/lib/leads.ts` |
 | Floating actions | WhatsApp float, scroll-to-top | Bottom corners; keep new floating UI clear of them |
 
 ## 6. Icons

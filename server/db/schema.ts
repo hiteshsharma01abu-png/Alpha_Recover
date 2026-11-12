@@ -173,6 +173,41 @@ export const activityLogs = mysqlTable(
   ],
 );
 
+// ── Leads (Phase 2) ──────────────────────────────────────────────────────────
+
+export const LEAD_STATUSES = ['new', 'contacted', 'qualified', 'converted', 'closed', 'spam'] as const;
+
+export const leads = mysqlTable(
+  'leads',
+  {
+    id: id(),
+    source: mysqlEnum('source', ['contact_form', 'callback', 'whatsapp', 'manual']).notNull(),
+    name: varchar('name', { length: 120 }),
+    email: varchar('email', { length: 254 }),
+    phone: varchar('phone', { length: 20 }),
+    reason: mysqlEnum('reason', ['technical_support', 'software_hardware_sale', 'data_recovery_service', 'training', 'other']),
+    message: text('message'),
+    whatsappConsent: boolean('whatsapp_consent').notNull().default(false),
+    status: mysqlEnum('status', LEAD_STATUSES).notNull().default('new'),
+    assignedTo: char('assigned_to', { length: 36 }).references(() => users.id),
+    userId: char('user_id', { length: 36 }).references(() => users.id),
+    pagePath: varchar('page_path', { length: 255 }),
+    utm: json('utm'),
+    ipHash: char('ip_hash', { length: 64 }),
+    userAgent: text('user_agent'),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+    deletedAt: ts('deleted_at'),
+  },
+  (t) => [
+    index('leads_status_created_idx').on(t.status, t.createdAt),
+    index('leads_assigned_status_idx').on(t.assignedTo, t.status),
+    index('leads_email_idx').on(t.email),
+    index('leads_phone_idx').on(t.phone),
+    index('leads_created_idx').on(t.createdAt),
+  ],
+);
+
 export const rateLimitBuckets = mysqlTable(
   'rate_limit_buckets',
   {

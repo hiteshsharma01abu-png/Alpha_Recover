@@ -10,7 +10,7 @@ export const testDatabaseUrl = () =>
 
 const SECRET = 'test-secret-test-secret-test-secret-1234';
 
-export const testEnv = () =>
+export const testEnv = (overrides: Record<string, string> = {}) =>
   parseEnv({
     NODE_ENV: 'test',
     APP_URL: 'http://localhost:5173',
@@ -19,6 +19,7 @@ export const testEnv = () =>
     CRON_SECRET: SECRET,
     IP_HASH_SALT: SECRET,
     LOG_LEVEL: 'error',
+    ...overrides,
   });
 
 /** Mailer that records messages and can be told to fail. */
@@ -40,8 +41,8 @@ export function recordingMailer() {
 }
 
 /** A full app wired to the test database. Call `close()` in afterAll. */
-export function createTestContext() {
-  const env = testEnv();
+export function createTestContext(envOverrides: Record<string, string> = {}) {
+  const env = testEnv(envOverrides);
   const { db, pool } = createDb(env.DATABASE_URL);
   const auth = createAuth(env, db);
   const mailer = recordingMailer();

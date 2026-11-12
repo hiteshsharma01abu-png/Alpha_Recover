@@ -284,6 +284,7 @@ a.contact-info-card:hover {
 
 .contact-page-form .field {
   display: grid;
+  align-content: start; /* don't stretch inputs when a neighbour shows an error */
   gap: 0.4rem;
 }
 

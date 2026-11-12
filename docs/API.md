@@ -260,7 +260,7 @@ Response: `200 { "ok": true }` quickly (heavy work in the same transaction is fi
 
 | Method | Endpoint | Auth | Purpose |
 |---|---|---|---|
-| POST | `/leads` | public + captcha | Contact form and callback submissions |
+| POST | `/leads` | public + captcha | Contact form and callback submissions. **Implemented (Phase 2)** |
 
 ### `POST /leads`
 Request (contact form):
@@ -269,8 +269,8 @@ Request (contact form):
   "reason": "training", "message": "…", "whatsappConsent": true,
   "pagePath": "/contact", "utm": { "source": "google" }, "captchaToken": "…", "website": "" }
 ```
-Request (callback CTA): `{ "source": "callback", "email": "…", "phone": "…?", "pagePath": "/", "captchaToken": "…" }`
-Validation: `source` ∈ {contact_form, callback}; for `contact_form`, `name`, `email`, `phone`, `message` are required (they're `required` in the UI) and `reason` ∈ the 5 options (UI labels mapped to enum values); for `callback`, at least one of `email` or `phone`; `message` ≤ 5000; `website` is a honeypot and must be empty (if filled, silently accept and mark `spam`).
+Request (callback CTA): `{ "source": "callback", "phone": "+91 98250 12345", "email": "… (optional)", "pagePath": "/", "captchaToken": "…" }`
+Validation: `source` ∈ {contact_form, callback}; for `contact_form`, `name`, `email`, `phone`, `message` are required and `reason` ∈ the 5 values in [`shared/leads.ts`](../shared/leads.ts) (UI labels map to them there); for `callback`, **`phone` is required** and `email` is optional; `phone` is normalized to E.164 (a bare 10-digit number is treated as Indian, `+91`); `email` is lower-cased; `message` ≤ 5000; `website` is a honeypot and must be empty (if filled: stored as `spam`, `201` returned, no emails). Rate limit: 5 per hour per IP. Turnstile is checked when `TURNSTILE_SECRET_KEY` is set (required in production).
 Response `201`: `{ "data": { "ok": true } }` (no ID echoed).
 Side effects: insert `leads`; enqueue `lead_alert` to `lead_notification_emails` and `lead_ack` to the submitter (if email); optional WhatsApp alert to staff.
 Errors: 400, 400 `CAPTCHA_FAILED`, 429.

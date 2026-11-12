@@ -151,7 +151,7 @@ Moved to [ARCHITECTURE.md](ARCHITECTURE.md): backend stack (§2), hosting requir
 2. **Refund policy:** window (e.g. 7 days), partial refunds, and whether a refund revokes access (default: yes).
 3. **Verification before purchase:** require a verified email to buy? (Recommended: yes.)
 4. **Firmware software access** (a sold feature): download link, licence key, or delivered over WhatsApp?
-5. **Callback form:** collect a phone number instead of (or in addition to) email?
+5. ✅ **Answered 2026-11-12: the callback form collects a phone number (required); email is optional.** Original question — **Callback form:** collect a phone number instead of (or in addition to) email?
 6. **Session limit:** 2 concurrent devices acceptable?
 7. **International pricing:** INR only via Razorpay, or add USD via Stripe?
 8. **GST invoices:** timing (GSTIN "Pending").

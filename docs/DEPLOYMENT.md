@@ -31,6 +31,9 @@ Set these in the cPanel Node.js App's environment settings, or in a `chmod 600` 
 | `POSTMARK_SERVER_TOKEN` | required in production (the app refuses to start without it) |
 | `EMAIL_FROM` | a sender on the Postmark-verified domain |
 | `SENTRY_DSN` | optional |
+| `TURNSTILE_SECRET_KEY` | required in production (Cloudflare Turnstile secret for the site) |
+
+**Frontend build variable:** `VITE_TURNSTILE_SITE_KEY` (the public site key) must be set when running `npm run build`, otherwise the forms render without the security check and the API rejects them in production.
 
 ## 3. cPanel (shared hosting with Node.js support)
 

@@ -8,6 +8,7 @@ import { csrfGuard } from './lib/security';
 import { authRoutes } from './routes/auth';
 import { healthRoutes } from './routes/health';
 import { internalRoutes } from './routes/internal';
+import { leadRoutes } from './routes/leads';
 import type { AppEnv, Deps } from './types';
 
 export const API_BASE = '/api/v1';
@@ -32,6 +33,7 @@ export function createApp(deps: Deps) {
   app.route('/', healthRoutes);
   app.route('/', authRoutes);
   app.route('/', internalRoutes);
+  app.route('/', leadRoutes);
 
   app.notFound((c) =>
     c.json({ error: { code: 'NOT_FOUND', message: 'Route not found', details: [], requestId: c.get('requestId') } }, 404),

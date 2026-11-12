@@ -63,10 +63,10 @@ Phase 7 QA & security hardening (continuous, gate before production launch)
 - [x] CI green on GitHub: 28/28 tests on MySQL 8.4 and MariaDB 10.6 (run 43248868357, `Dev` @ 2be5bf6)
 - [ ] Staging deploy (needs a host or managed MySQL; deploy-over-SSH job added when the host is chosen)
 
-### Phase 2 — Public website backend · M–L
+### Phase 2 — Public website backend · M–L · **In progress**
 | Task | API | [FE] work |
 |---|---|---|
-| Leads | `POST /leads` + Turnstile + honeypot + `lead_alert` / `lead_ack` emails | Wire Contact form and callback CTA; add a `name` to the consent checkbox; optional phone field on the callback form |
+| Leads | `POST /leads` + Turnstile + honeypot + `lead_alert` / `lead_ack` emails | Wire Contact form and callback CTA; add a `name` to the consent checkbox; phone field on the callback form (required) |
 | Catalog schema + seed | `courses`, `course_modules`, `lessons` migration; seed from `content.ts` | — |
 | Catalog APIs | `GET /courses`, `GET /courses/:slug` | Training explorer, track pages, header dropdown read from the API (static fallback kept) |
 | Plans & promotions | `plans`, `plan_courses`, `promotions`; `GET /plans/:slug` with server price | Professional Plan section reads price/label; countdown uses `promotion.endsAt` |
@@ -76,6 +76,15 @@ Phase 7 QA & security hardening (continuous, gate before production launch)
 | Public settings | `GET /settings/public` | Footer/contact read settings; fix social links |
 
 **Exit:** all public forms functional in production; leads arrive in the inbox.
+
+**Status**
+- [x] Leads: `leads` table, `POST /leads` (validation, phone normalization, honeypot, Turnstile, 5/hour rate limit), `lead_alert` + `lead_ack` emails via the outbox, recipients from `site_settings.lead_notification_emails` (seeded `info@alpharecover.com`). Contact form + callback form (now with required phone) wired; verified in a real browser
+- [ ] Catalog (courses, modules, lessons + seed)
+- [ ] Plans & promotions (server price, real countdown)
+- [ ] Demo videos
+- [ ] Blog
+- [ ] Certificate verification
+- [ ] Public settings endpoint
 
 ### Phase 3 — Auth & student backend · M
 | Task | API | [FE] work |

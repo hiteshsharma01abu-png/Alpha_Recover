@@ -313,6 +313,8 @@
 
 ## 16. `leads`
 
+> **Implemented (Phase 2).** `lead_notes` (§17) arrives with the admin Leads module.
+
 | Column | Type | Notes |
 |---|---|---|
 | id | char(36) | PK |

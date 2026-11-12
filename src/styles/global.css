@@ -574,3 +574,35 @@ a.demos-view-all:active,
     transform: none;
   }
 }
+/* Form states shared by every API-backed form (contact, callback, account…) */
+.field-error {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.82rem;
+  color: var(--danger);
+}
+
+.form-error {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+  color: var(--danger);
+}
+
+.form-success {
+  margin: 0.25rem 0 0;
+  font-weight: 600;
+  color: var(--ok);
+}
+
+/* Honeypot: invisible to people and screen readers, filled only by bots */
+.hp-field {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.turnstile-box {
+  min-height: 65px;
+}
