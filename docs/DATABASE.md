@@ -57,6 +57,8 @@
 
 ## 1. `users`
 
+> **Implemented (Phase 1)** together with `accounts`, `sessions`, `verifications`, `site_settings`, `notification_jobs`, `activity_logs` and `rate_limit_buckets`. For these tables, [`server/db/schema.ts`](../server/db/schema.ts) is now the source of truth for columns; this doc keeps the rules and relationships. Better Auth fields are mapped to these columns (its `name` → `first_name`).
+
 | Column | Type | Constraints / notes |
 |---|---|---|
 | id | char(36) | PK |
@@ -65,6 +67,7 @@
 | first_name | varchar(80) | not null (register form) |
 | last_name | varchar(80) | null (not in UI yet; for certificates) |
 | certificate_name | varchar(160) | null; full name to print on certificates (falls back to first + last) |
+| image | varchar(500) | null; avatar URL (required column for Better Auth; unused by the UI) |
 | phone | varchar(20) | null; stored E.164 (`+916355197917`) |
 | country | varchar(2) | not null; ISO-3166 alpha-2 (`IN`, `US`, `GB`, `AE`, `ZZ` for "Other") |
 | role | enum `user_role` | not null default `'student'`; `student`, `support`, `content_manager`, `admin`, `super_admin` |
@@ -86,7 +89,7 @@
 | user_id | char(36) | FK → users.id, on delete cascade |
 | provider_id | varchar(32) | `'credential'` (future: `'google'`) |
 | account_id | varchar(255) | provider's account ID (equals user ID for credentials) |
-| password | text | **argon2id hash**; null for OAuth |
+| password | text | **scrypt hash** (Better Auth); null for OAuth |
 | created_at / updated_at | datetime(3) | |
 
 **Indexes:** unique(`provider_id`, `account_id`); (`user_id`).

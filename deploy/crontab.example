@@ -1,0 +1,11 @@
+# Host cron (cPanel → Cron Jobs, or `crontab -e` on a VPS). Replace the domain and secret.
+# Keep CRON_SECRET identical to the API's environment. See docs/DEPLOYMENT.md.
+
+# Every minute: send queued emails
+* * * * * curl -fsS -m 50 -X POST -H "Authorization: Bearer CRON_SECRET_HERE" https://alpharecover.com/api/v1/internal/cron/notifications > /dev/null
+
+# Every 10 minutes: purge expired sessions, tokens and rate-limit buckets
+*/10 * * * * curl -fsS -m 50 -X POST -H "Authorization: Bearer CRON_SECRET_HERE" https://alpharecover.com/api/v1/internal/cron/maintenance > /dev/null
+
+# Nightly 02:30 UTC: database backup (needs shell access; upload to Bunny Storage is added with Phase 2)
+# 30 2 * * * mysqldump --single-transaction --quick alpharecover | gzip > $HOME/backups/alpharecover-$(date +\%F).sql.gz

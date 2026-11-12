@@ -18,7 +18,21 @@ npm run dev
 
 Open http://localhost:5173
 
-No environment variables are needed for the frontend today. Backend setup (MySQL, `.env.example`) will be added here when the backend is built.
+The frontend needs no environment variables.
+
+### Backend API (optional for frontend work)
+
+Requirements: Docker (Docker Desktop or OrbStack) for the local MySQL.
+
+```bash
+npm run db:up                 # MySQL 8.4 in Docker on localhost:3307 (creates alpharecover + alpharecover_test)
+cp .env.example .env          # then fill the three secrets: openssl rand -base64 32
+npm run db:migrate            # create tables
+npm run dev:api               # API on http://localhost:8787 (Vite proxies /api to it)
+curl localhost:5173/api/v1/health
+```
+
+Without a `POSTMARK_SERVER_TOKEN`, emails are printed to the API log instead of being sent.
 
 ## Scripts
 
@@ -28,14 +42,19 @@ No environment variables are needed for the frontend today. Backend setup (MySQL
 | `npm run build` | Typecheck + production build |
 | `npm run preview` | Preview the production build |
 | `npm run lint` | Oxlint |
+| `npm run dev:api` | API server with reload (`server/`) |
+| `npm run build:api` | Production API bundle → `dist-server/` |
+| `npm test` | Unit + MySQL integration tests (DB tests skip if MySQL isn't running) |
+| `npm run db:up` / `db:down` | Start / stop local MySQL (Docker) |
+| `npm run db:generate` | SQL migration from schema changes |
+| `npm run db:migrate` | Apply migrations to `DATABASE_URL` |
 
-## Stack (UI only)
+## Stack
 
-- Vite + React + TypeScript
-- React Router
-- Custom CSS (no UI kit)
+- Frontend: Vite + React + TypeScript, React Router, custom CSS (no UI kit)
+- API (Phase 1 foundation): Node.js + Hono, MySQL + Drizzle, Better Auth. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
-Auth, payments, and the training portal backend are not wired yet. Forms are UI stubs. The backend is planned in [docs/](docs/PLAN.md).
+The pages don't call the API yet: auth, payments, leads and the training portal are still UI stubs. Progress is tracked in [docs/PLAN.md](docs/PLAN.md).
 
 ## Brand
 
@@ -74,4 +93,5 @@ Auth, payments, and the training portal backend are not wired yet. Forms are UI 
 | [docs/API.md](docs/API.md) | API specification (planned) |
 | [docs/SECURITY.md](docs/SECURITY.md) | Authentication, roles & permissions, security |
 | [docs/TESTING.md](docs/TESTING.md) | QA & testing strategy |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | cPanel / VPS deployment, cron, migrations, rollback, troubleshooting |
 | [docs/PLAN.md](docs/PLAN.md) | Implementation roadmap and status |

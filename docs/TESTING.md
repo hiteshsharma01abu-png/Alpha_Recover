@@ -1,6 +1,17 @@
 # Alpha Recover — QA & Testing
 
-**Last reviewed:** 2026-11-12 · **Status:** Proposal (no tests exist yet; the frontend is verified with `npm run build` + `npm run lint`)
+**Last reviewed:** 2026-11-12 · **Status:** Phase 1 suite in place (unit + MySQL integration); later phases add their own.
+
+## Running the tests
+
+```bash
+npm run db:up      # local MySQL in Docker (also creates the alpharecover_test database)
+npm test           # wipes alpharecover_test, applies all migrations, runs every *.test.ts
+```
+
+- Tests live next to the code as `server/**/*.test.ts`; shared helpers are in `server/test/helpers.ts` (`createTestContext()`, `signUp()`, `resetTables()`, a recording mailer).
+- If MySQL isn't reachable locally, DB tests are **skipped with a warning** and unit tests still run. In CI (`CI=true`) an unreachable database **fails** the run instead.
+- CI (`.github/workflows/ci.yml`) runs lint, build, the API bundle and the tests against **MySQL 8.4 and MariaDB 10.6**.
 
 ---
 

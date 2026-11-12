@@ -25,9 +25,13 @@ dist-ssr
 *.sw?
 .vercel
 .env*
+!.env.example
 
 # Claude Code (personal overrides)
 .claude/settings.local.json
 
 # Local Python venv (rembg image tool)
 .venv-rembg/
+
+# API production bundle
+dist-server

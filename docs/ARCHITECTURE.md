@@ -112,20 +112,34 @@ Because every route is eagerly imported, **all CSS ships in one bundle**: class 
 
 **Recommendation:** for a site that takes payments, a small **VPS (≈ ₹500–1,000/month)** is more reliable than shared hosting and has no limits on processes or cron. If shared cPanel is preferred, pick a plan that ticks every row above. **Development and staging don't need the final host:** the API runs locally with Docker MySQL and can be previewed on Vercel with a small managed MySQL until the host is chosen.
 
-## 4. Repository layout (planned, additive only)
+## 4. Repository layout
+
+Phase 1 (built) is marked ✓; the rest arrives with later phases.
 ```
 server/
-  index.ts                 Node entry (@hono/node-server); used by cPanel Passenger / PM2
-  app.ts                   Hono app, middleware (request id, logging, errors, auth, rate limit)
-  routes/                  auth, public, me, checkout, webhooks, internal (cron), admin/*
-  services/                pricing, enrollment, certificates, leads, notifications, video
-  db/schema.ts, db/index.ts, db/migrations/
-  lib/                     razorpay, bunny, postmark, turnstile, ratelimit, logger, errors
-api/[[...route]].ts        Vercel adapter (development/preview only)
-shared/schemas/            Zod schemas shared with the frontend
-deploy/                    .htaccess template, Passenger/PM2 config, Nginx example, cron list
-src/lib/api.ts             (frontend, later) typed fetch client
+  index.ts            ✓ Node entry (@hono/node-server): cPanel Passenger startup file / PM2
+  app.ts              ✓ Hono app: request id, JSON access log, security headers, CSRF guard, error envelope
+  env.ts              ✓ Zod-validated environment (fails fast at boot)
+  types.ts            ✓ Deps injected into every request (env, db, auth, mailer)
+  audit.ts            ✓ logActivity() → activity_logs
+  auth/               ✓ Better Auth config, requireUser / requireStaff, permission matrix
+  db/                 ✓ schema.ts, pool (UTC), migrate.ts, migrations/, docker-init/
+  lib/                ✓ errors, logger, ids (UUIDv7), request/client IP, validate (Zod), ratelimit (MySQL), security
+  notifications/      ✓ mailer (Postmark / dev log), templates, outbox (queue + retries)
+  routes/             ✓ health, auth (session), internal (cron) · later: public, me, checkout, webhooks, admin/*
+  services/             pricing, enrollment, certificates, leads, video (Phase 2+)
+  test/               ✓ Vitest global setup + helpers (real MySQL)
+shared/schemas/         Zod schemas shared with the frontend (Phase 2+)
+scripts/build-api.mjs ✓ esbuild bundle → dist-server/ (all deps bundled: no npm install on the host)
+deploy/               ✓ htaccess.example, nginx.conf.example, crontab.example
+docker-compose.yml    ✓ local MySQL 8.4
+.github/workflows/    ✓ CI: lint, build, tests on MySQL 8.4 + MariaDB 10.6
+src/lib/api.ts        ✓ typed fetch client for the frontend (not used by pages yet)
 ```
+
+**No Vercel adapter yet.** Vercel deploys any top-level `api/` folder as functions automatically; with no database configured there, they'd deploy broken. Add it only if a Vercel staging environment with a managed MySQL is set up.
+
+**Local development:** `npm run dev` (Vite, :5173) proxies `/api` to `npm run dev:api` (:8787), so the browser sees one origin, just like production.
 
 ## 5. Request flow
 ```
