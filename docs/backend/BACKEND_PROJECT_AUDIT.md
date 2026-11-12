@@ -22,7 +22,7 @@
 | Environment config | `.env.local` holds only `VERCEL_OIDC_TOKEN` (written by Vercel CLI). No `VITE_*` vars, no API base URL |
 | Lint / typecheck | `oxlint` (11 pre-existing warnings, 0 errors); `tsc -b` passes |
 | Build | `tsc -b && vite build` → static `dist/` (≈107 KB JS gzip, ≈21 KB CSS gzip) |
-| Deployment | Vercel project `recova`, static SPA with catch-all rewrite to `/index.html` (`vercel.json`). Live: https://recova-sand.vercel.app |
+| Deployment | Vercel project `recova`, static SPA with catch-all rewrite to `/index.html` (`vercel.json`). Live: https://recova-sand.vercel.app. **Temporary:** production hosting is undecided (shared cPanel or VPS likely), so the backend plan is host-portable |
 | Source control | Git, remote `github.com/hiteshsharma01abu-png/Alpha_Recover`, 2 commits |
 | Docs | `README.md`, `CLAUDE.md`. No prior docs folder — this folder (`docs/backend/`) is new |
 | Tests | None |

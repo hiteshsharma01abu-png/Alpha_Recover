@@ -10,7 +10,8 @@
 - **Additive only.** The backend lives in new `api/`, `server/`, `shared/` folders. Existing routes, pages and components keep working at every step. Each frontend form is switched from its stub to the API one at a time.
 - **Ship value early.** Lead capture (money on the table today) and checkout come before the admin polish.
 - **Frontend work is a dependency.** Several backend features need new UI that doesn't exist: lesson player, student dashboard, checkout result pages, reset-password page, admin panel. These are listed per phase as **[FE]** items so the plan is honest about end-to-end delivery.
-- **Every phase ends deployable.** Each phase finishes with a Vercel preview, then production behind env flags.
+- **Every phase ends deployable.** Each phase finishes on a staging environment, then production behind feature flags.
+- **Host-portable.** Production hosting is undecided (shared cPanel or VPS). The API is a plain Node.js app on MySQL that runs on either, and on Vercel during development. See PRD §4.1 for the host checklist.
 
 ## 2. Dependency map
 
@@ -29,22 +30,22 @@ Phase 7 QA & security hardening (continuous, gate before production launch)
 | Task | Owner |
 |---|---|
 | Answer PRD §6 open decisions (certificate criteria, refund policy, callback phone, session limit, international pricing, firmware software delivery, languages) | Business |
-| Create accounts: Neon (via Vercel Marketplace), Razorpay (KYC takes days, so **start first**), Bunny (Stream + Storage), Postmark (verify `alpharecover.com` domain: SPF, DKIM, Return-Path), Upstash, Cloudflare Turnstile, Sentry | Business + dev |
+| Create accounts: Razorpay (KYC takes days, so **start first**), Bunny (Stream + Storage), Postmark (verify `alpharecover.com` domain: SPF, DKIM, Return-Path), Cloudflare Turnstile, Sentry. A small managed MySQL for staging until the production host is chosen | Business + dev |
 | Publish legal pages (Privacy, Terms, Refund/Cancellation, Contact). **Razorpay activation requires them.** [FE + content] | Business |
 | Provide real promotion dates, a final course list, and recorded lesson videos (or a schedule) | Business |
 
-**Exit:** decisions recorded in the PRD; API keys stored in Vercel env (preview + production).
+**Exit:** decisions recorded in the PRD; API keys stored as environment secrets (GitHub Actions + staging host). **Hosting choice can wait until Phase 7**, but sooner is better so staging matches production.
 
 ### Phase 1 — Backend foundation · M
 | Task | Detail |
 |---|---|
-| Project scaffold | `api/[[...route]].ts` → Hono app; `server/` structure; TS path aliases; `vercel.json` rewrite exclusion so `/api/*` isn't sent to `index.html` |
-| Database | Neon connection (pooled), Drizzle config, first migration: `users`, `accounts`, `sessions`, `verifications`, `site_settings`, `activity_logs`, `notification_jobs` |
+| Project scaffold | `server/index.ts` (Node entry, `@hono/node-server`) → Hono app; `server/` structure; esbuild bundle; Vercel adapter `api/[[...route]].ts` for development previews; `deploy/` templates: `.htaccess` (SPA fallback + `/api` exclusion + headers), Passenger/PM2 config, Nginx example, cron list |
+| Database | MySQL connection pool (`mysql2`, UTC time zone), Drizzle config, local Docker MySQL, first migration: `users`, `accounts`, `sessions`, `verifications`, `site_settings`, `activity_logs`, `notification_jobs` |
 | Env config | Zod-validated `env.ts` (fail fast at boot); `.env.example` documented |
-| Common layers | Response envelope, typed `AppError` → error middleware, `requestId`, structured JSON logger, Sentry, Zod validation middleware, rate-limit middleware (Upstash), CORS locked to same origin, security headers |
+| Common layers | Response envelope, typed `AppError` → error middleware, `requestId`, structured JSON logger, Sentry, Zod validation middleware, rate-limit middleware (MySQL `rate_limit_buckets`), CORS locked to same origin, security headers |
 | Auth foundation | Better Auth wired to Drizzle; cookie config; role field; `requireUser` / `requireStaff(permission)` middleware; permission map |
 | Notifications outbox | `enqueue()` + `/internal/cron/notifications` + Postmark client + base email templates |
-| Tooling | Vitest, Supertest-style request tests against Hono, test DB (Neon branch), GitHub Actions: lint → typecheck → test → migrate (preview) |
+| Tooling | Vitest, Supertest-style request tests against Hono, MySQL service container in CI, GitHub Actions: lint → typecheck → test → build → deploy to staging over SSH → migrate |
 | Frontend client | `src/lib/api.ts` typed fetch wrapper (no UI change yet) |
 
 **Exit:** `GET /api/v1/health` live on preview; CI green; migrations reproducible.
@@ -154,6 +155,7 @@ Roughly **10–12 weeks** for backend plus the required new frontend screens. Wi
 | Client-trusted prices | Fraud | Server-side pricing only; amount check on verify |
 | SPA blog has weak SEO | Low organic traffic | Prerender blog/course routes at build (e.g. `vite-plugin-prerender` or a small static export step) in a later iteration |
 | Serverless cold starts / timeouts | Slow first request | Hono + Drizzle are light; keep heavy work (PDF) small; outbox for retries |
+| Shared hosting limits (no Node.js support, low RAM/process caps, cron ≥ 5 min) | API can't run, or degrades during sales | Pick the host with the PRD §4.1 checklist; the app stays portable, so moving to a VPS later means no code changes |
 | Concurrent editing (Cursor + Claude) on the same repo | Lost or overwritten work | Work on feature branches with PRs; one tool per branch |
 | Scope creep into a full marketing CMS | Delay | Keep static copy in `content.ts` (PRD §5) |
 
@@ -161,5 +163,6 @@ Roughly **10–12 weeks** for backend plus the required new frontend screens. Wi
 1. Approve the stack in PRD §4, or flag changes, before Phase 1.
 2. Start Razorpay KYC, Postmark domain verification and legal pages **this week**. They're on the critical path.
 3. Ship **Phase 2 leads first**: smallest effort, immediate business value.
-4. Use feature branches and PRs from here on; enable Vercel preview deployments with Neon branching.
+4. Use feature branches and PRs from here on; deploy every merge to a staging environment first.
 5. Decide the admin UI approach (in-SPA `/admin`, recommended) so frontend work can run in parallel.
+6. **Choose the production host using the PRD §4.1 checklist** (VPS recommended; a shared cPanel plan only if it supports Node.js 20+, SSH and 1-minute cron).

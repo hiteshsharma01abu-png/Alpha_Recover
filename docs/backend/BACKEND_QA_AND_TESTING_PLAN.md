@@ -9,10 +9,10 @@
 | Layer | Tool | Scope | Runs |
 |---|---|---|---|
 | Unit | Vitest | Pure services: pricing, certificate code generation, access rules, permission map, Zod schemas, signature verification | Every commit (CI) |
-| API / integration | Vitest + Hono `app.request()` against a real Postgres (Neon branch or local Docker Postgres) | Every endpoint: happy path, validation, auth, permission, errors | Every PR (CI) |
+| API / integration | Vitest + Hono `app.request()` against a real MySQL 8 (Docker locally, service container in CI; the suite also runs once against MariaDB 10.6 to keep cPanel compatibility) | Every endpoint: happy path, validation, auth, permission, errors | Every PR (CI) |
 | Contract | Shared Zod schemas imported by tests and the frontend | Request/response shapes stay in sync | Every PR |
 | External mocks | MSW / nock for Razorpay, Bunny, Postmark, Turnstile; recorded fixtures of real webhook payloads | Deterministic CI | Every PR |
-| Sandbox E2E | Playwright against a Vercel preview + Razorpay **test mode** + Bunny test library | Critical user journeys | Before each production release |
+| Sandbox E2E | Playwright against staging + Razorpay **test mode** + Bunny test library | Critical user journeys | Before each production release |
 | Frontend integration | Playwright (existing pages wired to the API) | Forms and flows in a real browser, desktop + mobile viewport | Before release |
 | Visual regression | Playwright computed-style / screenshot diff (the same harness used to verify the Home.css split) | Ensures wiring forms doesn't change the UI | When frontend files change |
 | Security | OWASP ZAP baseline scan on preview, `npm audit`, manual auth/RBAC review | Before launch, then monthly | |
@@ -24,10 +24,10 @@
 
 | Env | Database | Payments | Video | Email |
 |---|---|---|---|---|
-| Local | Docker Postgres / Neon dev branch | Razorpay test keys | Bunny test library | Postmark test token (sink) |
-| CI | Ephemeral Neon branch per run (migrations applied from scratch) | Mocked | Mocked | Mocked |
-| Preview (per PR) | Neon branch from production-schema seed (no real PII) | Test mode | Test library | Sandbox |
-| Production | Neon main | Live | Live | Live |
+| Local | Docker MySQL 8 | Razorpay test keys | Bunny test library | Postmark test token (sink) |
+| CI | MySQL service container per run (migrations applied from scratch) | Mocked | Mocked | Mocked |
+| Staging | Managed MySQL until the host is chosen, then a staging DB/subdomain on the production host (seeded, no real PII) | Test mode | Test library | Sandbox |
+| Production | Host MySQL (cPanel or VPS) | Live | Live | Live |
 
 Seed fixtures: 1 super_admin, 1 admin, 1 content_manager, 1 support, 3 students (no enrollment / active enrollment / revoked enrollment), catalog seeded from `content.ts`, 1 plan + active promotion, 6 demo videos, 3 posts, 2 certificates (valid / revoked).
 
@@ -122,7 +122,9 @@ Seed fixtures: 1 super_admin, 1 admin, 1 content_manager, 1 support, 3 students 
 - [ ] CSP and security headers present (securityheaders.com grade A)
 - [ ] ZAP baseline: no High/Medium findings
 - [ ] `npm audit`: no high/critical vulnerabilities
-- [ ] Secrets only in Vercel env; repo scan (gitleaks) clean
+- [ ] Secrets only in host/CI environment settings; repo scan (gitleaks) clean
+- [ ] MySQL not reachable from the internet (Remote MySQL off / firewall)
+- [ ] `.htaccess` (or Nginx) blocks access to dotfiles, `server/`, and source maps
 - [ ] Staff 2FA enforced for admin/super_admin
 
 ## 8. Deployment validation & rollback
@@ -132,7 +134,7 @@ Seed fixtures: 1 super_admin, 1 admin, 1 content_manager, 1 support, 3 students 
 **Migrations:** expand/contract only (add columns/tables first, backfill, switch code, remove later). No destructive migration ships in the same release as the code that stops using the column.
 
 **Release steps:**
-1. Merge PR → Vercel preview already validated (sandbox E2E green).
+1. Merge PR → staging deploy validated (sandbox E2E green).
 2. Apply migrations to production (CI job, manual approval).
 3. Promote the deployment to production.
 4. Smoke test: `/api/v1/health`, `GET /plans/professional`, `GET /courses`, submit a test lead (tagged), test login.
@@ -140,6 +142,6 @@ Seed fixtures: 1 super_admin, 1 admin, 1 content_manager, 1 support, 3 students 
 
 **Feature flags (site_settings):** `checkout_enabled`, `registration_enabled`, `leads_enabled`. These let a single feature be switched off without a redeploy.
 
-**Rollback:** Vercel "Instant Rollback" to the previous deployment (the schema stays backward compatible thanks to expand/contract). For data issues, Neon point-in-time restore into a branch, verify, then switch. Payment-related incidents: disable `checkout_enabled`, then reconcile orders with Razorpay before re-enabling.
+**Rollback:** each deploy goes to a timestamped release folder with a `current` symlink (or a kept previous build on cPanel); rollback = switch back and restart the app. The schema stays backward compatible thanks to expand/contract. For data issues, restore the latest `mysqldump` into a scratch database, verify, then switch. Payment-related incidents: disable `checkout_enabled`, then reconcile orders with Razorpay before re-enabling.
 
 **Launch go/no-go:** every Phase 7 gate item in `BACKEND_IMPLEMENTATION_PLAN.md` checked; a live ₹1 transaction completed and refunded successfully in production.

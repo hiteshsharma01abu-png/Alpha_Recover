@@ -1,16 +1,21 @@
 # Alpha Recover — Backend Database Schema (Proposal)
 
-**Database:** PostgreSQL 16 (Neon) · **ORM:** Drizzle · **Status:** Proposal, nothing created
+**Database:** MySQL 8.0+ (MariaDB 10.6+ compatible subset) · **Engine:** InnoDB, `utf8mb4` · **ORM:** Drizzle (`mysql2`) · **Status:** Proposal, nothing created
+
+> **Why MySQL:** hosting is undecided and cPanel shared hosting is a likely target. MySQL/MariaDB is available on every cPanel host and every VPS; PostgreSQL usually isn't on shared hosting. The design avoids Postgres-only features so it also runs on a VPS or managed MySQL.
 **Date:** 2026-11-12
 
 ## Conventions
 
-- **Primary keys:** `id uuid` (UUIDv7, time-ordered), unless noted.
-- **Timestamps:** `created_at timestamptz not null default now()`, `updated_at timestamptz not null default now()` (updated by the app) on every mutable table.
-- **Soft delete:** `deleted_at timestamptz null` where noted. Default queries filter `deleted_at is null`. Money and audit tables are **never** deleted.
+- **Primary keys:** `id char(36)` holding a UUIDv7 (time-ordered, generated in the app), unless noted.
+- **Timestamps:** `created_at datetime(3) not null default current_timestamp(3)`, `updated_at datetime(3) not null default current_timestamp(3) on update current_timestamp(3)` on every mutable table. **All datetimes are UTC** (connection `time_zone = '+00:00'`); the API returns ISO-8601 with `Z`.
+- **Soft delete:** `deleted_at datetime(3) null` where noted. Default queries filter `deleted_at is null`. Money and audit tables are **never** deleted.
 - **Money:** integer **paise** (`amount_paise integer`), plus `currency char(3)` (default `'INR'`). Never floats.
-- **Emails:** `citext` (case-insensitive unique).
-- **Enums:** Postgres enums, listed per table.
+- **Emails:** `varchar(254)`, normalized to lower case in the app; case-insensitive collation `utf8mb4_0900_ai_ci` (MariaDB: `utf8mb4_unicode_ci`).
+- **JSON:** native `json` columns (arrays such as `tags` and `features` are JSON arrays).
+- **Enums:** MySQL `ENUM` columns, values listed per table.
+- **No partial indexes in MySQL.** Where a uniqueness rule applies to only some rows (e.g. one *active* enrollment), a **stored generated column** that is `NULL` for the other rows carries the unique index (MySQL allows many `NULL`s in a unique index).
+- **Soft delete + unique slugs/emails:** on soft delete the app rewrites the unique value (`slug` → `slug~deleted~<id>`, `email` → `deleted+<id>@invalid`) so a plain unique index still works and the value can be reused.
 - **Naming:** `snake_case` tables (plural) and columns. Foreign keys are `<entity>_id`.
 - **Slugs:** existing frontend IDs are kept as slugs (`logical`, `firmware-basic`, `mrt`, `d1`…), so current URLs like `/training/logical` keep working.
 
@@ -42,6 +47,7 @@
 | 22 | `site_settings` | Key/value public and operational settings | no |
 | 23 | `notification_jobs` | Email/WhatsApp outbox with retries | no |
 | 24 | `activity_logs` | Audit trail of admin and security events | **never** |
+| 25 | `rate_limit_buckets` | Request counters for rate limiting (replaces Redis, so no extra service is needed on any host) | no (expire) |
 
 **Deliberately not created** (no UI or flow needs them yet): `coupons` (no coupon field; extension point described in §Future), `learning_materials` (no UI; see §Future), in-app `notifications` (no notification UI), a separate `students` table (a role on `users` is enough), and a separate `admin_users` table (same reason).
 
@@ -51,8 +57,8 @@
 
 | Column | Type | Constraints / notes |
 |---|---|---|
-| id | uuid | PK |
-| email | citext | not null, **unique** |
+| id | char(36) | PK |
+| email | varchar(254) | not null, **unique** |
 | email_verified | boolean | not null default false |
 | first_name | varchar(80) | not null (register form) |
 | last_name | varchar(80) | null (not in UI yet; for certificates) |
@@ -61,12 +67,12 @@
 | country | varchar(2) | not null; ISO-3166 alpha-2 (`IN`, `US`, `GB`, `AE`, `ZZ` for "Other") |
 | role | enum `user_role` | not null default `'student'`; `student`, `support`, `content_manager`, `admin`, `super_admin` |
 | status | enum `user_status` | not null default `'active'`; `active`, `suspended` |
-| terms_accepted_at | timestamptz | not null (register requires the terms checkbox) |
-| whatsapp_opt_in_at | timestamptz | null (consent timestamp) |
-| last_login_at | timestamptz | null |
-| created_at / updated_at / deleted_at | timestamptz | |
+| terms_accepted_at | datetime(3) | not null (register requires the terms checkbox) |
+| whatsapp_opt_in_at | datetime(3) | null (consent timestamp) |
+| last_login_at | datetime(3) | null |
+| created_at / updated_at / deleted_at | datetime(3) | |
 
-**Indexes:** unique(`email`) where `deleted_at is null`; (`role`) where `role <> 'student'`; (`created_at`).
+**Indexes:** unique(`email`) (soft delete rewrites the email, see Conventions); (`role`); (`created_at`).
 **Validation:** valid email ≤ 254 chars; first_name 1–80 chars after trim; phone matches E.164 if present; country in allowed list.
 **Relationships:** 1–N `sessions`, `accounts`, `enrollments`, `orders`, `lesson_progress`, `certificates`; staff 1–N `leads.assigned_to`, `activity_logs.actor_id`.
 
@@ -74,12 +80,12 @@
 
 | Column | Type | Notes |
 |---|---|---|
-| id | uuid | PK |
-| user_id | uuid | FK → users.id, on delete cascade |
+| id | char(36) | PK |
+| user_id | char(36) | FK → users.id, on delete cascade |
 | provider_id | varchar(32) | `'credential'` (future: `'google'`) |
 | account_id | varchar(255) | provider's account ID (equals user ID for credentials) |
 | password | text | **argon2id hash**; null for OAuth |
-| created_at / updated_at | timestamptz | |
+| created_at / updated_at | datetime(3) | |
 
 **Indexes:** unique(`provider_id`, `account_id`); (`user_id`).
 
@@ -87,13 +93,13 @@
 
 | Column | Type | Notes |
 |---|---|---|
-| id | uuid | PK |
-| user_id | uuid | FK → users.id, on delete cascade |
+| id | char(36) | PK |
+| user_id | char(36) | FK → users.id, on delete cascade |
 | token | varchar(255) | **unique**; random. Only a hash is stored when the library supports it |
-| expires_at | timestamptz | not null (12h, or 30d with "remember me") |
-| ip_address | inet | null |
+| expires_at | datetime(3) | not null (12h, or 30d with "remember me") |
+| ip_address | varchar(45) | null |
 | user_agent | text | null |
-| created_at / updated_at | timestamptz | |
+| created_at / updated_at | datetime(3) | |
 
 **Indexes:** unique(`token`); (`user_id`, `created_at`) for the session-limit eviction query; (`expires_at`) for cleanup.
 **Rule:** on login, if a student has ≥ `max_student_sessions` (setting, default 2) live sessions, delete the oldest.
@@ -102,11 +108,11 @@
 
 | Column | Type | Notes |
 |---|---|---|
-| id | uuid | PK |
+| id | char(36) | PK |
 | identifier | varchar(255) | e.g. `email-verify:<email>`, `reset:<email>` |
 | value | varchar(255) | token (hashed) |
-| expires_at | timestamptz | verify 24h, reset 1h |
-| created_at / updated_at | timestamptz | |
+| expires_at | datetime(3) | verify 24h, reset 1h |
+| created_at / updated_at | datetime(3) | |
 
 **Indexes:** (`identifier`); (`expires_at`).
 
@@ -114,27 +120,27 @@
 
 | Column | Type | Constraints / notes |
 |---|---|---|
-| id | uuid | PK |
+| id | char(36) | PK |
 | slug | varchar(64) | **unique**; `logical`, `electrical`, `mechanical`, `firmware-basic`, `mrt`, `media`, `electronics`, `basics`, `bitlocker` |
 | title | varchar(160) | not null |
 | summary | text | not null |
 | image_url | text | null (currently `trainingTrackImages`) |
 | sort_order | integer | not null default 0 |
 | status | enum `publish_status` | `draft`, `published`, `archived`; default `draft` |
-| created_at / updated_at / deleted_at | timestamptz | |
+| created_at / updated_at / deleted_at | datetime(3) | |
 
-**Indexes:** unique(`slug`) where `deleted_at is null`; (`status`, `sort_order`).
+**Indexes:** unique(`slug`) (soft delete rewrites the slug); (`status`, `sort_order`).
 
 ## 6. `course_modules`
 
 | Column | Type | Notes |
 |---|---|---|
-| id | uuid | PK |
-| course_id | uuid | FK → courses.id, on delete restrict |
+| id | char(36) | PK |
+| course_id | char(36) | FK → courses.id, on delete restrict |
 | slug | varchar(64) | e.g. `logical-core`, `expert`; unique per course |
 | title | varchar(160) | not null |
 | sort_order | integer | not null default 0 |
-| created_at / updated_at / deleted_at | timestamptz | |
+| created_at / updated_at / deleted_at | datetime(3) | |
 
 **Indexes:** unique(`course_id`, `slug`); (`course_id`, `sort_order`).
 
@@ -142,8 +148,8 @@
 
 | Column | Type | Notes |
 |---|---|---|
-| id | uuid | PK |
-| module_id | uuid | FK → course_modules.id, on delete restrict |
+| id | char(36) | PK |
+| module_id | char(36) | FK → course_modules.id, on delete restrict |
 | slug | varchar(64) | existing IDs (`l1`, `e1`…); unique per module |
 | title | varchar(200) | not null |
 | description | text | null |
@@ -153,7 +159,7 @@
 | is_preview | boolean | not null default false; playable without enrollment |
 | sort_order | integer | not null default 0 |
 | status | enum `publish_status` | default `draft` |
-| created_at / updated_at / deleted_at | timestamptz | |
+| created_at / updated_at / deleted_at | datetime(3) | |
 
 **Indexes:** unique(`module_id`, `slug`); (`module_id`, `sort_order`); (`status`).
 **Validation:** a lesson can be `published` only if `video_id` is set.
@@ -162,12 +168,12 @@
 
 | Column | Type | Notes |
 |---|---|---|
-| user_id | uuid | FK → users.id, cascade |
-| lesson_id | uuid | FK → lessons.id, cascade |
+| user_id | char(36) | FK → users.id, cascade |
+| lesson_id | char(36) | FK → lessons.id, cascade |
 | position_seconds | integer | not null default 0 (resume point) |
 | watched_seconds | integer | not null default 0 (monotonic max) |
-| completed_at | timestamptz | null; set when watched ≥ 90% of duration or marked complete |
-| updated_at | timestamptz | |
+| completed_at | datetime(3) | null; set when watched ≥ 90% of duration or marked complete |
+| updated_at | datetime(3) | |
 
 **PK:** (`user_id`, `lesson_id`). **Indexes:** (`user_id`, `updated_at desc`) for "continue learning".
 
@@ -175,20 +181,20 @@
 
 | Column | Type | Notes |
 |---|---|---|
-| id | uuid | PK |
+| id | char(36) | PK |
 | slug | varchar(64) | **unique**; `professional` |
 | name | varchar(120) | "Professional Plan" |
 | description | text | null |
 | price_paise | integer | not null, > 0 (base price; ₹5,999 = 599900) |
 | compare_at_paise | integer | null (strike-through "was" price when no promotion is active) |
 | currency | char(3) | default `'INR'` |
-| features | jsonb | ordered string array (the 17 features) |
-| mobile_feature_order | jsonb | null; index list for the mobile preview (currently `pricingMobileFeatureIndexes`) |
+| features | json | ordered string array (the 17 features) |
+| mobile_feature_order | json | null; index list for the mobile preview (currently `pricingMobileFeatureIndexes`) |
 | grants_all_courses | boolean | not null default true ("All upcoming course access") |
 | access_days | integer | null = lifetime |
 | status | enum `publish_status` | |
 | sort_order | integer | |
-| created_at / updated_at / deleted_at | timestamptz | |
+| created_at / updated_at / deleted_at | datetime(3) | |
 
 **Indexes:** unique(`slug`); (`status`, `sort_order`).
 
@@ -196,8 +202,8 @@
 
 | Column | Type | Notes |
 |---|---|---|
-| plan_id | uuid | FK → plans.id, cascade |
-| course_id | uuid | FK → courses.id, cascade |
+| plan_id | char(36) | FK → plans.id, cascade |
+| course_id | char(36) | FK → courses.id, cascade |
 
 **PK:** (`plan_id`, `course_id`). Used only when `plans.grants_all_courses = false`.
 
@@ -205,41 +211,41 @@
 
 | Column | Type | Notes |
 |---|---|---|
-| id | uuid | PK |
-| plan_id | uuid | FK → plans.id |
+| id | char(36) | PK |
+| plan_id | char(36) | FK → plans.id |
 | label | varchar(120) | "Festival Sale – Up to 60% Off" |
 | sale_price_paise | integer | not null, > 0, < plan price |
-| starts_at | timestamptz | not null |
-| ends_at | timestamptz | not null, > starts_at (countdown target) |
+| starts_at | datetime(3) | not null |
+| ends_at | datetime(3) | not null, > starts_at (countdown target) |
 | is_active | boolean | not null default true (kill switch) |
-| created_by | uuid | FK → users.id |
-| created_at / updated_at / deleted_at | timestamptz | |
+| created_by | char(36) | FK → users.id |
+| created_at / updated_at / deleted_at | datetime(3) | |
 
-**Indexes:** (`plan_id`, `starts_at`, `ends_at`) where `is_active and deleted_at is null`.
-**Rule:** at most one active promotion per plan at any instant. Enforce with an exclusion constraint on `tstzrange(starts_at, ends_at)` per `plan_id` (needs `btree_gist`), or validate in the service.
+**Indexes:** (`plan_id`, `is_active`, `starts_at`, `ends_at`).
+**Rule:** at most one active promotion per plan at any instant. Enforced in the service: inside a transaction, lock the plan row (`SELECT … FROM plans WHERE id = ? FOR UPDATE`), then reject (422) if any active, non-deleted promotion overlaps `[starts_at, ends_at)`.
 
 ## 12. `orders`
 
 | Column | Type | Notes |
 |---|---|---|
-| id | uuid | PK |
+| id | char(36) | PK |
 | order_number | varchar(24) | **unique**, human-readable `AR-ORD-2026-000123` |
-| user_id | uuid | FK → users.id, restrict |
-| plan_id | uuid | FK → plans.id, restrict |
-| promotion_id | uuid | FK → promotions.id, null |
+| user_id | char(36) | FK → users.id, restrict |
+| plan_id | char(36) | FK → plans.id, restrict |
+| promotion_id | char(36) | FK → promotions.id, null |
 | amount_paise | integer | not null; **server-computed** at creation |
 | currency | char(3) | `'INR'` |
 | status | enum `order_status` | `created`, `paid`, `failed`, `cancelled`, `refunded`, `partially_refunded` |
 | provider | enum `payment_provider` | `razorpay` |
 | provider_order_id | varchar(64) | **unique**; Razorpay `order_…` |
 | billing_name | varchar(160) | snapshot |
-| billing_email | citext | snapshot |
+| billing_email | varchar(254) | snapshot |
 | billing_phone | varchar(20) | null |
 | billing_country | varchar(2) | |
 | gstin | varchar(15) | null (B2B buyer GST) |
-| paid_at | timestamptz | null |
-| expires_at | timestamptz | created + 30 min; stale `created` orders become `cancelled` |
-| created_at / updated_at | timestamptz | |
+| paid_at | datetime(3) | null |
+| expires_at | datetime(3) | created + 30 min; stale `created` orders become `cancelled` |
+| created_at / updated_at | datetime(3) | |
 
 **Indexes:** unique(`order_number`), unique(`provider_order_id`), (`user_id`, `created_at desc`), (`status`, `created_at`).
 **Rule:** one open (`created`, unexpired) order per user per plan. A repeat checkout reuses it. A user with an active enrollment for the plan can't create an order (409).
@@ -248,18 +254,18 @@
 
 | Column | Type | Notes |
 |---|---|---|
-| id | uuid | PK |
-| order_id | uuid | FK → orders.id, restrict |
+| id | char(36) | PK |
+| order_id | char(36) | FK → orders.id, restrict |
 | provider_payment_id | varchar(64) | **unique**; Razorpay `pay_…` |
 | amount_paise | integer | not null |
 | status | enum `payment_status` | `authorized`, `captured`, `failed`, `refunded`, `partially_refunded` |
 | method | varchar(32) | `upi`, `card`, `netbanking`, `wallet`… |
 | refunded_paise | integer | not null default 0 |
-| refunded_at | timestamptz | null |
+| refunded_at | datetime(3) | null |
 | error_code / error_description | varchar(64) / text | null |
-| raw | jsonb | last gateway payload (no card data is ever sent by Razorpay) |
-| captured_at | timestamptz | null |
-| created_at / updated_at | timestamptz | |
+| raw | json | last gateway payload (no card data is ever sent by Razorpay) |
+| captured_at | datetime(3) | null |
+| created_at / updated_at | datetime(3) | |
 
 **Indexes:** unique(`provider_payment_id`), (`order_id`).
 
@@ -267,16 +273,16 @@
 
 | Column | Type | Notes |
 |---|---|---|
-| id | uuid | PK |
+| id | char(36) | PK |
 | provider | enum `payment_provider` | |
 | event_id | varchar(128) | **unique** (`x-razorpay-event-id` header): idempotency key |
 | event_type | varchar(64) | `payment.captured`, `order.paid`, `payment.failed`, `refund.processed` |
-| payload | jsonb | full body |
+| payload | json | full body |
 | signature_valid | boolean | not null |
-| processed_at | timestamptz | null |
+| processed_at | datetime(3) | null |
 | status | enum `webhook_status` | `received`, `processed`, `ignored`, `failed` |
 | error | text | null |
-| created_at | timestamptz | |
+| created_at | datetime(3) | |
 
 **Indexes:** unique(`provider`, `event_id`), (`status`, `created_at`).
 
@@ -284,41 +290,42 @@
 
 | Column | Type | Notes |
 |---|---|---|
-| id | uuid | PK |
-| user_id | uuid | FK → users.id, restrict |
-| plan_id | uuid | FK → plans.id, restrict |
-| order_id | uuid | FK → orders.id, null (null for manual grants) |
+| id | char(36) | PK |
+| user_id | char(36) | FK → users.id, restrict |
+| plan_id | char(36) | FK → plans.id, restrict |
+| order_id | char(36) | FK → orders.id, null (null for manual grants) |
 | source | enum `enrollment_source` | `purchase`, `manual`, `complimentary` |
 | status | enum `enrollment_status` | `active`, `revoked`, `expired` |
-| starts_at | timestamptz | not null |
-| expires_at | timestamptz | null = lifetime |
-| revoked_at / revoked_reason | timestamptz / text | null |
-| granted_by | uuid | FK → users.id, null (admin for manual grants) |
-| created_at / updated_at | timestamptz | |
+| starts_at | datetime(3) | not null |
+| expires_at | datetime(3) | null = lifetime |
+| revoked_at / revoked_reason | datetime(3) / text | null |
+| granted_by | char(36) | FK → users.id, null (admin for manual grants) |
+| created_at / updated_at | datetime(3) | |
 
-**Indexes:** unique(`order_id`) where not null (**idempotent activation**); unique(`user_id`, `plan_id`) where `status = 'active'`; (`user_id`, `status`).
+**Generated column:** `active_key varchar(73) as (if(status = 'active', concat(user_id, ':', plan_id), null)) stored`.
+**Indexes:** unique(`order_id`) (NULLs allowed for manual grants; **idempotent activation**); unique(`active_key`) (one active enrollment per user + plan); (`user_id`, `status`).
 **Access rule:** a user can access course C if an `active`, unexpired enrollment exists for a plan with `grants_all_courses` or a `plan_courses` row for C.
 
 ## 16. `leads`
 
 | Column | Type | Notes |
 |---|---|---|
-| id | uuid | PK |
+| id | char(36) | PK |
 | source | enum `lead_source` | `contact_form`, `callback`, `whatsapp`, `manual` |
 | name | varchar(120) | null for callback (email only today) |
-| email | citext | null if phone given (at least one required) |
+| email | varchar(254) | null if phone given (at least one required) |
 | phone | varchar(20) | null |
 | reason | enum `lead_reason` | `technical_support`, `software_hardware_sale`, `data_recovery_service`, `training`, `other` (exactly the contact form options) |
 | message | text | null; ≤ 5000 chars |
 | whatsapp_consent | boolean | not null default false |
 | status | enum `lead_status` | `new`, `contacted`, `qualified`, `converted`, `closed`, `spam`; default `new` |
-| assigned_to | uuid | FK → users.id (staff), null |
-| user_id | uuid | FK → users.id, null (if submitted while logged in or matched later) |
+| assigned_to | char(36) | FK → users.id (staff), null |
+| user_id | char(36) | FK → users.id, null (if submitted while logged in or matched later) |
 | page_path | varchar(255) | where it was submitted |
-| utm | jsonb | null (`source`, `medium`, `campaign`, …) |
+| utm | json | null (`source`, `medium`, `campaign`, …) |
 | ip_hash | char(64) | SHA-256 of IP + secret salt (abuse control without storing raw IP) |
 | user_agent | text | null |
-| created_at / updated_at / deleted_at | timestamptz | |
+| created_at / updated_at / deleted_at | datetime(3) | |
 
 **Indexes:** (`status`, `created_at desc`), (`assigned_to`, `status`), (`email`), (`phone`), (`created_at`).
 
@@ -326,13 +333,13 @@
 
 | Column | Type | Notes |
 |---|---|---|
-| id | uuid | PK |
-| lead_id | uuid | FK → leads.id, cascade |
-| author_id | uuid | FK → users.id |
+| id | char(36) | PK |
+| lead_id | char(36) | FK → leads.id, cascade |
+| author_id | char(36) | FK → users.id |
 | type | enum `lead_note_type` | `note`, `status_change`, `call`, `email`, `whatsapp` |
 | body | text | |
 | from_status / to_status | `lead_status` | null unless `status_change` |
-| created_at | timestamptz | |
+| created_at | datetime(3) | |
 
 **Indexes:** (`lead_id`, `created_at`).
 
@@ -340,13 +347,13 @@
 
 | Column | Type | Notes |
 |---|---|---|
-| id | uuid | PK |
+| id | char(36) | PK |
 | slug | varchar(64) | **unique** (`d1`…) |
 | title | varchar(200) | not null |
 | tag | varchar(40) | display label ("Native Solution", "Logical") |
 | category | enum `demo_category` | `logical`, `electrical`, `mechanical`, `firmware` |
 | description | text | |
-| tags | text[] | search chips |
+| tags | json | search chips |
 | level | enum `skill_level` | `beginner`, `intermediate`, `advanced` |
 | duration_seconds | integer | not null |
 | video_provider | enum `video_provider` | `bunny` or `youtube` |
@@ -355,29 +362,30 @@
 | view_count | integer | not null default 0 |
 | is_featured | boolean | not null default false; at most one (partial unique index) |
 | status | enum `publish_status` | |
-| published_at | timestamptz | drives the "2 months ago" display |
+| published_at | datetime(3) | drives the "2 months ago" display |
 | sort_order | integer | |
-| created_at / updated_at / deleted_at | timestamptz | |
+| created_at / updated_at / deleted_at | datetime(3) | |
 
-**Indexes:** unique(`slug`); unique(`is_featured`) where `is_featured and deleted_at is null`; (`status`, `category`, `published_at desc`); GIN full-text on `to_tsvector('simple', title || ' ' || tag || ' ' || array_to_string(tags,' '))`.
+**Generated columns:** `featured_key tinyint as (if(is_featured and deleted_at is null, 1, null)) stored`; `tags_text varchar(500) as (json_unquote(tags)) stored` (search text).
+**Indexes:** unique(`slug`); unique(`featured_key`) (at most one featured video); (`status`, `category`, `published_at`); `FULLTEXT(title, tag, tags_text)` for search (with a `LIKE` fallback for very short terms; the catalog is small).
 
 ## 19. `certificates`
 
 | Column | Type | Notes |
 |---|---|---|
-| id | uuid | PK |
+| id | char(36) | PK |
 | code | varchar(20) | **unique**, `AR-2026-00421` |
-| user_id | uuid | FK → users.id, restrict |
-| plan_id | uuid | FK → plans.id, null |
-| course_id | uuid | FK → courses.id, null (per-course certificates, if chosen) |
+| user_id | char(36) | FK → users.id, restrict |
+| plan_id | char(36) | FK → plans.id, null |
+| course_id | char(36) | FK → courses.id, null (per-course certificates, if chosen) |
 | recipient_name | varchar(160) | snapshot at issue (immutable) |
 | program_title | varchar(200) | snapshot ("Professional Data Recovery Training") |
-| issued_at | timestamptz | not null |
+| issued_at | datetime(3) | not null |
 | status | enum `certificate_status` | `valid`, `revoked` |
-| revoked_at / revoked_reason | timestamptz / text | null |
+| revoked_at / revoked_reason | datetime(3) / text | null |
 | pdf_storage_key | text | null until generated |
-| issued_by | uuid | FK → users.id, null (null = automatic) |
-| created_at / updated_at | timestamptz | |
+| issued_by | char(36) | FK → users.id, null (null = automatic) |
+| created_at / updated_at | datetime(3) | |
 
 **Indexes:** unique(`code`), (`user_id`).
 **Validation:** `code` matches `^AR-\d{4}-\d{5}$`; plan_id and course_id are not both null.
@@ -389,35 +397,36 @@
 | year | integer | PK |
 | last_value | integer | not null default 0 |
 
-Incremented with `UPDATE … SET last_value = last_value + 1 RETURNING last_value` inside the issuing transaction, giving gap-free per-year numbering.
+Incremented inside the issuing transaction with
+`INSERT INTO certificate_sequences (year, last_value) VALUES (?, LAST_INSERT_ID(1)) ON DUPLICATE KEY UPDATE last_value = LAST_INSERT_ID(last_value + 1);` then `SELECT LAST_INSERT_ID();` (row-locked, so it's gap-free and safe under concurrency; works on MySQL and MariaDB).
 
 ## 21. `blog_posts`
 
 | Column | Type | Notes |
 |---|---|---|
-| id | uuid | PK |
+| id | char(36) | PK |
 | slug | varchar(120) | **unique** |
 | title | varchar(200) | |
 | excerpt | varchar(400) | |
 | body_markdown | text | rendered and sanitized on the client or server |
 | cover_image_url | text | null |
 | seo_title / seo_description | varchar(70) / varchar(160) | null |
-| author_id | uuid | FK → users.id |
+| author_id | char(36) | FK → users.id |
 | status | enum `publish_status` | |
-| published_at | timestamptz | null until published |
-| created_at / updated_at / deleted_at | timestamptz | |
+| published_at | datetime(3) | null until published |
+| created_at / updated_at / deleted_at | datetime(3) | |
 
-**Indexes:** unique(`slug`) where `deleted_at is null`; (`status`, `published_at desc`).
+**Indexes:** unique(`slug`) (soft delete rewrites the slug); (`status`, `published_at`).
 
 ## 22. `site_settings`
 
 | Column | Type | Notes |
 |---|---|---|
 | key | varchar(64) | PK |
-| value | jsonb | not null |
+| value | json | not null |
 | is_public | boolean | not null default false |
-| updated_by | uuid | FK → users.id |
-| updated_at | timestamptz | |
+| updated_by | char(36) | FK → users.id |
+| updated_at | datetime(3) | |
 
 **Seed keys:** `company` (public: name, email, phone, whatsapp, address, hours, replyNote, visitNote), `social_links` (public), `max_student_sessions` (2), `certificate_criteria` (`{ "type": "all_lessons_completed" }`), `refund_revokes_access` (true), `lead_notification_emails` (array), `require_verified_email_for_purchase` (true).
 Values are validated per key with Zod.
@@ -426,17 +435,17 @@ Values are validated per key with Zod.
 
 | Column | Type | Notes |
 |---|---|---|
-| id | uuid | PK |
+| id | char(36) | PK |
 | channel | enum `notification_channel` | `email`, `whatsapp` |
 | template | varchar(64) | `verify_email`, `password_reset`, `order_receipt`, `enrollment_welcome`, `lead_ack`, `lead_alert`, `certificate_issued`, `refund_processed` |
 | to_address | varchar(254) | email or E.164 phone |
-| payload | jsonb | template variables |
+| payload | json | template variables |
 | status | enum `job_status` | `pending`, `sending`, `sent`, `failed`, `dead` |
 | attempts | smallint | default 0; max 5, exponential backoff |
-| next_attempt_at | timestamptz | |
+| next_attempt_at | datetime(3) | |
 | provider_message_id | varchar(128) | null |
 | last_error | text | null |
-| created_at / updated_at / sent_at | timestamptz | |
+| created_at / updated_at / sent_at | datetime(3) | |
 
 **Indexes:** (`status`, `next_attempt_at`); (`template`, `created_at`).
 
@@ -444,18 +453,30 @@ Values are validated per key with Zod.
 
 | Column | Type | Notes |
 |---|---|---|
-| id | bigint | PK (identity) |
-| actor_id | uuid | FK → users.id, null (system/webhook) |
+| id | bigint unsigned | PK (AUTO_INCREMENT) |
+| actor_id | char(36) | FK → users.id, null (system/webhook) |
 | actor_role | `user_role` | snapshot |
 | action | varchar(64) | `enrollment.grant`, `order.refund`, `certificate.revoke`, `user.suspend`, `auth.login_failed`, `settings.update`… |
 | entity_type | varchar(32) | |
 | entity_id | varchar(64) | |
-| metadata | jsonb | before/after diff (no secrets, no password hashes) |
+| metadata | json | before/after diff (no secrets, no password hashes) |
 | ip_hash | char(64) | |
 | request_id | varchar(40) | |
-| created_at | timestamptz | |
+| created_at | datetime(3) | |
 
-**Indexes:** (`entity_type`, `entity_id`, `created_at desc`), (`actor_id`, `created_at desc`), (`action`, `created_at desc`). Append-only (no UPDATE/DELETE grants for the app role).
+**Indexes:** (`entity_type`, `entity_id`, `created_at desc`), (`actor_id`, `created_at desc`), (`action`, `created_at desc`). Append-only: the app's repository layer exposes insert/select only. On a VPS, also revoke UPDATE/DELETE on this table from the app's DB user (cPanel only grants privileges per database, so there it's app-enforced).
+
+## 25. `rate_limit_buckets`
+
+| Column | Type | Notes |
+|---|---|---|
+| bucket_key | varchar(191) | PK, e.g. `login:<ipHash>:<emailHash>`, `leads:<ipHash>` |
+| window_start | datetime(3) | start of the fixed window |
+| hits | int unsigned | |
+| expires_at | datetime(3) | |
+
+Updated atomically with `INSERT … ON DUPLICATE KEY UPDATE hits = IF(window_start < ?, 1, hits + 1), window_start = …`. Expired rows are deleted by the maintenance cron. **Indexes:** (`expires_at`).
+If traffic outgrows this (thousands of requests a second), swap in Redis behind the same `rateLimit()` interface.
 
 ---
 
@@ -472,7 +493,7 @@ users ─┬─< sessions / accounts
        ├─< blog_posts (author)
        └─< activity_logs (actor)
 plans ──< promotions          orders >── promotions
-demo_videos, site_settings, notification_jobs, payment_webhook_events, certificate_sequences (standalone)
+demo_videos, site_settings, notification_jobs, payment_webhook_events, certificate_sequences, rate_limit_buckets (standalone)
 ```
 
 ## Seed / migration-from-static plan

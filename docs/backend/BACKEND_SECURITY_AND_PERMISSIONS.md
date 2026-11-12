@@ -8,7 +8,7 @@
 
 | Control | Requirement |
 |---|---|
-| Library | Better Auth on our own Postgres (no hand-rolled crypto) |
+| Library | Better Auth on our own MySQL (no hand-rolled crypto) |
 | Password hashing | argon2id (memory ≥ 19 MiB, iterations ≥ 2), per-hash salt |
 | Password policy | 8–128 chars; reject the top breached passwords; no composition rules (NIST 800-63B) |
 | Session | Opaque random token in cookie `ar_session`: `HttpOnly; Secure; SameSite=Lax; Path=/`. Stored server-side (`sessions`) so it's revocable |
@@ -83,7 +83,7 @@ Implementation: a `permissions.ts` map `role → Set<permission>`; middleware `r
 | CORS | Same origin only (SPA and API on one domain); no wildcard |
 | XSS | React escapes by default; blog Markdown rendered without raw HTML (sanitized); CSP header (below) |
 | Security headers | `Content-Security-Policy` (self, Razorpay checkout, Bunny iframe/CDN, Turnstile, Google Fonts), `Strict-Transport-Security`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`, `frame-ancestors 'none'`. Set in `vercel.json` for static files and in middleware for the API |
-| Rate limiting | Upstash sliding window (limits in API spec §0); 429 + `Retry-After` |
+| Rate limiting | MySQL-backed fixed-window counters (`rate_limit_buckets`, limits in API spec §0); 429 + `Retry-After`. Client IP taken only from the trusted proxy header configured for the host |
 | Bot protection | Turnstile on register, forgot password, leads; honeypot field on leads |
 | Mass assignment | Admin update schemas whitelist fields; `role` changes only via a dedicated endpoint |
 | File uploads | Direct-to-Bunny signed uploads; MIME and size whitelist (images ≤ 5 MB; video via Bunny TUS); random keys; never served from our origin |
@@ -117,8 +117,8 @@ Implementation: a `permissions.ts` map `role → Set<permission>`; middleware `r
 | Consent | `leads.whatsapp_consent`, `users.whatsapp_opt_in_at`, `users.terms_accepted_at` recorded with timestamps |
 | Retention | Spam leads purged after 90 days; expired sessions/tokens purged daily; financial records kept ≥ 8 years (Indian tax rules) |
 | User rights | Export and delete-account request handled by admin (soft delete + anonymize PII, keep orders for accounting) — aligned with India's DPDP Act 2023 |
-| Secrets | Vercel encrypted env vars per environment; never in the repo (`.env*` is already gitignored); rotate on staff exit |
-| Encryption | TLS everywhere; Neon encrypts at rest |
+| Secrets | Environment variables per environment (cPanel Node.js App env settings or a VPS `.env` readable only by the app user, `chmod 600`; GitHub Actions secrets for deploys); never in the repo (`.env*` is already gitignored); rotate on staff exit |
+| Encryption | TLS everywhere (AutoSSL / Let's Encrypt), HSTS; MySQL accessible only from localhost (Remote MySQL disabled on cPanel; firewall on a VPS); disk encryption depends on the host |
 
 ## 7. Logging, monitoring, incident response
 
@@ -126,18 +126,18 @@ Implementation: a `permissions.ts` map `role → Set<permission>`; middleware `r
 - Sentry for API + frontend errors; alerts on: error-rate spike, webhook signature failures, payment `amount mismatch`, notification jobs reaching `dead`.
 - `activity_logs` for security events: login failures, password resets, role changes, suspensions, refunds, enrollment grants/revokes, certificate revocations, settings changes.
 - Uptime check on `/api/v1/health` (DB ping).
-- Incident runbook: rotate secrets, revoke all sessions (`DELETE FROM sessions`), disable checkout via a settings flag, restore the DB via Neon PITR.
+- Incident runbook: rotate secrets, revoke all sessions (`DELETE FROM sessions`), disable checkout via a settings flag, restore the DB from the latest `mysqldump` or host backup.
 
 ## 8. Backup & recovery
 
 | Item | Policy |
 |---|---|
-| Postgres | Neon point-in-time restore (7-day window; extend on the paid plan) + nightly `pg_dump` to Bunny Storage, kept 30 days |
-| Restore test | Quarterly restore into a Neon branch; verify row counts and app boot |
+| MySQL | Host daily backups + our nightly `mysqldump --single-transaction` (cron) gzipped and uploaded to Bunny Storage, kept 30 days. On a VPS, also enable binary logs for point-in-time recovery |
+| Restore test | Quarterly restore into a scratch database; verify row counts and app boot |
 | Media | Bunny Storage replication region enabled; original lesson video masters also kept offline by the business |
-| RPO / RTO | RPO ≤ 5 min (PITR), RTO ≤ 2h |
+| RPO / RTO | Shared hosting: RPO ≤ 24h (nightly dump; payments can be re-synced from Razorpay); VPS with binlogs: RPO ≤ 5 min. RTO ≤ 2h |
 
 ## 9. Environment variables (planned; names only)
 
-`DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`, `BUNNY_STREAM_LIBRARY_ID`, `BUNNY_STREAM_API_KEY`, `BUNNY_STREAM_TOKEN_KEY`, `BUNNY_STORAGE_ZONE`, `BUNNY_STORAGE_KEY`, `BUNNY_CDN_TOKEN_KEY`, `POSTMARK_SERVER_TOKEN`, `POSTMARK_WEBHOOK_SECRET`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `TURNSTILE_SECRET_KEY`, `VITE_TURNSTILE_SITE_KEY`, `VITE_RAZORPAY_KEY_ID`, `SENTRY_DSN`, `VITE_SENTRY_DSN`, `CRON_SECRET`, `IP_HASH_SALT`.
+`DATABASE_URL` (mysql://…), `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`, `BUNNY_STREAM_LIBRARY_ID`, `BUNNY_STREAM_API_KEY`, `BUNNY_STREAM_TOKEN_KEY`, `BUNNY_STORAGE_ZONE`, `BUNNY_STORAGE_KEY`, `BUNNY_CDN_TOKEN_KEY`, `POSTMARK_SERVER_TOKEN`, `POSTMARK_WEBHOOK_SECRET`, `TURNSTILE_SECRET_KEY`, `VITE_TURNSTILE_SITE_KEY`, `VITE_RAZORPAY_KEY_ID`, `SENTRY_DSN`, `VITE_SENTRY_DSN`, `CRON_SECRET`, `IP_HASH_SALT`, `TRUSTED_PROXY` (which header carries the real client IP on the chosen host).
 No environment configuration is changed as part of this planning task.

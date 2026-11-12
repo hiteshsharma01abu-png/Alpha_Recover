@@ -1,6 +1,6 @@
 # Alpha Recover — Backend API Specification
 
-**Base URL:** `/api/v1` (same origin as the SPA; Vercel Functions + Hono)
+**Base URL:** `/api/v1` (same origin as the SPA; Node.js + Hono, host-portable: cPanel Node.js App, VPS, or Vercel during development)
 **Format:** JSON (UTF-8). Request bodies are validated with Zod schemas shared from `shared/schemas/`.
 **Date:** 2026-11-12 · **Status:** Proposal
 
@@ -287,7 +287,7 @@ Errors: 400, 400 `CAPTCHA_FAILED`, 429.
   "viewCount": 9240, "publishedAt": "…" }],
   "meta": { "page": 1, "pageSize": 12, "total": 23, "counts": { "all": 23, "logical": 8, "electrical": 6, "mechanical": 4, "firmware": 5 } } }
 ```
-The featured video is excluded from the list (matching current UI behaviour). `counts` replaces the hard-coded `demoCategoryFilters`. Search uses Postgres full-text plus `ILIKE` fallback on title/tag/tags. Cache `s-maxage=120`.
+The featured video is excluded from the list (matching current UI behaviour). `counts` replaces the hard-coded `demoCategoryFilters`. Search uses a MySQL `FULLTEXT` index plus a `LIKE` fallback on title/tag/tags. Cache `s-maxage=120`.
 
 ---
 
@@ -367,8 +367,8 @@ All read-only aggregates over existing tables (no separate analytics store at th
 |---|---|---|---|
 | GET | `/admin/notifications` | `notifications.read` | Outbox log `?status&template&channel` |
 | POST | `/admin/notifications/:id/retry` | `notifications.write` | Retry a failed/dead job |
-| POST | `/internal/cron/notifications` | Vercel Cron secret | Drain the outbox (batch of 50, backoff) |
-| POST | `/internal/cron/maintenance` | Vercel Cron secret | Expire orders, delete expired sessions and verifications, end promotions |
+| POST | `/internal/cron/notifications` | `Authorization: Bearer $CRON_SECRET` (called by host cron via `curl`) | Drain the outbox (batch of 50, backoff) |
+| POST | `/internal/cron/maintenance` | `Authorization: Bearer $CRON_SECRET` (host cron) | Expire orders, delete expired sessions and verifications, end promotions |
 | POST | `/webhooks/postmark` | Postmark basic-auth | Bounce/spam complaints → mark email undeliverable |
 
 Templates: `verify_email`, `password_reset`, `order_receipt`, `enrollment_welcome`, `lead_ack`, `lead_alert`, `certificate_issued`, `refund_processed`. WhatsApp templates are added when the BSP is onboarded.
