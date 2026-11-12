@@ -1,24 +1,24 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { company, pricing } from '../../data/content';
+import { company } from '../../data/content';
 import { Reveal } from '../ui/Reveal';
 import { icons } from '../../lib/icons';
+import { usePlan, withoutSale } from '../../lib/plans';
 import {
   pricingFeatureIcons,
   pricingHeroVisual,
-  pricingMobileFeatureIndexes,
   pricingPerks,
   pricingSectionBg,
 } from '../visuals/pricingVisuals';
 import '../../styles/sections.css';
 import './ProfessionalPlanSection.css';
 
-function formatInr(n: number) {
+function formatInr(paise: number) {
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
     maximumFractionDigits: 0,
-  }).format(n);
+  }).format(paise / 100);
 }
 
 function useIsNarrow(maxWidth = 980) {
@@ -35,14 +35,24 @@ function useIsNarrow(maxWidth = 980) {
   return narrow;
 }
 
-function Countdown() {
-  const end = useMemo(() => Date.now() + 1000 * 60 * 60 * 52 + 1000 * 60 * 18 + 1000 * 40, []);
-  const [left, setLeft] = useState(end - Date.now());
+/** Counts down to the promotion's real end time; calls onExpire once it reaches zero. */
+function Countdown({ endsAt, onExpire }: { endsAt: string; onExpire: () => void }) {
+  const end = Date.parse(endsAt);
+  const [left, setLeft] = useState(() => Math.max(0, end - Date.now()));
 
   useEffect(() => {
-    const id = window.setInterval(() => setLeft(Math.max(0, end - Date.now())), 1000);
+    const tick = () => {
+      const remaining = Math.max(0, end - Date.now());
+      setLeft(remaining);
+      if (remaining === 0) onExpire();
+      return remaining;
+    };
+    if (tick() === 0) return;
+    const id = window.setInterval(() => {
+      if (tick() === 0) window.clearInterval(id);
+    }, 1000);
     return () => window.clearInterval(id);
-  }, [end]);
+  }, [end, onExpire]);
 
   const total = Math.floor(left / 1000);
   const days = Math.floor(total / 86400);
@@ -65,6 +75,18 @@ function Countdown() {
         </div>
       ))}
     </div>
+  );
+}
+
+/** "Festival Sale – Up to 60% Off" → "Festival Sale – <strong>Up to 60% Off</strong>" */
+function SaleLabel({ label }: { label: string }) {
+  const [head, ...rest] = label.split(' – ');
+  return rest.length ? (
+    <>
+      {head} – <strong>{rest.join(' – ')}</strong>
+    </>
+  ) : (
+    <strong>{label}</strong>
   );
 }
 
@@ -104,10 +126,15 @@ export function ProfessionalPlanSection({
 }: ProfessionalPlanSectionProps) {
   const narrow = useIsNarrow(980);
   const [featuresOpen, setFeaturesOpen] = useState(false);
-  const offPct = Math.round(((pricing.was - pricing.now) / pricing.was) * 100);
+  const livePlan = usePlan('professional');
+  // When the countdown hits zero the sale ends immediately, without waiting for a reload.
+  const [saleOver, setSaleOver] = useState(false);
+  const endSale = useCallback(() => setSaleOver(true), []);
+  const plan = saleOver ? withoutSale(livePlan) : livePlan;
+  const features = plan.features;
   const allFeatureIndexes = narrow
-    ? pricingMobileFeatureIndexes
-    : pricing.features.map((_, i) => i);
+    ? (plan.mobileFeatureOrder ?? features.map((_, i) => i)).filter((i) => i < features.length)
+    : features.map((_, i) => i);
   const featureIndexes =
     narrow && !featuresOpen
       ? allFeatureIndexes.slice(0, MOBILE_FEATURES_PREVIEW)
@@ -159,19 +186,23 @@ export function ProfessionalPlanSection({
                 Complete training, real case workflows, and lifetime access to become a data recovery
                 expert.
               </p>
-              <p className="pp-kicker">
-                <span className="pp-kicker-bolt" aria-hidden>
-                  ⚡
-                </span>
-                Limited time offer
-              </p>
-              <Countdown />
-              <p className="pp-sale">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden>
-                  <path d="M21.4 11.6 12.4 2.6a2 2 0 0 0-2.8 0L2.6 9.6a2 2 0 0 0 0 2.8l9 9a2 2 0 0 0 2.8 0l7-7a2 2 0 0 0 0-2.8ZM7.5 11a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z" />
-                </svg>
-                Festival Sale – <strong>Up to 60% Off</strong>
-              </p>
+              {plan.promotion ? (
+                <>
+                  <p className="pp-kicker">
+                    <span className="pp-kicker-bolt" aria-hidden>
+                      ⚡
+                    </span>
+                    Limited time offer
+                  </p>
+                  <Countdown endsAt={plan.promotion.endsAt} onExpire={endSale} />
+                  <p className="pp-sale">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden>
+                      <path d="M21.4 11.6 12.4 2.6a2 2 0 0 0-2.8 0L2.6 9.6a2 2 0 0 0 0 2.8l9 9a2 2 0 0 0 2.8 0l7-7a2 2 0 0 0 0-2.8ZM7.5 11a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z" />
+                    </svg>
+                    <SaleLabel label={plan.promotion.label} />
+                  </p>
+                </>
+              ) : null}
             </div>
             <div className="pp-hero-visual">
               <img
@@ -184,25 +215,29 @@ export function ProfessionalPlanSection({
               />
             </div>
           </div>
-        ) : (
+        ) : plan.promotion ? (
           <div className="pp-hero pp-hero-compact">
             <div className="pp-hero-copy">
-              <p className="pp-kicker">
-                <span className="pp-kicker-bolt" aria-hidden>
-                  ⚡
-                </span>
-                Limited time offer
-              </p>
-              <Countdown />
-              <p className="pp-sale">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden>
-                  <path d="M21.4 11.6 12.4 2.6a2 2 0 0 0-2.8 0L2.6 9.6a2 2 0 0 0 0 2.8l9 9a2 2 0 0 0 2.8 0l7-7a2 2 0 0 0 0-2.8ZM7.5 11a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z" />
-                </svg>
-                Festival Sale – <strong>Up to 60% Off</strong>
-              </p>
+              {plan.promotion ? (
+                <>
+                  <p className="pp-kicker">
+                    <span className="pp-kicker-bolt" aria-hidden>
+                      ⚡
+                    </span>
+                    Limited time offer
+                  </p>
+                  <Countdown endsAt={plan.promotion.endsAt} onExpire={endSale} />
+                  <p className="pp-sale">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden>
+                      <path d="M21.4 11.6 12.4 2.6a2 2 0 0 0-2.8 0L2.6 9.6a2 2 0 0 0 0 2.8l9 9a2 2 0 0 0 2.8 0l7-7a2 2 0 0 0 0-2.8ZM7.5 11a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z" />
+                    </svg>
+                    <SaleLabel label={plan.promotion.label} />
+                  </p>
+                </>
+              ) : null}
             </div>
           </div>
-        )}
+        ) : null}
 
         <div className="pp-main">
           <div className="pp-price-card">
@@ -211,13 +246,13 @@ export function ProfessionalPlanSection({
                 <path d="M5 16.5h14l-1.15-7.6L14.4 11.5 12 6.2 9.6 11.5 6.15 8.9 5 16.5Z" />
                 <path d="M5 16.5h14v2.2a1.3 1.3 0 0 1-1.3 1.3H6.3A1.3 1.3 0 0 1 5 18.7v-2.2Z" />
               </svg>
-              {pricing.name}
+              {plan.name}
             </span>
             <div className="pp-price">
-              <s>{formatInr(pricing.was)}</s>
+              {plan.comparePricePaise ? <s>{formatInr(plan.comparePricePaise)}</s> : null}
               <div className="pp-price-row">
-                <strong>{formatInr(pricing.now)}</strong>
-                <span className="pp-off">{offPct}% OFF</span>
+                <strong>{formatInr(plan.effectivePricePaise)}</strong>
+                {plan.discountPct > 0 ? <span className="pp-off">{plan.discountPct}% OFF</span> : null}
               </div>
             </div>
             <div className="pp-actions">
@@ -248,9 +283,9 @@ export function ProfessionalPlanSection({
             </h3>
             <ul className="pp-features">
               {featureIndexes.map((i) => (
-                <li key={pricing.features[i]}>
-                  <span className="pp-feat-icon">{pricingFeatureIcons[i]}</span>
-                  <span>{pricing.features[i]}</span>
+                <li key={features[i]}>
+                  <span className="pp-feat-icon">{pricingFeatureIcons[i] ?? pricingFeatureIcons[0]}</span>
+                  <span>{features[i]}</span>
                 </li>
               ))}
             </ul>

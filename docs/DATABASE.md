@@ -186,6 +186,8 @@
 
 ## 9. `plans`
 
+> **Implemented (Phase 2)** with `plan_courses` and `promotions`. Seeded insert-only: the Professional Plan at ₹5,999, plus the Festival Sale promotion (₹2,500, 1 Nov – 30 Nov 2026 11:59 PM IST), created only together with a new plan so re-runs never duplicate it. The sale dates live in `pricing.saleStartsAt` / `saleEndsAt` in `src/data/content.ts`, which also drives the offline fallback.
+
 | Column | Type | Notes |
 |---|---|---|
 | id | char(36) | PK |

@@ -29,9 +29,6 @@ export const pricingFeatureIcons: ReactNode[] = [
   featImg(icons.infinity, 'anytime'),
 ];
 
-/** Curated mobile "What You'll Get" feature indexes into pricing.features */
-export const pricingMobileFeatureIndexes = [0, 2, 4, 6, 8, 10, 12, 14, 16];
-
 /** Open HDD actuator/platter — public Unsplash CDN (wide crop for pp-hero-visual). */
 export const pricingHeroVisual = U('photo-1597852074816-d933c7d2b988');
 export const pricingSectionBg = '/assets/pricing-bg.webp';

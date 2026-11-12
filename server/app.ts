@@ -10,6 +10,7 @@ import { catalogRoutes } from './routes/catalog';
 import { healthRoutes } from './routes/health';
 import { internalRoutes } from './routes/internal';
 import { leadRoutes } from './routes/leads';
+import { planRoutes } from './routes/plans';
 import type { AppEnv, Deps } from './types';
 
 export const API_BASE = '/api/v1';
@@ -36,6 +37,7 @@ export function createApp(deps: Deps) {
   app.route('/', internalRoutes);
   app.route('/', leadRoutes);
   app.route('/', catalogRoutes);
+  app.route('/', planRoutes);
 
   app.notFound((c) =>
     c.json({ error: { code: 'NOT_FOUND', message: 'Route not found', details: [], requestId: c.get('requestId') } }, 404),

@@ -23,4 +23,4 @@ await build({
 });
 
 await cp('server/db/migrations', 'dist-server/migrations', { recursive: true });
-console.log('dist-server/ ready: index.mjs (API), migrate.mjs (migrations), seed.mjs (catalog seed)');
+console.log('dist-server/ ready: index.mjs (API), migrate.mjs (migrations), seed.mjs (catalog + plan seed)');

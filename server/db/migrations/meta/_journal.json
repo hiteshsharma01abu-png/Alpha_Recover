@@ -29,6 +29,13 @@
       "when": 1794499297023,
       "tag": "0003_catalog",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1794500587184,
+      "tag": "0004_plans_promotions",
+      "breakpoints": true
     }
   ]
 }

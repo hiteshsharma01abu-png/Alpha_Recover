@@ -194,18 +194,18 @@ Side effect: when every lesson in the plan's courses is complete (per `certifica
 
 | Method | Endpoint | Auth | Purpose |
 |---|---|---|---|
-| GET | `/plans` | public | Published plans with the effective price |
-| GET | `/plans/:slug` | public | One plan (Professional Plan section, countdown) |
+| GET | `/plans` | public | Published plans with the effective price. **Implemented (Phase 2)** |
+| GET | `/plans/:slug` | public | One plan (Professional Plan section, countdown). **Implemented (Phase 2)** |
 
 `GET /plans/professional` response:
 ```json
-{ "data": { "slug": "professional", "name": "Professional Plan", "currency": "INR",
-  "pricePaise": 599900, "effectivePricePaise": 250000, "discountPct": 58,
-  "promotion": { "label": "Festival Sale – Up to 60% Off", "endsAt": "2026-11-20T18:29:59Z" },
-  "features": ["20+ hours of self-study video training", "…"], "mobileFeatureOrder": [0, 1, 2, 3, 4, 5],
-  "viewer": { "enrolled": false } } }
+{ "data": { "slug": "professional", "name": "Professional Plan", "description": null, "currency": "INR",
+  "pricePaise": 599900, "effectivePricePaise": 250000, "comparePricePaise": 599900, "discountPct": 58,
+  "promotion": { "label": "Festival Sale – Up to 60% Off", "startsAt": "2026-10-31T18:30:00.000Z", "endsAt": "2026-11-30T18:29:59.000Z" },
+  "features": ["20+ hours of self-study video training", "…"], "mobileFeatureOrder": [0, 2, 4, 6, 8, 10, 12, 14, 16],
+  "accessDays": null } }
 ```
-`promotion` is `null` when none is active (the frontend hides the countdown). The price is computed by `pricingService.effectivePrice(plan, now)`. Short CDN cache (`s-maxage=60`); the `viewer` part is only added when the request has a cookie.
+`promotion` is `null` when none is active: the frontend then hides the kicker, countdown and sale line, and shows `comparePricePaise` (the struck-through price) only when it's set. A promotion applies while `is_active`, not deleted and `startsAt ≤ now < endsAt`. Prices come from `priceFor()` / `loadPlans()` in [`server/services/pricing.ts`](../server/services/pricing.ts), which checkout must reuse (never trust a client amount). Short cache (`s-maxage=60`) because the price changes the moment a sale starts or ends. *Planned (Phase 3+):* a `viewer: { enrolled }` field when the request has a session.
 
 ---
 

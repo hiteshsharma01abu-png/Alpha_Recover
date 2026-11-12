@@ -527,6 +527,11 @@ export const pricing = {
   now: 2500,
   currency: 'INR',
   saleLabel: 'Festival Sale – Up to 60% Off',
+  /** Sale window (IST). Outside it the price is `was`. Also seeded into the database as a promotion. */
+  saleStartsAt: '2026-11-01T00:00:00+05:30',
+  saleEndsAt: '2026-11-30T23:59:59+05:30',
+  /** Feature indexes shown (in this order) on narrow screens. */
+  mobileFeatureOrder: [0, 2, 4, 6, 8, 10, 12, 14, 16],
   features: [
     '20+ hours of self-study video training',
     '120+ different data recovery solutions',

@@ -63,7 +63,7 @@ Verify with `npm run build` + `npm run lint` + `npm test`; for visual changes, r
 
 ### Known lint warnings (pre-existing)
 
-`react(only-export-components)` in `demoVisuals.tsx` / `pricingVisuals.tsx`; `set-state-in-effect` in `Header.tsx`, `ProfessionalPlanSection.tsx`; `purity` (`Date.now` in `Countdown`). Don't introduce new ones.
+`react(only-export-components)` in `demoVisuals.tsx` / `pricingVisuals.tsx`; `set-state-in-effect` in `Header.tsx`, `ProfessionalPlanSection.tsx` (9 warnings total). Don't introduce new ones.
 
 ## Documentation update rule
 

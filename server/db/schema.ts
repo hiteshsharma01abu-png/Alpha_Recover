@@ -16,6 +16,7 @@ import {
   json,
   mysqlEnum,
   mysqlTable,
+  primaryKey,
   smallint,
   text,
   uniqueIndex,
@@ -238,6 +239,68 @@ export const lessons = mysqlTable(
     index('lessons_module_sort_idx').on(t.moduleId, t.sortOrder),
     index('lessons_status_idx').on(t.status),
   ],
+);
+
+// ── Plans & promotions (Phase 2) ─────────────────────────────────────────────
+
+export const plans = mysqlTable(
+  'plans',
+  {
+    id: id(),
+    slug: varchar('slug', { length: 64 }).notNull(),
+    name: varchar('name', { length: 120 }).notNull(),
+    description: text('description'),
+    /** Base price in paise (₹5,999 = 599900). Money is never stored as a float. */
+    pricePaise: int('price_paise', { unsigned: true }).notNull(),
+    /** Optional strike-through "was" price when no promotion is active. */
+    compareAtPaise: int('compare_at_paise', { unsigned: true }),
+    currency: char('currency', { length: 3 }).notNull().default('INR'),
+    features: json('features').$type<string[]>().notNull(),
+    mobileFeatureOrder: json('mobile_feature_order').$type<number[]>(),
+    grantsAllCourses: boolean('grants_all_courses').notNull().default(true),
+    /** null = lifetime access */
+    accessDays: int('access_days', { unsigned: true }),
+    status: mysqlEnum('status', PUBLISH_STATUSES).notNull().default('draft'),
+    sortOrder: int('sort_order').notNull().default(0),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+    deletedAt: ts('deleted_at'),
+  },
+  (t) => [uniqueIndex('plans_slug_uq').on(t.slug), index('plans_status_sort_idx').on(t.status, t.sortOrder)],
+);
+
+export const planCourses = mysqlTable(
+  'plan_courses',
+  {
+    planId: char('plan_id', { length: 36 })
+      .notNull()
+      .references(() => plans.id, { onDelete: 'cascade' }),
+    courseId: char('course_id', { length: 36 })
+      .notNull()
+      .references(() => courses.id, { onDelete: 'cascade' }),
+  },
+  (t) => [primaryKey({ columns: [t.planId, t.courseId] })],
+);
+
+export const promotions = mysqlTable(
+  'promotions',
+  {
+    id: id(),
+    planId: char('plan_id', { length: 36 })
+      .notNull()
+      .references(() => plans.id),
+    label: varchar('label', { length: 120 }).notNull(),
+    salePricePaise: int('sale_price_paise', { unsigned: true }).notNull(),
+    startsAt: ts('starts_at').notNull(),
+    endsAt: ts('ends_at').notNull(),
+    /** Kill switch: end a sale early without deleting it. */
+    isActive: boolean('is_active').notNull().default(true),
+    createdBy: char('created_by', { length: 36 }).references(() => users.id),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+    deletedAt: ts('deleted_at'),
+  },
+  (t) => [index('promotions_plan_window_idx').on(t.planId, t.isActive, t.startsAt, t.endsAt)],
 );
 
 // ── Leads (Phase 2) ──────────────────────────────────────────────────────────

@@ -44,7 +44,7 @@ Alpha Recover sells **online data recovery training** (one-time purchase, lifeti
 | Lesson player page | **Not built** (frontend work) | Video delivery | `POST /lessons/:id/playback` | `lessons` |
 | Student dashboard / My courses | **Not built** (frontend work) | Enrolled courses + progress | `GET /me/dashboard` | `enrollments`, `lesson_progress` |
 | Professional Plan section (Home, `/pricing`) | Implemented, static price | Plan + active promotion, server-side price | `GET /plans`, `GET /plans/:slug` | `plans`, `promotions` |
-| Sale countdown | Implemented, **fake timer** | Real promotion end time | `GET /plans/:slug` (`promotion.endsAt`) | `promotions` |
+| Sale countdown | ✅ Real countdown to `promotion.endsAt` (Phase 2); previously a fake timer that reset on every load | Real promotion end time | `GET /plans/:slug` (`promotion.endsAt`) | `promotions` |
 | Buy Now (`/pricing`) | Implemented, alert | Order creation, Razorpay checkout, verification | `POST /checkout/orders`, `POST /checkout/verify` | `orders`, `payments` |
 | Payment confirmation | **Not built** (success/failure pages) | Webhook processing, enrollment activation | `POST /webhooks/razorpay`, `GET /me/orders/:id` | `payments`, `payment_webhook_events`, `enrollments` |
 | Ask on WhatsApp / floating WhatsApp | Implemented (`wa.me`) | None (optional click tracking) | No | No |
