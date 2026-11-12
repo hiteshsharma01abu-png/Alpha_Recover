@@ -36,7 +36,7 @@ Phase 7 QA & security hardening (continuous, gate before production launch)
 
 **Exit:** decisions recorded in the PRD; API keys stored as environment secrets (GitHub Actions + staging host). **Hosting choice can wait until Phase 7**, but sooner is better so staging matches production.
 
-### Phase 1 — Backend foundation · M · **Built on `feat/backend-foundation` (2026-11-12); DB tests pending a local MySQL run**
+### Phase 1 — Backend foundation · M · **Built and verified locally on `feat/backend-foundation` (2026-11-12)**
 | Task | Detail |
 |---|---|
 | Project scaffold | `server/index.ts` (Node entry, `@hono/node-server`) → Hono app; `server/` structure; esbuild bundle; Vercel adapter `api/[[...route]].ts` for development previews; `deploy/` templates: `.htaccess` (SPA fallback + `/api` exclusion + headers), Passenger/PM2 config, Nginx example, cron list |
@@ -59,7 +59,8 @@ Phase 7 QA & security hardening (continuous, gate before production launch)
 - [x] Email outbox + cron endpoints + Postmark/dev mailer + verify/reset templates
 - [x] Vitest (unit + MySQL integration), GitHub Actions CI on MySQL 8.4 + MariaDB 10.6
 - [x] `src/lib/api.ts`
-- [ ] Run DB integration tests locally (needs Docker) and in CI
+- [x] All 28 tests pass locally on MySQL 8.4 (Docker); production bundle verified end to end (migrate → health → cron)
+- [ ] CI run on GitHub (MySQL 8.4 + MariaDB 10.6), after the branch is pushed
 - [ ] Staging deploy (needs a host or managed MySQL; deploy-over-SSH job added when the host is chosen)
 
 ### Phase 2 — Public website backend · M–L

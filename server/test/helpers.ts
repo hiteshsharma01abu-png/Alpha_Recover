@@ -6,7 +6,7 @@ import { parseEnv } from '../env';
 import type { EmailMessage, Mailer } from '../notifications/mailer';
 
 export const testDatabaseUrl = () =>
-  process.env.TEST_DATABASE_URL ?? 'mysql://app:app@127.0.0.1:3306/alpharecover_test';
+  process.env.TEST_DATABASE_URL ?? 'mysql://app:app@127.0.0.1:3307/alpharecover_test';
 
 const SECRET = 'test-secret-test-secret-test-secret-1234';
 

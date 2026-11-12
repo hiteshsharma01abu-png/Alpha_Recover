@@ -1,4 +1,4 @@
-import { Hono } from 'hono';
+import { Hono, type ErrorHandler } from 'hono';
 import { secureHeaders } from 'hono/secure-headers';
 import * as Sentry from '@sentry/node';
 import { AppError } from './lib/errors';
@@ -37,21 +37,24 @@ export function createApp(deps: Deps) {
     c.json({ error: { code: 'NOT_FOUND', message: 'Route not found', details: [], requestId: c.get('requestId') } }, 404),
   );
 
-  app.onError((err, c) => {
-    const requestId = c.get('requestId');
-    if (err instanceof AppError) {
-      for (const [k, v] of Object.entries(err.headers)) c.header(k, v);
-      return c.json({ error: { code: err.code, message: err.message, details: err.details, requestId } }, err.status);
-    }
-    logger.error('unhandled error', { requestId, path: c.req.path, error: err.message, stack: err.stack });
-    Sentry.captureException(err, { tags: { requestId } });
-    return c.json(
-      { error: { code: 'INTERNAL_ERROR', message: 'Something went wrong. Please try again.', details: [], requestId } },
-      500,
-    );
-  });
+  app.onError(errorHandler);
 
   return app;
 }
+
+/** Renders AppError as the standard envelope; anything else is logged, sent to Sentry and hidden. */
+export const errorHandler: ErrorHandler<AppEnv> = (err, c) => {
+  const requestId = c.get('requestId');
+  if (err instanceof AppError) {
+    for (const [k, v] of Object.entries(err.headers)) c.header(k, v);
+    return c.json({ error: { code: err.code, message: err.message, details: err.details, requestId } }, err.status);
+  }
+  logger.error('unhandled error', { requestId, path: c.req.path, error: err.message, stack: err.stack });
+  Sentry.captureException(err, { tags: { requestId } });
+  return c.json(
+    { error: { code: 'INTERNAL_ERROR', message: 'Something went wrong. Please try again.', details: [], requestId } },
+    500,
+  );
+};
 
 export type App = ReturnType<typeof createApp>;

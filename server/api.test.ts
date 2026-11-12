@@ -2,6 +2,7 @@
 import { eq, sql } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { afterAll, beforeAll, beforeEach, describe, expect, inject, it } from 'vitest';
+import { errorHandler } from './app';
 import { requireStaff, requireUser } from './auth/middleware';
 import { notificationJobs, rateLimitBuckets, sessions, users } from './db/schema';
 import { hit, rateLimit } from './lib/ratelimit';
@@ -83,7 +84,7 @@ describe.skipIf(!dbAvailable)('API foundation (MySQL)', () => {
         await next();
       });
       app.get('/limited', rateLimit({ name: 'test', limit: 2, windowSeconds: 60 }), (c) => c.text('ok'));
-      app.onError((err, c) => c.json({ code: (err as { code?: string }).code }, (err as { status?: 429 }).status ?? 500));
+      app.onError(errorHandler);
       expect((await app.request('/limited')).status).toBe(200);
       expect((await app.request('/limited')).status).toBe(200);
       const third = await app.request('/limited');
@@ -103,19 +104,21 @@ describe.skipIf(!dbAvailable)('API foundation (MySQL)', () => {
       expect(jobs.map((j) => j.template)).toEqual(['verify_email']);
     });
 
-    it('cannot set role through sign-up input', async () => {
-      await expect(
-        ctx.auth.api.signUpEmail({
-          body: {
-            email: 'sneaky@example.com',
-            password: 'correct-horse-battery',
-            name: 'X',
-            country: 'IN',
-            termsAcceptedAt: new Date(),
-            role: 'super_admin',
-          } as never,
-        }),
-      ).rejects.toThrow();
+    it('ignores role/status sent in sign-up input (always a student)', async () => {
+      // Better Auth drops `input: false` fields silently rather than rejecting the request.
+      const res = await ctx.auth.api.signUpEmail({
+        body: {
+          email: 'sneaky@example.com',
+          password: 'correct-horse-battery',
+          name: 'X',
+          country: 'IN',
+          termsAcceptedAt: new Date(),
+          role: 'super_admin',
+          status: 'active',
+        } as never,
+      });
+      const [u] = await ctx.db.select().from(users).where(eq(users.id, res.user.id));
+      expect(u.role).toBe('student');
     });
 
     it('GET /auth/session returns null when anonymous and the user with a session cookie', async () => {
@@ -137,7 +140,7 @@ describe.skipIf(!dbAvailable)('API foundation (MySQL)', () => {
       });
       app.get('/me', requireUser(), (c) => c.text('me'));
       app.get('/admin', requireStaff('orders.refund'), (c) => c.text('admin'));
-      app.onError((err, c) => c.text((err as { code?: string }).code ?? 'ERR', (err as { status?: 401 }).status ?? 500));
+      app.onError(errorHandler);
       return app;
     }
 

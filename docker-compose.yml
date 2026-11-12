@@ -11,7 +11,8 @@ services:
       MYSQL_PASSWORD: app
     command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_0900_ai_ci", "--default-time-zone=+00:00"]
     ports:
-      - "3306:3306"
+      # 3307 on the host: 3306 is often taken by other projects' MySQL
+      - "3307:3306"
     volumes:
       - mysql-data:/var/lib/mysql
       - ./server/db/docker-init:/docker-entrypoint-initdb.d:ro

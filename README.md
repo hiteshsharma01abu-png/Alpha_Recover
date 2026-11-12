@@ -25,7 +25,7 @@ The frontend needs no environment variables.
 Requirements: Docker (Docker Desktop or OrbStack) for the local MySQL.
 
 ```bash
-npm run db:up                 # MySQL 8.4 in Docker (creates alpharecover + alpharecover_test)
+npm run db:up                 # MySQL 8.4 in Docker on localhost:3307 (creates alpharecover + alpharecover_test)
 cp .env.example .env          # then fill the three secrets: openssl rand -base64 32
 npm run db:migrate            # create tables
 npm run dev:api               # API on http://localhost:8787 (Vite proxies /api to it)
