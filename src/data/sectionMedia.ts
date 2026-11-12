@@ -27,7 +27,7 @@ export const proTrainingImages: Record<string, string> = {
   electronics: '/assets/pro-electronics.webp',
 };
 
-export { demoVideoImages } from '../components/demoVisuals';
+export { demoVideoImages } from '../components/visuals/demoVisuals';
 
 export const fallbackSectionImage = '/assets/training.webp';
 

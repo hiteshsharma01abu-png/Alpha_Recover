@@ -1,0 +1,10 @@
+/* Shared section accents — used by Home and the reusable *Section components */
+.training-accent-bar,
+.why-accent-bar {
+  display: block;
+  width: 48px;
+  height: 5px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #4D7A73, #F0EDE4);
+  margin-bottom: 0.9rem;
+}

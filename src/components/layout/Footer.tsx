@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { company, services } from '../data/content';
-import { icons } from '../lib/icons';
+import { company, services } from '../../data/content';
+import { icons } from '../../lib/icons';
 import './Footer.css';
 
 const FOOTER_BG = '/assets/footer-bg.webp';

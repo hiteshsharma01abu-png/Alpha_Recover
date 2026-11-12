@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { trainingTracks } from '../data/content';
-import { fallbackSectionImage, trainingTrackImages } from '../data/sectionMedia';
+import { trainingTracks } from '../../data/content';
+import { fallbackSectionImage, trainingTrackImages } from '../../data/sectionMedia';
 import './TrainingExplorer.css';
 
 const MOBILE_SCROLL_MAX_WIDTH = 980;

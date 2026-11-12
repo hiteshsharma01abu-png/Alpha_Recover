@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { icons } from '../lib/icons';
+import { icons } from '../../lib/icons';
 
 const ASSET = '/assets';
 

@@ -1,0 +1,320 @@
+/*
+ * Osaanj Featured Products: sticky siblings in ONE parent.
+ * Row height === card height (no blank gap under the pinned card).
+ * Scroll down from home → next card slides up and covers.
+ * Scroll up from footer → stack peels (same sticky, reversed).
+ */
+.solutions-stack-section {
+  padding-block: var(--section-y);
+  overflow: visible;
+}
+
+.solutions-stack-section .section-head h2 em {
+  font-style: normal;
+  color: #7DFFC0;
+}
+
+.solutions-stack {
+  /* ~100px like Osaanj; keep below sticky site header */
+  --stack-top: 100px;
+  --stack-row: min(540px, calc(100svh - var(--stack-top) - 16px));
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: repeat(var(--stack-count, 4), var(--stack-row));
+  gap: 0;
+  overflow: visible;
+  position: relative;
+}
+
+.stack-card {
+  align-self: stretch;
+  width: 100%;
+  border-radius: 18px;
+}
+
+/* Sticky stacking only inside Recovery solution paths */
+.solutions-stack>.stack-card {
+  position: sticky;
+  top: var(--stack-top);
+  height: var(--stack-row);
+  z-index: calc(1 + var(--stack-i, 0));
+}
+
+.stack-card-shell {
+  display: grid;
+  grid-template-rows: minmax(140px, 36%) 1fr;
+  height: 100%;
+  border-radius: inherit;
+  overflow: hidden;
+  border: 1px solid rgba(240, 237, 228, 0.22);
+  background: linear-gradient(160deg, #123128 0%, #123128 55%, #123128 100%);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  opacity: 1;
+}
+
+.stack-card-media {
+  position: relative;
+  background: #0D231D;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.stack-card-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.stack-index {
+  position: absolute;
+  top: 1.1rem;
+  left: 1.1rem;
+  z-index: 1;
+  font-family: var(--font-display);
+  font-size: 1.85rem;
+  color: var(--stack-accent, var(--signal));
+  letter-spacing: 0.06em;
+  opacity: 0.9;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
+}
+
+.stack-orbit {
+  width: min(52%, 160px);
+  aspect-ratio: 1;
+  position: relative;
+  animation: float-soft 5s ease-in-out infinite;
+}
+
+.stack-orbit i {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--stack-accent, var(--signal)) 45%, transparent);
+}
+
+.stack-orbit i:nth-child(2) {
+  inset: 16%;
+  border-style: dashed;
+  animation: platter-spin 22s linear infinite;
+}
+
+.stack-orbit i:nth-child(3) {
+  inset: 34%;
+  background: #123128;
+}
+
+.stack-card-body {
+  padding: clamp(1.35rem, 4vw, 2.4rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.stack-card-body h3 {
+  font-size: clamp(1.3rem, 3.4vw, 1.85rem);
+  color: var(--paper);
+  margin-bottom: 0.25rem;
+}
+
+.stack-card-body p {
+  color: var(--fog);
+  max-width: 40ch;
+  margin-bottom: 1.15rem;
+  font-size: 0.98rem;
+}
+
+.stack-card-body .btn {
+  align-self: flex-start;
+}
+
+.stack-card-shell {
+  transition: transform 0.25s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+.pro-grid .stack-card:hover .stack-card-shell {
+  transform: translateY(-4px);
+  border-color: rgba(240, 237, 228, 0.45);
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.45);
+}
+
+.stack-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 0.85rem;
+  margin: -0.35rem 0 0.85rem;
+  color: rgba(200, 218, 210, 0.85);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.stack-card-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.stack-card-meta img {
+  width: 12px;
+  height: 12px;
+  display: block;
+}
+
+/* Pro training: desktop = static 3-col; mobile = sticky stack (solutions-stack) */
+.pro-grid .stack-card {
+  height: auto;
+  min-height: 360px;
+}
+
+.pro-grid .stack-card-shell {
+  grid-template-rows: 160px 1fr;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.pro-grid .stack-card-body {
+  padding: 1.35rem 1.4rem 1.5rem;
+  justify-content: flex-start;
+}
+
+.pro-grid .stack-card-body h3 {
+  font-size: clamp(1.15rem, 1.6vw, 1.35rem);
+}
+
+.pro-grid .stack-card-body p {
+  max-width: none;
+  flex: 1;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.pro-grid .stack-card-body .btn {
+  margin-top: auto;
+}
+
+/* Mobile/tablet: sticky stack — compact row (less empty body space) */
+@media (max-width: 1024px) {
+  .pro-grid>.stack-card {
+    position: sticky;
+    top: var(--stack-top);
+    height: var(--stack-row);
+    min-height: 0;
+    z-index: calc(1 + var(--stack-i, 0));
+    border-radius: 16px;
+  }
+
+  .pro-grid .stack-card-shell {
+    grid-template-rows: minmax(120px, 40%) 1fr;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.42);
+  }
+
+  .pro-grid .stack-card-body {
+    padding: 1rem 1.05rem 1.15rem;
+    justify-content: flex-start;
+    gap: 0.25rem;
+  }
+
+  .pro-grid .stack-card-body h3 {
+    font-size: clamp(1.05rem, 4vw, 1.25rem);
+    margin-bottom: 0.15rem;
+  }
+
+  .pro-grid .stack-card-body p {
+    max-width: none;
+    flex: 0 1 auto;
+    margin-bottom: 0.65rem;
+    font-size: 0.86rem;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .pro-grid .stack-card-meta {
+    margin: 0 0 0.65rem;
+    gap: 0.4rem 0.7rem;
+    font-size: 0.72rem;
+  }
+
+  .pro-grid .stack-index {
+    top: 0.85rem;
+    left: 0.85rem;
+    font-size: 1.45rem;
+  }
+
+  .pro-grid .stack-card:hover .stack-card-shell {
+    transform: none;
+  }
+}
+
+/* Desktop: static 2×2 card grid for solutions */
+@media (min-width: 1025px) {
+  .solutions-stack {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: none;
+    gap: 1.25rem;
+  }
+
+  .solutions-stack>.stack-card {
+    position: relative;
+    top: auto;
+    height: auto;
+    min-height: 360px;
+    z-index: auto;
+  }
+
+  .solutions-stack .stack-card-shell {
+    grid-template-rows: 160px 1fr;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  .stack-orbit {
+    width: min(46%, 120px);
+  }
+
+  .solutions-stack .stack-card-body {
+    padding: 1.35rem 1.4rem 1.5rem;
+    justify-content: flex-start;
+  }
+
+  .solutions-stack .stack-card-body h3 {
+    font-size: clamp(1.15rem, 1.6vw, 1.35rem);
+  }
+
+  .solutions-stack .stack-card-body p {
+    max-width: none;
+    flex: 1;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .solutions-stack .stack-card-body .btn {
+    margin-top: auto;
+  }
+
+  .solutions-stack .stack-card:hover .stack-card-shell {
+    transform: translateY(-4px);
+    border-color: rgba(240, 237, 228, 0.45);
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.45);
+  }
+}
+
+@media (max-width: 600px) {
+  .solutions-stack-section {
+    padding-block: var(--section-y-sm);
+  }
+
+  .solutions-stack {
+    --stack-top: calc(var(--header) + 20px);
+    --stack-row: min(520px, calc(100svh - var(--stack-top) - 12px));
+  }
+
+  .stack-card {
+    border-radius: 14px;
+  }
+}

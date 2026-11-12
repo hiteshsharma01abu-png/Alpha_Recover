@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { company, trainingTracks } from '../data/content';
+import { company, trainingTracks } from '../../data/content';
 import './Header.css';
 
 const infoLinks = [

@@ -4,7 +4,7 @@ import { Footer } from './Footer';
 import { WhatsAppFloat } from './WhatsAppFloat';
 import { RouteScrollReset } from './RouteScrollReset';
 import { ScrollToTop } from './ScrollToTop';
-import '../styles/glass.css';
+import '../../styles/glass.css';
 
 export function Layout() {
   return (

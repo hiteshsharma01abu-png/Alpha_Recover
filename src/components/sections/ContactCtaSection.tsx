@@ -1,8 +1,8 @@
 import type { FormEvent } from 'react';
-import { company } from '../data/content';
-import { icons } from '../lib/icons';
-import { Reveal } from './Reveal';
-import '../pages/Home.css';
+import { company } from '../../data/content';
+import { icons } from '../../lib/icons';
+import { Reveal } from '../ui/Reveal';
+import './ContactCtaSection.css';
 
 type ContactCtaSectionProps = {
   /** Hide the large section title (use on /contact where page-hero already titles the page). */

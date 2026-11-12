@@ -1,0 +1,989 @@
+/* —— Professional Plan (desktop + mobile match) —— */
+.pp-section {
+  position: relative;
+  z-index: 4;
+  overflow: hidden;
+  background: #050d0b;
+  padding-block: clamp(2.5rem, 5vw, 4.25rem);
+}
+
+.pp-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.pp-glow {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  filter: blur(40px);
+}
+
+.pp-glow-tl {
+  top: -8%;
+  left: -6%;
+  width: min(48vw, 420px);
+  height: min(48vw, 420px);
+  background: radial-gradient(circle, rgba(125, 255, 192, 0.28), transparent 68%);
+}
+
+.pp-glow-br {
+  right: -8%;
+  bottom: 8%;
+  width: min(42vw, 380px);
+  height: min(42vw, 380px);
+  background: radial-gradient(circle, rgba(61, 207, 138, 0.22), transparent 70%);
+}
+
+.pp-shell {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: clamp(1.5rem, 3vw, 2.25rem);
+}
+
+.pp-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  align-items: center;
+}
+
+.pp-hero-compact {
+  grid-template-columns: 1fr;
+}
+
+.pp-hero-copy {
+  max-width: 36rem;
+}
+
+.pp-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.85rem;
+  padding: 0.35rem 0.85rem 0.35rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(8, 28, 20, 0.72);
+  border: 1px solid rgba(125, 255, 192, 0.35);
+  color: #7dffc0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.pp-kicker-bolt {
+  display: grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  background: rgba(125, 255, 192, 0.16);
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.pp-hero-copy h2 {
+  margin: 0 0 0.65rem;
+  font-family: var(--font-display);
+  font-size: clamp(2.1rem, 4.2vw, 3.15rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  color: #f5f7f6;
+}
+
+.pp-hero-copy h2 em {
+  font-style: normal;
+  color: #7dffc0;
+}
+
+.pp-lead {
+  margin: 0 0 1.25rem;
+  color: rgba(220, 232, 226, 0.82);
+  font-size: clamp(0.95rem, 1.5vw, 1.05rem);
+  line-height: 1.55;
+  max-width: 32rem;
+}
+
+.pp-countdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-bottom: 0.95rem;
+}
+
+.pp-countdown-cell {
+  min-width: 4.35rem;
+  text-align: center;
+  padding: 0.65rem 0.55rem 0.55rem;
+  border-radius: 14px;
+  background: rgba(6, 20, 16, 0.72);
+  border: 1px solid rgba(125, 255, 192, 0.22);
+  box-shadow:
+    inset 1px 1px 0 rgba(125, 255, 192, 0.12),
+    0 10px 24px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(10px);
+}
+
+.pp-countdown-cell strong {
+  display: block;
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #7dffc0;
+}
+
+.pp-countdown-cell span {
+  color: rgba(220, 232, 226, 0.78);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.pp-sale {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  color: #7dffc0;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.pp-sale strong {
+  font-weight: 800;
+  color: #9dffd0;
+}
+
+.pp-sale svg {
+  flex-shrink: 0;
+  color: #7dffc0;
+}
+
+.pp-hero-visual {
+  position: relative;
+  border-radius: 22px;
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+.pp-hero-visual::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(115deg, rgba(125, 255, 192, 0.18), transparent 42%),
+    linear-gradient(180deg, transparent 55%, rgba(5, 13, 11, 0.55));
+  pointer-events: none;
+}
+
+.pp-hero-visual img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 819 / 248;
+  object-fit: cover;
+}
+
+.pp-main {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.9fr) minmax(0, 1.35fr);
+  gap: 1.15rem;
+  align-items: stretch;
+}
+
+.pp-price-card,
+.pp-features-card {
+  position: relative;
+  border-radius: 22px;
+  border: 1px solid rgba(125, 255, 192, 0.22);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, transparent 34%),
+    linear-gradient(160deg, rgba(14, 36, 28, 0.88) 0%, rgba(5, 16, 12, 0.92) 100%);
+  box-shadow:
+    inset 1px 1px 0 rgba(125, 255, 192, 0.16),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.28),
+    0 18px 44px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(14px);
+  overflow: hidden;
+}
+
+.pp-price-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  padding: 1.45rem 1.35rem 1.4rem;
+}
+
+.pp-price-card::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  left: -20%;
+  width: 70%;
+  height: 90%;
+  background: linear-gradient(125deg, rgba(125, 255, 192, 0.16), transparent 55%);
+  pointer-events: none;
+}
+
+.pp-plan-badge {
+  position: relative;
+  z-index: 1;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  /* Soft fill lives in global.css */
+}
+
+.pp-price {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.pp-price s {
+  color: rgba(190, 210, 202, 0.55);
+  font-size: 1rem;
+}
+
+.pp-price-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.pp-price strong {
+  font-size: clamp(2.35rem, 4vw, 3rem);
+  line-height: 1;
+  color: #f5f7f6;
+  letter-spacing: -0.03em;
+}
+
+.pp-off {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.32rem 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  /* Soft fill lives in global.css */
+}
+
+.pp-actions {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.7rem;
+  margin-top: auto;
+}
+
+.pp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.8rem 1.1rem;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+/* Soft fill/hover for .pp-btn-primary lives in global.css */
+
+.pp-btn-outline {
+  background: rgba(6, 20, 16, 0.45);
+  color: #f5f7f6;
+  border: 1.5px solid rgba(125, 255, 192, 0.45);
+}
+
+.pp-btn-outline:hover {
+  background: rgba(125, 255, 192, 0.12);
+  color: #f5f7f6;
+  border-color: rgba(125, 255, 192, 0.7);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+}
+
+.pp-btn-outline:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.pp-btn-ghost {
+  background: rgba(6, 20, 16, 0.35);
+  color: rgba(230, 240, 236, 0.92);
+  border: 1px solid rgba(169, 194, 188, 0.28);
+  cursor: default;
+}
+
+.pp-features-card {
+  padding: 1.35rem 1.35rem 1.25rem;
+}
+
+.pp-features-more {
+  display: none;
+}
+
+.pp-features-title {
+  display: none;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0 0 1rem;
+  color: #f5f7f6;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.pp-features-title svg {
+  color: #7dffc0;
+}
+
+.pp-features {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem 1.1rem;
+}
+
+.pp-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  color: rgba(235, 242, 238, 0.92);
+  font-size: 0.86rem;
+  line-height: 1.35;
+  min-width: 0;
+}
+
+.pp-features li>span:last-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.pp-feat-icon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #7dffc0;
+  overflow: hidden;
+}
+
+.pp-feat-icon img {
+  width: 15px;
+  height: 15px;
+  display: block;
+  object-fit: contain;
+}
+
+.pp-feat-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.pp-perks-block {
+  position: relative;
+  z-index: 1;
+  margin-top: 2.5rem;
+}
+
+.pp-perks-head {
+  text-align: left;
+  max-width: 38rem;
+  margin: 0 0 1.5rem;
+}
+
+.pp-perks-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin: 0 0 0.85rem;
+  color: rgba(240, 237, 228, 0.82);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.pp-perks-kicker-line {
+  display: block;
+  width: 52px;
+  height: 1px;
+  background: linear-gradient(90deg, #7dffc0, transparent);
+}
+
+.pp-perks-head h3 {
+  margin: 0 0 0.65rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.55rem, 2.8vw, 2.15rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: #f5f7f6;
+}
+
+.pp-perks-head h3 em {
+  font-style: normal;
+  color: #7dffc0;
+}
+
+.pp-perks-head>p {
+  margin: 0;
+  color: rgba(190, 210, 202, 0.78);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.pp-perks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.95rem;
+  padding: 1rem;
+  border-radius: 22px;
+  border: 1px solid rgba(125, 255, 192, 0.22);
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(125, 255, 192, 0.08), transparent 55%),
+    linear-gradient(165deg, rgba(10, 28, 22, 0.96) 0%, rgba(4, 14, 11, 0.98) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(125, 255, 192, 0.12),
+    0 18px 40px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(10px);
+}
+
+.pp-perk {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.95rem;
+  padding: 1.15rem 1.1rem;
+  border-radius: 18px;
+  background:
+    linear-gradient(145deg, rgba(125, 255, 192, 0.08) 0%, transparent 42%),
+    linear-gradient(160deg, rgba(14, 36, 28, 0.92) 0%, rgba(6, 20, 16, 0.88) 100%);
+  border: 1px solid rgba(125, 255, 192, 0.16);
+  box-shadow:
+    inset 1px 1px 0 rgba(125, 255, 192, 0.18),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.25),
+    0 14px 34px rgba(0, 0, 0, 0.28);
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.pp-perk--workflows {
+  grid-column: 1 / -1;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.pp-perk:hover {
+  transform: translateY(-3px);
+  border-color: rgba(125, 255, 192, 0.32);
+  box-shadow:
+    inset 1px 1px 0 rgba(125, 255, 192, 0.24),
+    0 18px 40px rgba(0, 0, 0, 0.38);
+}
+
+.pp-perk-orb {
+  position: relative;
+  width: 64px;
+  height: 72px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+}
+
+.pp-perk-orb-glow {
+  position: absolute;
+  inset: 8% 6% 18%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(125, 255, 192, 0.28) 0%, transparent 68%);
+  filter: blur(6px);
+}
+
+.pp-perk-orb-sphere {
+  position: relative;
+  z-index: 1;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.38), transparent 36%),
+    radial-gradient(circle at 70% 78%, rgba(0, 40, 28, 0.55), transparent 50%),
+    linear-gradient(160deg, rgba(90, 160, 130, 0.55) 0%, rgba(18, 48, 38, 0.85) 55%, rgba(8, 24, 18, 0.95) 100%);
+  border: 1px solid rgba(200, 255, 230, 0.35);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.28),
+    inset 0 -8px 14px rgba(0, 0, 0, 0.35),
+    0 0 18px rgba(125, 255, 192, 0.18),
+    0 8px 16px rgba(0, 0, 0, 0.35);
+}
+
+.pp-perk-orb-sphere img {
+  width: 24px;
+  height: 24px;
+  display: block;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+}
+
+.pp-perk-orb-base {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  width: 34px;
+  height: 8px;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse, rgba(125, 255, 192, 0.35) 0%, rgba(10, 30, 22, 0.8) 70%);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+}
+
+.pp-perk-crown {
+  display: grid;
+  place-items: center;
+  position: absolute;
+  top: 4px;
+  right: 2px;
+  z-index: 2;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(160deg, #9dffd0 0%, #3dcf8a 100%);
+  border: 1px solid rgba(220, 255, 236, 0.55);
+  box-shadow: 0 2px 8px rgba(61, 207, 138, 0.45);
+}
+
+.pp-perk-crown img {
+  width: 9px;
+  height: 9px;
+  display: block;
+}
+
+.pp-perk-orb-flare {
+  display: block;
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  width: 38px;
+  height: 14px;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at 50% 30%,
+      rgba(180, 255, 220, 0.95) 0%,
+      rgba(125, 255, 192, 0.55) 35%,
+      transparent 72%);
+  filter: blur(0.2px);
+  box-shadow: 0 0 12px rgba(125, 255, 192, 0.55);
+  z-index: 2;
+}
+
+.pp-perk-orb-flare::after {
+  content: '';
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  top: 35%;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85), transparent);
+}
+
+.pp-perk-copy h4 {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: #f5f7f6;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.pp-perk-copy p {
+  margin: 0;
+  color: rgba(190, 210, 202, 0.78);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.pp-perk--workflows .pp-perk-chart {
+  display: grid;
+  grid-template-columns: repeat(3, 18px);
+  align-items: end;
+  gap: 4px;
+  position: relative;
+  width: 72px;
+  height: 54px;
+  margin-right: 0.15rem;
+  perspective: 220px;
+}
+
+.pp-perk-chart-pane {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  align-items: end;
+  gap: 2px;
+  height: 100%;
+  padding: 6px 4px 5px;
+  border-radius: 6px;
+  background: linear-gradient(160deg, rgba(125, 255, 192, 0.18), rgba(20, 55, 42, 0.55));
+  border: 1px solid rgba(125, 255, 192, 0.28);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.28);
+  transform: rotateY(-18deg) skewY(-4deg);
+}
+
+.pp-perk-chart-pane:nth-child(2) {
+  transform: rotateY(-12deg) skewY(-3deg) translateY(-2px);
+  opacity: 0.9;
+}
+
+.pp-perk-chart-pane:nth-child(3) {
+  transform: rotateY(-8deg) skewY(-2deg) translateY(-4px);
+  opacity: 0.78;
+}
+
+.pp-perk-chart-pane i {
+  display: block;
+  width: 100%;
+  border-radius: 1px;
+  background: linear-gradient(180deg, #b8ffe0, #3dcf8a);
+  box-shadow: 0 0 4px rgba(125, 255, 192, 0.35);
+}
+
+.pp-perk-chart-pane i:nth-child(1) {
+  height: 35%;
+}
+
+.pp-perk-chart-pane i:nth-child(2) {
+  height: 58%;
+}
+
+.pp-perk-chart-pane i:nth-child(3) {
+  height: 42%;
+}
+
+.pp-perk-chart-pane i:nth-child(4) {
+  height: 72%;
+}
+
+.pp-perk-chart-arrow {
+  position: absolute;
+  right: -2px;
+  top: 2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(8, 28, 20, 0.85);
+  border: 1px solid rgba(125, 255, 192, 0.4);
+  box-shadow: 0 0 10px rgba(125, 255, 192, 0.25);
+}
+
+.pp-perk-chart-arrow img {
+  width: 13px;
+  height: 13px;
+  display: block;
+}
+
+@media (max-width: 980px) {
+  .pp-hero {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .pp-hero-visual {
+    order: -1;
+    border-radius: 18px;
+  }
+
+  .pp-hero-copy {
+    max-width: none;
+    text-align: left;
+  }
+
+  .pp-hero-copy h2 {
+    font-size: clamp(1.9rem, 8vw, 2.45rem);
+  }
+
+  .pp-countdown {
+    gap: 0.45rem;
+  }
+
+  .pp-countdown-cell {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0.55rem 0.35rem 0.5rem;
+  }
+
+  .pp-countdown-cell strong {
+    font-size: 1.25rem;
+  }
+
+  .pp-main {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .pp-price-card {
+    padding: 1.25rem 1.15rem 1.2rem;
+  }
+
+  .pp-features-card {
+    padding: 1.15rem 1.05rem 0.85rem;
+  }
+
+  .pp-features-title {
+    display: inline-flex;
+  }
+
+  .pp-features {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .pp-features li {
+    align-items: center;
+    padding: 0.85rem 0.15rem;
+    border-bottom: 1px solid rgba(125, 255, 192, 0.1);
+    font-size: 0.9rem;
+  }
+
+  .pp-features li:last-child {
+    border-bottom: 0;
+  }
+
+  .pp-features-more {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    width: 100%;
+    margin-top: 0.35rem;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid rgba(125, 255, 192, 0.28);
+    border-radius: 999px;
+    background: rgba(125, 255, 192, 0.08);
+    color: #7dffc0;
+    font-size: 0.86rem;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+
+  .pp-features-more-icon {
+    display: block;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    margin-top: 1px;
+    transition: transform 0.2s ease;
+  }
+
+  .pp-features-more-icon.is-open {
+    transform: rotate(180deg);
+  }
+
+  .pp-features-more:hover {
+    background: rgba(125, 255, 192, 0.16);
+    border-color: rgba(125, 255, 192, 0.45);
+    color: #9dffd0;
+  }
+
+  .pp-feat-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+  }
+
+  .pp-perks-block {
+    margin-top: 2.15rem;
+    min-width: 0;
+  }
+
+  .pp-perks-head {
+    max-width: none;
+  }
+
+  .pp-perks-head h3 {
+    font-size: clamp(1.35rem, 6vw, 1.7rem);
+  }
+
+  .pp-perks-head>p {
+    font-size: 0.88rem;
+  }
+
+  .pp-perks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    padding: 0.85rem;
+    min-width: 0;
+  }
+
+  /* Stack icon above copy so 2-col cards stay readable */
+  .pp-perk {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: start;
+    align-items: start;
+    gap: 0.55rem;
+    padding: 0.95rem 0.8rem 1rem;
+    border-radius: 16px;
+    min-width: 0;
+  }
+
+  .pp-perk:hover {
+    transform: none;
+  }
+
+  .pp-perk-orb {
+    width: 52px;
+    height: 60px;
+  }
+
+  .pp-perk-orb-base {
+    display: none;
+  }
+
+  .pp-perk-orb-sphere {
+    width: 46px;
+    height: 46px;
+  }
+
+  .pp-perk-orb-sphere img {
+    width: 20px;
+    height: 20px;
+  }
+
+  .pp-perk-copy {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .pp-perk-copy h4 {
+    font-size: 0.9rem;
+    margin-bottom: 0.28rem;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .pp-perk-copy p {
+    font-size: 0.74rem;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .pp-perk--workflows {
+    grid-column: 1 / -1;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      'orb chart'
+      'copy copy';
+    align-items: center;
+    column-gap: 0.75rem;
+    row-gap: 0.55rem;
+  }
+
+  .pp-perk--workflows .pp-perk-orb {
+    grid-area: orb;
+  }
+
+  .pp-perk--workflows .pp-perk-copy {
+    grid-area: copy;
+  }
+
+  .pp-perk--workflows .pp-perk-chart {
+    grid-area: chart;
+    justify-self: end;
+    width: 68px;
+    height: 50px;
+    margin: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .pp-section {
+    padding-block: 2rem 2.35rem;
+  }
+
+  .pp-kicker {
+    font-size: 0.62rem;
+  }
+
+  .pp-price strong {
+    font-size: 2.25rem;
+  }
+
+  .pp-btn {
+    min-height: 2.85rem;
+    font-size: 0.88rem;
+  }
+
+  .pp-perks {
+    gap: 0.65rem;
+    padding: 0.7rem;
+    border-radius: 18px;
+  }
+
+  .pp-perk {
+    padding: 0.85rem 0.75rem 0.9rem;
+    gap: 0.5rem;
+  }
+
+  .pp-perk-orb {
+    width: 48px;
+    height: 56px;
+  }
+
+  .pp-perk-orb-sphere {
+    width: 42px;
+    height: 42px;
+  }
+
+  .pp-perk-orb-sphere img {
+    width: 18px;
+    height: 18px;
+  }
+
+  .pp-perk-copy h4 {
+    font-size: 0.86rem;
+  }
+
+  .pp-perk-copy p {
+    font-size: 0.7rem;
+  }
+
+  .pp-perk--workflows .pp-perk-chart {
+    width: 58px;
+    height: 44px;
+    grid-template-columns: repeat(3, 14px);
+  }
+}
+
+@media (max-width: 600px) {
+  .pp-section {
+    padding-block: var(--section-y-sm);
+  }
+}

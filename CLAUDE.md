@@ -34,16 +34,22 @@ src/
   main.tsx              BrowserRouter + global.css
   App.tsx               All routes, nested under <Layout/>; unknown paths → "/"
   components/
-    Layout.tsx          Header, <Outlet/>, Footer, ScrollToTop, WhatsAppFloat, RouteScrollReset
-    Reveal.tsx          IntersectionObserver fade-in wrapper (adds .is-in; respects reduced motion)
-    *Section.tsx        Home page sections (also reused on /pricing, /demos, /training, /contact)
-    *Visuals.tsx        Image/icon maps + small visual components for sections
-  pages/                One file per route; CSS colocated (Home.css is ~4k lines and shared by sections)
+    layout/             App shell on every page: Layout (Header, <Outlet/>, Footer, ScrollToTop,
+                        WhatsAppFloat, RouteScrollReset)
+    sections/           Big page sections reused across routes (Home, /pricing, /demos, /training,
+                        /contact), each *.tsx with its colocated *.css. SolutionsStack.css also holds
+                        the shared sticky stack-card styles used by ProTraining + DemoVideos sections.
+    visuals/            *Visuals.tsx: image/icon maps + small visual components for sections
+                        (PageHddVisual.tsx is currently unused)
+    ui/                 Small generic building blocks — Reveal (IntersectionObserver fade-in; adds
+                        .is-in; respects reduced motion)
+  pages/                One file per route; CSS colocated (Home.css = Home-only: hero, global stats, why-learn)
   data/content.ts       ALL copy/data: company, stats, trainingTracks, demoVideos, pricing, services, industries, blogPosts
   data/sectionMedia.ts  Section → /assets image maps
   lib/icons.ts          iconSrc('lucide/name', color) → /icons/lucide__name__<color>.svg
   styles/global.css     Design tokens (:root vars), base, buttons, container
   styles/glass.css      Glass/blur surface styles
+  styles/sections.css   Accent bars shared across sections (.why-accent-bar, .training-accent-bar)
 public/
   assets/               Compressed .webp/.png images referenced as '/assets/...'
   icons/                Pre-exported Iconify SVGs, one file per icon+color variant
@@ -60,6 +66,8 @@ Routes: `/`, `/training`, `/training/:trackId`, `/pricing`, `/demos`, `/contact`
 - Icons: local SVGs only (no CDN). Use `icons.*` or `iconSrc()`. Variants: `mint`, `white`, `dark`, `ivory`, `wa`. A new icon needs a matching file in `public/icons/` for each color used.
 - Images: add as optimized `.webp` under `public/assets/`; reference by absolute path.
 - Animations: wrap in `<Reveal>`; honor `prefers-reduced-motion`.
+- New components go in the matching `components/` subfolder: app shell → `layout/`, page section → `sections/`, image/visual helpers → `visuals/`, generic reusable piece → `ui/`.
+- Section styles live next to their component (`Foo.tsx` + `Foo.css`). All routes are eagerly imported, so every CSS file ends up in one bundle — class prefixes must stay unique per section to avoid cross-file cascade clashes.
 - Mobile matters — sections use many `max-width` breakpoints (560/640/900/980/1024/1100/1280px).
 
 ## Known lint warnings (pre-existing)

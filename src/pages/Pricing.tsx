@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ProfessionalPlanSection } from '../components/ProfessionalPlanSection';
+import { ProfessionalPlanSection } from '../components/sections/ProfessionalPlanSection';
 import './SimplePages.css';
 
 export function Pricing() {

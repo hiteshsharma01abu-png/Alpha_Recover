@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import { ProTrainingSection } from '../components/ProTrainingSection';
-import { TrainingSolutionsSection } from '../components/TrainingSolutionsSection';
+import { ProTrainingSection } from '../components/sections/ProTrainingSection';
+import { TrainingSolutionsSection } from '../components/sections/TrainingSolutionsSection';
 
 export function TrainingIndex() {
   return (

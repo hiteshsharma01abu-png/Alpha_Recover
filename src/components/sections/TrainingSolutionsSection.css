@@ -1,0 +1,50 @@
+.training-section {
+  position: relative;
+  z-index: 5;
+  overflow: hidden;
+  background: #0F2821;
+}
+
+.training-deco {
+  display: none;
+}
+
+.training-head {
+  position: relative;
+  z-index: 1;
+  max-width: 42rem;
+  margin-bottom: var(--section-head-gap);
+}
+
+.training-page-lead {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 1.5rem;
+  max-width: 38rem;
+  color: #F0EDE4;
+  font-size: 1.02rem;
+  line-height: 1.55;
+}
+
+.training-head h2 {
+  font-size: clamp(1.85rem, 3.4vw, 2.55rem);
+  color: #F0EDE4;
+  margin: 0 0 0.65rem;
+}
+
+.training-head h2 em {
+  font-style: normal;
+  color: #7DFFC0;
+}
+
+.training-head p {
+  margin: 0;
+  color: #F0EDE4;
+  max-width: 48ch;
+}
+
+@media (max-width: 600px) {
+  .training-section {
+    padding-block: var(--section-y-sm);
+  }
+}

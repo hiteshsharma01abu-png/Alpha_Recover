@@ -1,6 +1,7 @@
-import { Reveal } from './Reveal';
+import { Reveal } from '../ui/Reveal';
 import { TrainingExplorer } from './TrainingExplorer';
-import '../pages/Home.css';
+import '../../styles/sections.css';
+import './TrainingSolutionsSection.css';
 
 type TrainingSolutionsSectionProps = {
   /** Hide the section title block (use on /training where page-hero already titles the page). */

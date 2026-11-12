@@ -1,15 +1,16 @@
 import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
-import { featuredSolutions } from '../data/content';
-import { fallbackSectionImage, proTrainingImages } from '../data/sectionMedia';
-import { icons } from '../lib/icons';
+import { featuredSolutions } from '../../data/content';
+import { fallbackSectionImage, proTrainingImages } from '../../data/sectionMedia';
+import { icons } from '../../lib/icons';
 import {
   proTrainingBenefits,
   proTrainingBg,
   proTrainingHero,
   proTrainingMeta,
-} from './proTrainingVisuals';
-import '../pages/Home.css';
+} from '../visuals/proTrainingVisuals';
+import '../../styles/sections.css';
+import './ProTrainingSection.css';
 
 const proAccents = ['#D9B56E', '#7DFFC0', '#CFDDD8'] as const;
 

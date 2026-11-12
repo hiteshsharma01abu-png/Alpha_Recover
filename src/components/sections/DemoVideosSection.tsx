@@ -1,12 +1,13 @@
 import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
-import { demoVideos } from '../data/content';
+import { demoVideos } from '../../data/content';
 import {
   demoCategoryIconSrc,
   demoPlayIconMint,
   demoVideoImages,
-} from './demoVisuals';
-import '../pages/Home.css';
+} from '../visuals/demoVisuals';
+import '../../styles/sections.css';
+import './DemoVideosSection.css';
 
 type DemoVideosSectionProps = {
   limit?: number;

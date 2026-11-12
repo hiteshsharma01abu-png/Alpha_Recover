@@ -1,19 +1,19 @@
 import { Link } from 'react-router-dom';
 import { heroHighlights, quickActions, stats, whyLearn } from '../data/content';
-import { ContactCtaSection } from '../components/ContactCtaSection';
-import { DemoVideosSection } from '../components/DemoVideosSection';
+import { ContactCtaSection } from '../components/sections/ContactCtaSection';
+import { DemoVideosSection } from '../components/sections/DemoVideosSection';
 import {
   globalStatIcons,
   globalStatsBg,
   globalStatsGlobe,
   globalStatsWave,
   heroHighlightIcons,
-} from '../components/impactVisuals';
-import { ProfessionalPlanSection } from '../components/ProfessionalPlanSection';
-import { ProTrainingSection } from '../components/ProTrainingSection';
-import { Reveal } from '../components/Reveal';
-import { SolutionsStack } from '../components/SolutionsStack';
-import { TrainingSolutionsSection } from '../components/TrainingSolutionsSection';
+} from '../components/visuals/impactVisuals';
+import { ProfessionalPlanSection } from '../components/sections/ProfessionalPlanSection';
+import { ProTrainingSection } from '../components/sections/ProTrainingSection';
+import { Reveal } from '../components/ui/Reveal';
+import { SolutionsStack } from '../components/sections/SolutionsStack';
+import { TrainingSolutionsSection } from '../components/sections/TrainingSolutionsSection';
 import {
   fallbackSectionImage,
   whyLearnBadgeSrc,
@@ -21,6 +21,7 @@ import {
   whyLearnImages,
 } from '../data/sectionMedia';
 import { icons } from '../lib/icons';
+import '../styles/sections.css';
 import './Home.css';
 
 const heroDriveSrc = '/assets/hero-drive.webp';

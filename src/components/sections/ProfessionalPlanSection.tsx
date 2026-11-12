@@ -1,16 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { company, pricing } from '../data/content';
-import { Reveal } from './Reveal';
-import { icons } from '../lib/icons';
+import { company, pricing } from '../../data/content';
+import { Reveal } from '../ui/Reveal';
+import { icons } from '../../lib/icons';
 import {
   pricingFeatureIcons,
   pricingHeroVisual,
   pricingMobileFeatureIndexes,
   pricingPerks,
   pricingSectionBg,
-} from './pricingVisuals';
-import '../pages/Home.css';
+} from '../visuals/pricingVisuals';
+import '../../styles/sections.css';
+import './ProfessionalPlanSection.css';
 
 function formatInr(n: number) {
   return new Intl.NumberFormat('en-IN', {

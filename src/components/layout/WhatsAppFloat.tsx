@@ -1,5 +1,5 @@
-import { company } from '../data/content';
-import { icons } from '../lib/icons';
+import { company } from '../../data/content';
+import { icons } from '../../lib/icons';
 import './WhatsAppFloat.css';
 
 export function WhatsAppFloat() {

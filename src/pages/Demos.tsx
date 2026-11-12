@@ -12,9 +12,9 @@ import {
   demoPlayIconMint,
   demoSearchIcon,
   demoVideoImages,
-} from '../components/demoVisuals';
+} from '../components/visuals/demoVisuals';
 import { icons } from '../lib/icons';
-import './Home.css';
+import '../components/sections/DemoVideosSection.css';
 import './Demos.css';
 
 const PAGE_SIZE = 12;

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { icons, whiteIcon } from '../lib/icons';
+import { icons, whiteIcon } from '../../lib/icons';
 
 const U = (id: string, w = 1200, h = 360) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&h=${h}&q=80`;

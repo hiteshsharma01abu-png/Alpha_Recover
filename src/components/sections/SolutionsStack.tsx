@@ -1,7 +1,9 @@
 import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
-import { recoverySolutions } from '../data/content';
-import { fallbackSectionImage, recoverySolutionImages } from '../data/sectionMedia';
+import { recoverySolutions } from '../../data/content';
+import { fallbackSectionImage, recoverySolutionImages } from '../../data/sectionMedia';
+import '../../styles/sections.css';
+import './SolutionsStack.css';
 
 /**
  * Osaanj Featured Products: all cards are sticky SIBLINGS in one parent.

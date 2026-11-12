@@ -1,4 +1,4 @@
-import { icons } from '../lib/icons';
+import { icons } from '../../lib/icons';
 
 export const proTrainingHero = '/assets/training-hero.webp';
 export const proTrainingBg = '/assets/training-bg.webp';

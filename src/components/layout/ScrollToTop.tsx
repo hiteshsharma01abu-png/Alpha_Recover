@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { icons } from '../lib/icons';
+import { icons } from '../../lib/icons';
 import './ScrollToTop.css';
 
 export function ScrollToTop() {
