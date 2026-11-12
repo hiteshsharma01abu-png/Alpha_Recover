@@ -9,10 +9,10 @@
 | Control | Requirement |
 |---|---|
 | Library | Better Auth on our own MySQL (no hand-rolled crypto) |
-| Password hashing | argon2id (memory ≥ 19 MiB, iterations ≥ 2), per-hash salt |
+| Password hashing | **scrypt** (Better Auth default, memory-hard, per-hash salt). Chosen over argon2id because it needs no native module, so it runs on shared hosting |
 | Password policy | 8–128 chars; reject the top breached passwords; no composition rules (NIST 800-63B) |
-| Session | Opaque random token in cookie `ar_session`: `HttpOnly; Secure; SameSite=Lax; Path=/`. Stored server-side (`sessions`) so it's revocable |
-| Lifetime | 12h default, 30d with "Remember me"; sliding refresh on activity |
+| Session | Opaque random token in cookie `ar.session_token` (`__Secure-ar.session_token` over HTTPS), signed with `BETTER_AUTH_SECRET`: `HttpOnly; Secure; SameSite=Lax; Path=/`. Stored server-side (`sessions`) so it's revocable |
+| Lifetime | 12h default, 30d with "Remember me"; sliding refresh on activity. *Implemented so far (Phase 1): 30-day sessions refreshed daily; the 12h default arrives with the Phase 3 login route* |
 | Session limit | Students: max 2 concurrent (setting). Staff: 3. New login evicts the oldest; the user sees a notice |
 | Rotation | New session ID on login, privilege change and password change; all sessions revoked on password reset |
 | Email verification | Token (hashed at rest), 24h, single use. Purchases require a verified email (setting) |
@@ -110,7 +110,7 @@ Implementation: a `permissions.ts` map `role → Set<permission>`; middleware `r
 
 | Data | Handling |
 |---|---|
-| Passwords | argon2id hash only |
+| Passwords | scrypt hash only |
 | Tokens (session, verify, reset) | Random, hashed at rest where supported, expiring |
 | Email / phone | Stored for account and leads; never exposed in public APIs (certificate verify shows only name/program/date/status) |
 | IP addresses | Leads/audit: salted SHA-256 hash; sessions: raw IP for security display, deleted with the session |

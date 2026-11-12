@@ -9,7 +9,7 @@
 ## 0. Conventions
 
 ### Authentication
-- Session cookie `ar_session` (httpOnly, Secure, SameSite=Lax, Path=/), issued by Better Auth.
+- Session cookie `ar.session_token` (`__Secure-` prefix over HTTPS; httpOnly, Secure, SameSite=Lax, Path=/), issued by Better Auth.
 - **Auth levels:** `public` · `user` (any logged-in user) · `student` (logged in, `status=active`) · `staff:<permission>` (admin roles, see [SECURITY.md](SECURITY.md)).
 - Mutating requests from the browser must send `X-Requested-With: fetch` (a CSRF defence-in-depth check, alongside SameSite cookies and an Origin check).
 
@@ -53,6 +53,12 @@
 
 ---
 
+## 0.1 Health
+
+| Method | Endpoint | Auth | Purpose |
+|---|---|---|---|
+| GET | `/health` | public | Uptime / deploy smoke test. `200 { "data": { "status": "ok", "db": "ok", "time": "…" } }`, or `503 SERVICE_UNAVAILABLE` when the database is unreachable. **Implemented (Phase 1)** |
+
 ## 1. Authentication APIs
 
 | Method | Endpoint | Auth | Purpose |
@@ -61,7 +67,7 @@
 | POST | `/auth/login` | public | Email/password login; sets cookie |
 | POST | `/auth/logout` | user | End the current session |
 | POST | `/auth/logout-all` | user | End all sessions for the user |
-| GET | `/auth/session` | public | Current user or `null` (header login state) |
+| GET | `/auth/session` | public | Current user or `null` (header login state). **Implemented (Phase 1)** |
 | POST | `/auth/verify-email` | public | Confirm an email with a token |
 | POST | `/auth/verify-email/resend` | user | Resend the verification email |
 | POST | `/auth/password/forgot` | public + captcha | Send a reset link (always 200) |
@@ -367,8 +373,8 @@ All read-only aggregates over existing tables (no separate analytics store at th
 |---|---|---|---|
 | GET | `/admin/notifications` | `notifications.read` | Outbox log `?status&template&channel` |
 | POST | `/admin/notifications/:id/retry` | `notifications.write` | Retry a failed/dead job |
-| POST | `/internal/cron/notifications` | `Authorization: Bearer $CRON_SECRET` (called by host cron via `curl`) | Drain the outbox (batch of 50, backoff) |
-| POST | `/internal/cron/maintenance` | `Authorization: Bearer $CRON_SECRET` (host cron) | Expire orders, delete expired sessions and verifications, end promotions |
+| POST | `/internal/cron/notifications` (**implemented**) | `Authorization: Bearer $CRON_SECRET` (called by host cron via `curl`) | Drain the outbox (batch of 50, backoff) |
+| POST | `/internal/cron/maintenance` (**implemented**) | `Authorization: Bearer $CRON_SECRET` (host cron) | Expire orders, delete expired sessions and verifications, end promotions |
 | POST | `/webhooks/postmark` | Postmark basic-auth | Bounce/spam complaints → mark email undeliverable |
 
 Templates: `verify_email`, `password_reset`, `order_receipt`, `enrollment_welcome`, `lead_ack`, `lead_alert`, `certificate_issued`, `refund_processed`. WhatsApp templates are added when the BSP is onboarded.

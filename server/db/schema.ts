@@ -1,0 +1,185 @@
+/**
+ * Database schema (MySQL 8.0+ / MariaDB 10.6+). Source of truth for columns; docs/DATABASE.md
+ * documents relationships and rules. Phase 1 tables only — later phases add their own.
+ *
+ * Conventions: char(36) UUIDv7 ids, datetime(3) in UTC, snake_case columns.
+ * The four auth tables use the JS keys Better Auth expects (see server/auth/auth.ts).
+ */
+import { sql } from 'drizzle-orm';
+import {
+  bigint,
+  boolean,
+  char,
+  datetime,
+  index,
+  int,
+  json,
+  mysqlEnum,
+  mysqlTable,
+  smallint,
+  text,
+  uniqueIndex,
+  varchar,
+} from 'drizzle-orm/mysql-core';
+import { uuidv7 } from '../lib/ids';
+
+const id = () => char('id', { length: 36 }).primaryKey().$defaultFn(uuidv7);
+const ts = (name: string) => datetime(name, { mode: 'date', fsp: 3 });
+const createdAt = () => ts('created_at').notNull().default(sql`CURRENT_TIMESTAMP(3)`);
+const updatedAt = () =>
+  ts('updated_at')
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP(3)`)
+    .$onUpdate(() => new Date());
+
+export const USER_ROLES = ['student', 'support', 'content_manager', 'admin', 'super_admin'] as const;
+export type UserRole = (typeof USER_ROLES)[number];
+
+// ── Auth (Better Auth models: user, account, session, verification) ──────────
+
+export const users = mysqlTable(
+  'users',
+  {
+    id: id(),
+    email: varchar('email', { length: 254 }).notNull(),
+    emailVerified: boolean('email_verified').notNull().default(false),
+    /** Better Auth's required `name` field is mapped to this column. */
+    firstName: varchar('first_name', { length: 80 }).notNull(),
+    lastName: varchar('last_name', { length: 80 }),
+    certificateName: varchar('certificate_name', { length: 160 }),
+    image: varchar('image', { length: 500 }),
+    phone: varchar('phone', { length: 20 }),
+    country: varchar('country', { length: 2 }).notNull(),
+    role: mysqlEnum('role', USER_ROLES).notNull().default('student'),
+    status: mysqlEnum('status', ['active', 'suspended']).notNull().default('active'),
+    termsAcceptedAt: ts('terms_accepted_at').notNull(),
+    whatsappOptInAt: ts('whatsapp_opt_in_at'),
+    lastLoginAt: ts('last_login_at'),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+    deletedAt: ts('deleted_at'),
+  },
+  (t) => [uniqueIndex('users_email_uq').on(t.email), index('users_role_idx').on(t.role), index('users_created_idx').on(t.createdAt)],
+);
+
+export const accounts = mysqlTable(
+  'accounts',
+  {
+    id: id(),
+    userId: char('user_id', { length: 36 })
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    providerId: varchar('provider_id', { length: 32 }).notNull(),
+    accountId: varchar('account_id', { length: 255 }).notNull(),
+    /** Password hash (scrypt, by Better Auth). Null for OAuth accounts. */
+    password: text('password'),
+    accessToken: text('access_token'),
+    refreshToken: text('refresh_token'),
+    idToken: text('id_token'),
+    accessTokenExpiresAt: ts('access_token_expires_at'),
+    refreshTokenExpiresAt: ts('refresh_token_expires_at'),
+    scope: varchar('scope', { length: 255 }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [uniqueIndex('accounts_provider_uq').on(t.providerId, t.accountId), index('accounts_user_idx').on(t.userId)],
+);
+
+export const sessions = mysqlTable(
+  'sessions',
+  {
+    id: id(),
+    userId: char('user_id', { length: 36 })
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    token: varchar('token', { length: 255 }).notNull(),
+    expiresAt: ts('expires_at').notNull(),
+    ipAddress: varchar('ip_address', { length: 45 }),
+    userAgent: text('user_agent'),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    uniqueIndex('sessions_token_uq').on(t.token),
+    index('sessions_user_created_idx').on(t.userId, t.createdAt),
+    index('sessions_expires_idx').on(t.expiresAt),
+  ],
+);
+
+export const verifications = mysqlTable(
+  'verifications',
+  {
+    id: id(),
+    identifier: varchar('identifier', { length: 255 }).notNull(),
+    value: varchar('value', { length: 255 }).notNull(),
+    expiresAt: ts('expires_at').notNull(),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index('verifications_identifier_idx').on(t.identifier), index('verifications_expires_idx').on(t.expiresAt)],
+);
+
+// ── Platform ─────────────────────────────────────────────────────────────────
+
+export const siteSettings = mysqlTable('site_settings', {
+  key: varchar('key', { length: 64 }).primaryKey(),
+  value: json('value').notNull(),
+  isPublic: boolean('is_public').notNull().default(false),
+  updatedBy: char('updated_by', { length: 36 }).references(() => users.id),
+  updatedAt: updatedAt(),
+});
+
+export const notificationJobs = mysqlTable(
+  'notification_jobs',
+  {
+    id: id(),
+    channel: mysqlEnum('channel', ['email', 'whatsapp']).notNull(),
+    template: varchar('template', { length: 64 }).notNull(),
+    toAddress: varchar('to_address', { length: 254 }).notNull(),
+    payload: json('payload').notNull(),
+    status: mysqlEnum('status', ['pending', 'sending', 'sent', 'failed', 'dead']).notNull().default('pending'),
+    attempts: smallint('attempts').notNull().default(0),
+    nextAttemptAt: ts('next_attempt_at').notNull().default(sql`CURRENT_TIMESTAMP(3)`),
+    providerMessageId: varchar('provider_message_id', { length: 128 }),
+    lastError: text('last_error'),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+    sentAt: ts('sent_at'),
+  },
+  (t) => [
+    index('notification_jobs_due_idx').on(t.status, t.nextAttemptAt),
+    index('notification_jobs_template_idx').on(t.template, t.createdAt),
+  ],
+);
+
+export const activityLogs = mysqlTable(
+  'activity_logs',
+  {
+    id: bigint('id', { mode: 'number', unsigned: true }).autoincrement().primaryKey(),
+    actorId: char('actor_id', { length: 36 }).references(() => users.id),
+    actorRole: mysqlEnum('actor_role', USER_ROLES),
+    action: varchar('action', { length: 64 }).notNull(),
+    entityType: varchar('entity_type', { length: 32 }),
+    entityId: varchar('entity_id', { length: 64 }),
+    metadata: json('metadata'),
+    ipHash: char('ip_hash', { length: 64 }),
+    requestId: varchar('request_id', { length: 40 }),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    index('activity_logs_entity_idx').on(t.entityType, t.entityId, t.createdAt),
+    index('activity_logs_actor_idx').on(t.actorId, t.createdAt),
+    index('activity_logs_action_idx').on(t.action, t.createdAt),
+  ],
+);
+
+export const rateLimitBuckets = mysqlTable(
+  'rate_limit_buckets',
+  {
+    bucketKey: varchar('bucket_key', { length: 191 }).primaryKey(),
+    windowStart: ts('window_start').notNull(),
+    hits: int('hits', { unsigned: true }).notNull(),
+    expiresAt: ts('expires_at').notNull(),
+  },
+  (t) => [index('rate_limit_buckets_expires_idx').on(t.expiresAt)],
+);

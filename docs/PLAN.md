@@ -36,7 +36,7 @@ Phase 7 QA & security hardening (continuous, gate before production launch)
 
 **Exit:** decisions recorded in the PRD; API keys stored as environment secrets (GitHub Actions + staging host). **Hosting choice can wait until Phase 7**, but sooner is better so staging matches production.
 
-### Phase 1 — Backend foundation · M
+### Phase 1 — Backend foundation · M · **Built on `feat/backend-foundation` (2026-11-12); DB tests pending a local MySQL run**
 | Task | Detail |
 |---|---|
 | Project scaffold | `server/index.ts` (Node entry, `@hono/node-server`) → Hono app; `server/` structure; esbuild bundle; Vercel adapter `api/[[...route]].ts` for development previews; `deploy/` templates: `.htaccess` (SPA fallback + `/api` exclusion + headers), Passenger/PM2 config, Nginx example, cron list |
@@ -49,6 +49,18 @@ Phase 7 QA & security hardening (continuous, gate before production launch)
 | Frontend client | `src/lib/api.ts` typed fetch wrapper (no UI change yet) |
 
 **Exit:** `GET /api/v1/health` live on preview; CI green; migrations reproducible.
+
+**Status**
+- [x] Scaffold (`server/`), esbuild bundle, `deploy/` templates. Vercel adapter deliberately deferred (see ARCHITECTURE.md §4)
+- [x] MySQL pool + Drizzle + first migration (8 tables incl. `rate_limit_buckets`); Docker MySQL
+- [x] Zod env validation, `.env.example`
+- [x] Envelope, `AppError`, request id, JSON logs, Sentry (optional), Zod validation, MySQL rate limiter, CSRF guard, security headers
+- [x] Better Auth (scrypt, DB sessions, `ar.` cookies, UUIDv7 ids), `requireUser` / `requireStaff`, permission matrix
+- [x] Email outbox + cron endpoints + Postmark/dev mailer + verify/reset templates
+- [x] Vitest (unit + MySQL integration), GitHub Actions CI on MySQL 8.4 + MariaDB 10.6
+- [x] `src/lib/api.ts`
+- [ ] Run DB integration tests locally (needs Docker) and in CI
+- [ ] Staging deploy (needs a host or managed MySQL; deploy-over-SSH job added when the host is chosen)
 
 ### Phase 2 — Public website backend · M–L
 | Task | API | [FE] work |

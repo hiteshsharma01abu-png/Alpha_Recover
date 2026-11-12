@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    name: Lint, typecheck, test (${{ matrix.db.name }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # MySQL for VPS/managed hosting, MariaDB for typical cPanel hosts (docs/ARCHITECTURE.md §3)
+        db:
+          - { name: mysql-8.4, image: 'mysql:8.4' }
+          - { name: mariadb-10.6, image: 'mariadb:10.6' }
+    services:
+      db:
+        image: ${{ matrix.db.image }}
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: alpharecover_test
+          MYSQL_USER: app
+          MYSQL_PASSWORD: app
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: alpharecover_test
+          MARIADB_USER: app
+          MARIADB_PASSWORD: app
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot || healthcheck.sh --connect"
+          --health-interval=5s --health-timeout=5s --health-retries=30
+    env:
+      CI: 'true'
+      TEST_DATABASE_URL: mysql://app:app@127.0.0.1:3306/alpharecover_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+      - run: npm run build:api
+      - run: npm test
