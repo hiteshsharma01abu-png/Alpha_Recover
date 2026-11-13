@@ -384,6 +384,8 @@
 
 ## 19. `certificates`
 
+> **Implemented (Phase 2)** with `certificate_sequences`: public verification works; issuing (eligibility, PDF, numbering via `allocateCertificateCode()` in `server/services/certificates.ts`) arrives in Phase 4. "plan_id and course_id not both null" is enforced by the issuing service rather than a CHECK constraint.
+
 | Column | Type | Notes |
 |---|---|---|
 | id | char(36) | PK |
@@ -408,10 +410,10 @@
 | Column | Type | Notes |
 |---|---|---|
 | year | integer | PK |
-| last_value | integer | not null default 0 |
+| last_number | integer | not null default 0 (not `last_value`: reserved in MySQL 8) |
 
 Incremented inside the issuing transaction with
-`INSERT INTO certificate_sequences (year, last_value) VALUES (?, LAST_INSERT_ID(1)) ON DUPLICATE KEY UPDATE last_value = LAST_INSERT_ID(last_value + 1);` then `SELECT LAST_INSERT_ID();` (row-locked, so it's gap-free and safe under concurrency; works on MySQL and MariaDB).
+``INSERT INTO certificate_sequences (`year`, last_number) VALUES (?, LAST_INSERT_ID(1)) ON DUPLICATE KEY UPDATE last_number = LAST_INSERT_ID(last_number + 1);`` then `SELECT LAST_INSERT_ID();` (row-locked, so it's gap-free and safe under concurrency; works on MySQL and MariaDB).
 
 ## 21. `blog_posts`
 

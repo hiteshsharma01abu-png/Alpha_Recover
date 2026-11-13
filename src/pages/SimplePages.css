@@ -610,3 +610,43 @@ a.contact-info-card:hover {
     max-width: none;
   }
 }
+/* Verify certificate result */
+.cert-result {
+  margin-top: 1.25rem;
+  padding: 1rem 1.15rem;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--ok);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.cert-result--revoked {
+  border-left-color: var(--danger);
+}
+
+.cert-result-status {
+  margin: 0 0 0.75rem;
+  font-weight: 700;
+  color: var(--ok);
+}
+
+.cert-result--revoked .cert-result-status {
+  color: var(--danger);
+}
+
+.cert-result dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.4rem 1rem;
+  margin: 0;
+}
+
+.cert-result dt {
+  color: var(--content);
+}
+
+.cert-result dd {
+  margin: 0;
+  color: var(--text);
+  font-weight: 600;
+}

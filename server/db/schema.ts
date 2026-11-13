@@ -368,6 +368,40 @@ export const blogPosts = mysqlTable(
   (t) => [uniqueIndex('blog_posts_slug_uq').on(t.slug), index('blog_posts_status_published_idx').on(t.status, t.publishedAt)],
 );
 
+// ── Certificates (Phase 2: verification; issuing arrives in Phase 4) ─────────
+
+export const certificates = mysqlTable(
+  'certificates',
+  {
+    id: id(),
+    /** AR-YYYY-NNNNN, allocated by server/services/certificates.ts */
+    code: varchar('code', { length: 20 }).notNull(),
+    userId: char('user_id', { length: 36 })
+      .notNull()
+      .references(() => users.id, { onDelete: 'restrict' }),
+    planId: char('plan_id', { length: 36 }).references(() => plans.id),
+    courseId: char('course_id', { length: 36 }).references(() => courses.id),
+    /** Snapshots taken at issue time; never change afterwards. */
+    recipientName: varchar('recipient_name', { length: 160 }).notNull(),
+    programTitle: varchar('program_title', { length: 200 }).notNull(),
+    issuedAt: ts('issued_at').notNull(),
+    status: mysqlEnum('status', ['valid', 'revoked']).notNull().default('valid'),
+    revokedAt: ts('revoked_at'),
+    revokedReason: text('revoked_reason'),
+    pdfStorageKey: text('pdf_storage_key'),
+    issuedBy: char('issued_by', { length: 36 }).references(() => users.id),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [uniqueIndex('certificates_code_uq').on(t.code), index('certificates_user_idx').on(t.userId)],
+);
+
+export const certificateSequences = mysqlTable('certificate_sequences', {
+  year: int('year').primaryKey(),
+  /** Not `last_value`: that's a reserved word in MySQL 8 (window function). */
+  lastNumber: int('last_number', { unsigned: true }).notNull().default(0),
+});
+
 // ── Leads (Phase 2) ──────────────────────────────────────────────────────────
 
 export const LEAD_STATUSES = ['new', 'contacted', 'qualified', 'converted', 'closed', 'spam'] as const;

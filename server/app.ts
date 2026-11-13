@@ -8,6 +8,7 @@ import { csrfGuard } from './lib/security';
 import { authRoutes } from './routes/auth';
 import { blogRoutes } from './routes/blog';
 import { catalogRoutes } from './routes/catalog';
+import { certificateRoutes } from './routes/certificates';
 import { demoVideoRoutes } from './routes/demoVideos';
 import { healthRoutes } from './routes/health';
 import { internalRoutes } from './routes/internal';
@@ -42,6 +43,7 @@ export function createApp(deps: Deps) {
   app.route('/', planRoutes);
   app.route('/', demoVideoRoutes);
   app.route('/', blogRoutes);
+  app.route('/', certificateRoutes);
 
   app.notFound((c) =>
     c.json({ error: { code: 'NOT_FOUND', message: 'Route not found', details: [], requestId: c.get('requestId') } }, 404),

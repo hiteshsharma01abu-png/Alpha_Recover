@@ -50,6 +50,13 @@
       "when": 1794584765760,
       "tag": "0006_blog_posts",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1794585557033,
+      "tag": "0007_certificates",
+      "breakpoints": true
     }
   ]
 }

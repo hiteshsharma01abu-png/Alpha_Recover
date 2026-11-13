@@ -108,7 +108,7 @@ Request: `{ "token": "…", "password": "…", "confirmPassword": "…" }` → `
 | GET | `/settings/public` | public | Company contact, hours, WhatsApp, social links (Footer, Contact, CTA) |
 | GET | `/blog` | public | Published posts, newest first (`?page`, `?pageSize` ≤ 50): slug, title, excerpt, coverImageUrl, publishedAt; `meta.total`. Only `published`, not deleted, and `publishedAt` ≤ now (scheduling works). **Implemented (Phase 2)** |
 | GET | `/blog/:slug` | public | Full post: adds `bodyMarkdown`, `seoTitle`, `seoDescription`. The site renders the Markdown with `src/components/ui/Markdown.tsx` (no raw HTML) and sets the page title and meta description. **Implemented (Phase 2)** |
-| GET | `/certificates/verify/:code` | public | Certificate verification (details below) |
+| GET | `/certificates/verify/:code` | public | Certificate verification (details below). **Implemented (Phase 2)**; rate limited 30/min per IP |
 
 `GET /settings/public` response:
 ```json
@@ -125,7 +125,7 @@ Response `200`:
 { "data": { "code": "AR-2026-00421", "status": "valid", "recipientName": "Ravi Patel",
   "programTitle": "Professional Data Recovery Training", "issuedAt": "2026-10-02" } }
 ```
-`status` is `valid` or `revoked` (revoked also returns `revokedAt`; never the reason). Errors: 404 (same body for malformed and unknown codes), 429. No email or phone is ever returned.
+`status` is `valid` or `revoked` (revoked also returns `revokedAt`; never the reason). Dates are `YYYY-MM-DD` in India time. Errors: 404 (same body for malformed and unknown codes), 429. No email, phone or user id is ever returned. The page `/verify-certificate?code=AR-…` checks the code automatically (for the QR code on printed certificates).
 
 ---
 
