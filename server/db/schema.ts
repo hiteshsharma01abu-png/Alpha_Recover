@@ -475,6 +475,24 @@ export const leads = mysqlTable(
   ],
 );
 
+export const leadNotes = mysqlTable(
+  'lead_notes',
+  {
+    id: id(),
+    leadId: char('lead_id', { length: 36 })
+      .notNull()
+      .references(() => leads.id, { onDelete: 'cascade' }),
+    authorId: char('author_id', { length: 36 }).references(() => users.id),
+    /** note/call/email/whatsapp are written by staff; status_change/assignment are added automatically. */
+    type: mysqlEnum('type', ['note', 'call', 'email', 'whatsapp', 'status_change', 'assignment']).notNull(),
+    body: text('body'),
+    fromStatus: mysqlEnum('from_status', LEAD_STATUSES),
+    toStatus: mysqlEnum('to_status', LEAD_STATUSES),
+    createdAt: createdAt(),
+  },
+  (t) => [index('lead_notes_lead_created_idx').on(t.leadId, t.createdAt)],
+);
+
 export const rateLimitBuckets = mysqlTable(
   'rate_limit_buckets',
   {

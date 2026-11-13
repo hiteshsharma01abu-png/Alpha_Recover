@@ -305,6 +305,12 @@ The featured video is excluded from the list and from `counts` (matching current
 |---|---|---|---|
 | GET | `/admin/me` | any staff | `{ user, role, roleLabel, permissions[] }`: the admin UI renders menus and actions from this list |
 | GET | `/admin/dashboard` | any staff (filtered) | KPI blocks, each included only if the role may open that module: `leads` (leads.view), `students` (students.view), `content` (courses.view), `demoVideos` (demos.view), `pricing` (plans.view), `email` (notifications.view) |
+| GET | `/admin/leads` | `leads.view` | **Implemented (Leads module).** Filters `status`, `reason`, `source`, `assignee` (`me` \| `unassigned` \| staff id), `q` (name/email/message; phone digits when ≥ 4), `from`/`to` (`YYYY-MM-DD`, IST days); `page`, `pageSize` ≤ 100, `sort` (`-createdAt` default, `createdAt`, `status`). Spam is hidden unless `status=spam`. Email and phone are **masked** in the list (`ra***@gmail.com`, `+91 ••••• 97917`). `meta.counts` gives per-status totals plus `open` for the tabs |
+| GET | `/admin/leads/assignees` | `leads.view` | Active staff who can see leads (for the assignee picker) |
+| GET | `/admin/leads/:id` | `leads.view` | Full lead (unmasked) + notes timeline with authors. The IP hash is never returned |
+| PATCH | `/admin/leads/:id` | `leads.edit` | Strict `{ status?, assignedTo?: id \| null }`. Writes `status_change` / `assignment` notes in the same transaction; the assignee must be active staff with `leads.view` (else 400 on `assignedTo`); no-op updates write nothing. Audit `leads.update` |
+| POST | `/admin/leads/:id/notes` | `leads.edit` | `{ type: note\|call\|email\|whatsapp, body (1–5000) }` → 201. Audit `leads.note` |
+| GET | `/admin/leads/export.csv` | `leads.export` | Same filters as the list, full contact data, UTF-8 BOM (Excel), max 50,000 rows, cells starting with `= + - @` are prefixed with `'` (formula injection). Audit `leads.export` with the row count. Step-up confirmation comes with staff 2FA |
 
 The rest of this section is planned and is built module by module:
 
@@ -340,11 +346,6 @@ Every admin mutation writes `activity_logs`. Lists support `page`, `pageSize`, `
 | GET | `/admin/orders/:id` | `orders.read` | Order + payments + webhook events |
 | POST | `/admin/orders/:id/refund` | `orders.refund` | `{ amountPaise?, reason }` → Razorpay refund API |
 | POST | `/admin/orders/:id/reconcile` | `orders.refund` | Re-fetch from Razorpay and re-run `activateOrder` (for missed webhooks) |
-| GET | `/admin/leads` | `leads.read` | `?status&reason&source&assignedTo&from&to&q` |
-| GET | `/admin/leads/:id` | `leads.read` | Lead + notes |
-| PATCH | `/admin/leads/:id` | `leads.write` | `{ status?, assignedTo? }` (status change auto-adds a note) |
-| POST | `/admin/leads/:id/notes` | `leads.write` | `{ type, body }` |
-| GET | `/admin/leads/export.csv` | `leads.export` | CSV export (filters as list) |
 | GET/POST | `/admin/certificates` | `certificates.*` | List / manual issue `{ userId, planId|courseId, recipientName? }` |
 | POST | `/admin/certificates/:id/revoke` | `certificates.write` | `{ reason }` |
 | POST | `/admin/certificates/:id/regenerate-pdf` | `certificates.write` | After a name correction |

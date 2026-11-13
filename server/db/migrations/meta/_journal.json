@@ -71,6 +71,13 @@
       "when": 1794591394818,
       "tag": "0009_staff_roles",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1794592471461,
+      "tag": "0010_lead_notes",
+      "breakpoints": true
     }
   ]
 }

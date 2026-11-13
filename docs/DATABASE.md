@@ -319,7 +319,7 @@
 
 ## 16. `leads`
 
-> **Implemented (Phase 2).** `lead_notes` (§17) arrives with the admin Leads module.
+> **Implemented (Phase 2).** `lead_notes` (§17) is implemented with the admin Leads module (migration `0010`).
 
 | Column | Type | Notes |
 |---|---|---|
@@ -348,13 +348,13 @@
 |---|---|---|
 | id | char(36) | PK |
 | lead_id | char(36) | FK → leads.id, cascade |
-| author_id | char(36) | FK → users.id |
-| type | enum `lead_note_type` | `note`, `status_change`, `call`, `email`, `whatsapp` |
+| author_id | char(36) | FK → users.id (null for system notes) |
+| type | enum | `note`, `call`, `email`, `whatsapp`, `status_change`, `assignment` |
 | body | text | |
 | from_status / to_status | `lead_status` | null unless `status_change` |
 | created_at | datetime(3) | |
 
-**Indexes:** (`lead_id`, `created_at`).
+**Indexes:** (`lead_id`, `created_at`). **Implemented** (migration `0010_lead_notes`).
 
 ## 18. `demo_videos`
 
