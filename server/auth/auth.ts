@@ -49,19 +49,24 @@ export function createAuth(env: Env, db: Database) {
       requireEmailVerification: false, // purchases check verification instead (PRD FR-A2)
       resetPasswordTokenExpiresIn: 60 * 60,
       revokeSessionsOnPasswordReset: true,
-      sendResetPassword: async ({ user, url }) => {
+      // Links open the website's own pages, which call our API (Better Auth's handler isn't mounted).
+      sendResetPassword: async ({ user, token }) => {
+        const url = `${env.APP_URL}/reset-password?token=${encodeURIComponent(token)}`;
         await enqueueEmail(db, 'password_reset', user.email, { firstName: user.name, url });
       },
     },
     emailVerification: {
       sendOnSignUp: true,
       expiresIn: 60 * 60 * 24,
-      sendVerificationEmail: async ({ user, url }) => {
+      sendVerificationEmail: async ({ user, token }) => {
+        const url = `${env.APP_URL}/verify-email?token=${encodeURIComponent(token)}`;
         await enqueueEmail(db, 'verify_email', user.email, { firstName: user.name, url });
       },
     },
     session: {
-      expiresIn: 60 * 60 * 24 * 30, // 30 days ("remember me"); 12h sessions come with Phase 3 login
+      // "Remember me": 30 days, refreshed daily. Without it Better Auth issues a 24h session with a
+      // browser-session cookie and never extends it (docs/SECURITY.md §1).
+      expiresIn: 60 * 60 * 24 * 30,
       updateAge: 60 * 60 * 24,
     },
     // Our MySQL rate limiter covers auth routes (server/lib/ratelimit.ts).

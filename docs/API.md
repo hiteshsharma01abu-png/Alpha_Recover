@@ -2,7 +2,7 @@
 
 **Base URL:** `/api/v1` (same origin as the SPA; Node.js + Hono, host-portable: cPanel Node.js App, VPS, or Vercel during development)
 **Format:** JSON (UTF-8). Request bodies are validated with Zod schemas shared from `shared/schemas/`.
-**Last reviewed:** 2026-11-12 · **Status:** Proposal · Related: [DATABASE.md](DATABASE.md) · [SECURITY.md](SECURITY.md)
+**Last reviewed:** 2026-11-13 · **Status:** Proposal · Related: [DATABASE.md](DATABASE.md) · [SECURITY.md](SECURITY.md)
 
 ---
 
@@ -63,16 +63,16 @@
 
 | Method | Endpoint | Auth | Purpose |
 |---|---|---|---|
-| POST | `/auth/register` | public + captcha | Create a student account |
-| POST | `/auth/login` | public | Email/password login; sets cookie |
-| POST | `/auth/logout` | user | End the current session |
-| POST | `/auth/logout-all` | user | End all sessions for the user |
+| POST | `/auth/register` | public + captcha | Create a student account. **Implemented (Phase 3)** |
+| POST | `/auth/login` | public | Email/password login; sets cookie. **Implemented (Phase 3)** |
+| POST | `/auth/logout` | user | End the current session. **Implemented (Phase 3)** |
+| POST | `/auth/logout-all` | user | End all sessions for the user. **Implemented (Phase 3)** |
 | GET | `/auth/session` | public | Current user or `null` (header login state). **Implemented (Phase 1)** |
-| POST | `/auth/verify-email` | public | Confirm an email with a token |
-| POST | `/auth/verify-email/resend` | user | Resend the verification email |
-| POST | `/auth/password/forgot` | public + captcha | Send a reset link (always 200) |
-| POST | `/auth/password/reset` | public | Set a new password with a token |
-| POST | `/auth/password/change` | user | Change password (current password required) |
+| POST | `/auth/verify-email` | public | Confirm an email with a token. **Implemented (Phase 3)** |
+| POST | `/auth/verify-email/resend` | user | Resend the verification email. **Implemented (Phase 3)** |
+| POST | `/auth/password/forgot` | public + captcha | Send a reset link (always 200). **Implemented (Phase 3)** |
+| POST | `/auth/password/reset` | public | Set a new password with a token. **Implemented (Phase 3)** |
+| POST | `/auth/password/change` | user | Change password (current password required). **Implemented (Phase 3)** |
 
 ### `POST /auth/register`
 Request (mirrors the Account register form):
@@ -82,14 +82,14 @@ Request (mirrors the Account register form):
 ```
 Validation: `firstName` 1–80 chars; `email` valid, ≤ 254; `country` ∈ {IN, US, GB, AE, ZZ}; `phone` optional E.164; `password` 8–128 chars, not in the breached top-10k list; `confirmPassword` equals `password`; `acceptTerms === true`.
 Response `201`: `{ "data": { "user": { "id", "email", "firstName", "emailVerified": false } } }`, with the session cookie set.
-Errors: 400 `VALIDATION_ERROR`, 400 `CAPTCHA_FAILED`, 409 `CONFLICT` (email exists; the message is generic: "If this email is new, check your inbox"), 429.
+Errors: 400 `VALIDATION_ERROR` (incl. passwords that are too short or on the common-password list in `shared/passwords.ts`), 400 `CAPTCHA_FAILED`, 409 `CONFLICT` ("An account with this email already exists. Log in or reset your password.": registration can't hide existing accounts without hurting real users, so it's rate limited to 5/hour per IP instead), 429. Country is an ISO code from `shared/countries.ts` (`IN`, `US`, `GB`, `AE`, `ZZ` = Other); phone is normalized to E.164. The verification email links to the website's `/verify-email?token=…` page.
 DB: insert `users`, `accounts`, `sessions`, `verifications`; enqueue `notification_jobs(verify_email)`; `activity_logs(auth.register)`.
 
 ### `POST /auth/login`
 Request: `{ "email": "…", "password": "…", "remember": true }`
-Response `200`: `{ "data": { "user": { "id", "email", "firstName", "role", "emailVerified" } } }`, cookie set (30d if `remember`, else 12h).
-Errors: 401 `UNAUTHENTICATED` (generic "Invalid email or password"), 403 `FORBIDDEN` (suspended), 429.
-DB: verify argon2id hash; insert `sessions`; evict the oldest if over `max_student_sessions`; update `users.last_login_at`; log `auth.login` or `auth.login_failed`.
+Response `200`: `{ "data": { "user": { "id", "email", "firstName", "role", "status", "emailVerified" } } }`, cookie set. `remember: true` → 30-day session refreshed daily; otherwise a 24-hour session with a browser-session cookie that is never extended (Better Auth's standard behaviour).
+Errors: 401 `UNAUTHENTICATED` (same message for a wrong password and an unknown email), 403 `FORBIDDEN` (suspended; no session is left behind), 429 after **5 failed** attempts per IP + email in 15 minutes (successful logins don't count, so normal use never locks anyone out).
+DB: verify scrypt hash; insert `sessions`; evict the oldest if over `max_student_sessions`; update `users.last_login_at`; log `auth.login` or `auth.login_failed`.
 
 ### `GET /auth/session`
 Response: `{ "data": { "user": { … } | null } }`
@@ -97,7 +97,7 @@ Response: `{ "data": { "user": { … } | null } }`
 ### `POST /auth/password/forgot`
 Request: `{ "email": "…", "captchaToken": "…" }` → always `200 { "data": { "ok": true } }` (no account enumeration).
 ### `POST /auth/password/reset`
-Request: `{ "token": "…", "password": "…", "confirmPassword": "…" }` → `200`; all sessions revoked. Errors: 400 invalid or expired token.
+Request: `{ "token": "…", "password": "…", "confirmPassword": "…" }` → `200`; all sessions revoked. Errors: 400 invalid or expired token (single use). The reset email links to the website's `/reset-password?token=…` page.
 
 ---
 

@@ -1,6 +1,6 @@
 # Alpha Recover — Implementation Plan
 
-**Last reviewed:** 2026-11-12 · **Status:** For approval. Nothing is implemented yet.
+**Last reviewed:** 2026-11-13 · **Status:** For approval. Nothing is implemented yet.
 **Sizing:** S ≈ 1–2 dev-days, M ≈ 3–5, L ≈ 6–10, for one full-stack developer. Ranges assume decisions in [PRD.md](PRD.md) §6 are answered promptly.
 
 ---
@@ -93,7 +93,7 @@ Phase 7 QA & security hardening (continuous, gate before production launch)
 - Cloudflare Turnstile site + secret keys (required in production)
 - Production host (see ARCHITECTURE.md §3); the API isn't deployed yet, so the live site runs on the static fallbacks
 
-### Phase 3 — Auth & student backend · M
+### Phase 3 — Auth & student backend · M · **In progress**
 | Task | API | [FE] work |
 |---|---|---|
 | Register / login / logout / session | `/auth/*` | Wire Account forms; header shows the logged-in state |
@@ -104,6 +104,12 @@ Phase 7 QA & security hardening (continuous, gate before production launch)
 | Enrollments table | `enrollments` migration; access-check service | — |
 
 **Exit:** a user can register, verify, log in and reset a password in production.
+
+**Status**
+- [x] Auth API: register (Turnstile, common-password check, ISO country, E.164 phone), login (remember-me 30d / 24h browser session, 5-failures lockout, suspended accounts refused), logout, logout-all, verify-email (+ resend), forgot/reset (website links, single-use, signs out everywhere), change password (keeps this session, signs out others), 2-session limit for students (setting). Audit-logged. 18 tests
+- [ ] Frontend: Account page, header state, `/verify-email`, `/reset-password`, forgot-password flow
+- [ ] Profile & sessions: `/me`, `PATCH /me`, `/me/sessions`, profile page
+- [ ] Enrollments table + access-check service
 
 ### Phase 4 — Training delivery · L
 | Task | API | [FE] work |

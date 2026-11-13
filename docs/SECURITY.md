@@ -1,6 +1,6 @@
 # Alpha Recover — Security, Authentication & Permissions
 
-**Last reviewed:** 2026-11-12 · **Status:** Proposal · Related: [API.md](API.md) · [DATABASE.md](DATABASE.md)
+**Last reviewed:** 2026-11-13 · **Status:** Proposal · Related: [API.md](API.md) · [DATABASE.md](DATABASE.md)
 
 ---
 
@@ -12,12 +12,12 @@
 | Password hashing | **scrypt** (Better Auth default, memory-hard, per-hash salt). Chosen over argon2id because it needs no native module, so it runs on shared hosting |
 | Password policy | 8–128 chars; reject the top breached passwords; no composition rules (NIST 800-63B) |
 | Session | Opaque random token in cookie `ar.session_token` (`__Secure-ar.session_token` over HTTPS), signed with `BETTER_AUTH_SECRET`: `HttpOnly; Secure; SameSite=Lax; Path=/`. Stored server-side (`sessions`) so it's revocable |
-| Lifetime | 12h default, 30d with "Remember me"; sliding refresh on activity. *Implemented so far (Phase 1): 30-day sessions refreshed daily; the 12h default arrives with the Phase 3 login route* |
-| Session limit | Students: max 2 concurrent (setting). Staff: 3. New login evicts the oldest; the user sees a notice |
+| Lifetime | "Remember me": 30 days, refreshed daily. Otherwise 24 hours with a browser-session cookie (ends when the browser closes) and no refresh. Staff rules come with the admin panel (docs/admin/AUTH_AND_RBAC.md §6) |
+| Session limit | Students: max 2 concurrent (`site_settings.max_student_sessions`). Staff: 3. Each new login signs out the oldest sessions beyond the limit (`server/services/sessions.ts`). **Implemented** |
 | Rotation | New session ID on login, privilege change and password change; all sessions revoked on password reset |
 | Email verification | Token (hashed at rest), 24h, single use. Purchases require a verified email (setting) |
 | Password reset | Token (hashed), 1h, single use; response is identical whether or not the email exists |
-| Brute force | 5 failed logins / 15 min per IP + email → 429; failures logged to `activity_logs` (`auth.login_failed`) |
+| Brute force | 5 **failed** logins / 15 min per IP + email → 429 (successful logins don't count); failures logged to `activity_logs` (`auth.login_failed`, email stored only as a salted hash). Register 5/hour, forgot 5/hour, reset 10/hour, verify-resend 3/hour. **Implemented** |
 | Account enumeration | Generic messages on login, register conflict and forgot password |
 | Staff accounts | Invite-only (no public staff signup); **TOTP 2FA required for `admin` and `super_admin`** (Better Auth 2FA plugin); staff login alerts by email |
 | Logout | `POST /auth/logout` deletes the server session and clears the cookie |

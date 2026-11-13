@@ -84,3 +84,45 @@ export const browserHeaders = { Origin: 'http://localhost:5173', 'X-Requested-Wi
 
 /** Response body as a loosely typed object, for assertions. */
 export const readJson = async (res: Response): Promise<any> => res.json();
+
+/** Minimal browser-like cookie jar for multi-request auth tests. */
+export class CookieJar {
+  private cookies = new Map<string, string>();
+
+  /** Stores cookies from a response; Max-Age=0 or an empty value deletes them. */
+  store(res: Response) {
+    for (const line of res.headers.getSetCookie()) {
+      const [pair, ...attrs] = line.split(';');
+      const eq = pair.indexOf('=');
+      const name = pair.slice(0, eq).trim();
+      const value = pair.slice(eq + 1).trim();
+      const expired = attrs.some((a) => /max-age=0\b/i.test(a.trim())) || value === '';
+      if (expired) this.cookies.delete(name);
+      else this.cookies.set(name, value);
+    }
+    return res;
+  }
+
+  header() {
+    return [...this.cookies].map(([k, v]) => `${k}=${v}`).join('; ');
+  }
+
+  get size() {
+    return this.cookies.size;
+  }
+}
+
+/** POST JSON like the site does (CSRF headers + cookies), storing returned cookies in `jar`. */
+export async function postJson(app: { request: (p: string, i?: RequestInit) => Response | Promise<Response> }, path: string, body: unknown, jar?: CookieJar) {
+  const res = await app.request(`/api/v1${path}`, {
+    method: 'POST',
+    headers: { ...browserHeaders, 'Content-Type': 'application/json', ...(jar?.size ? { Cookie: jar.header() } : {}) },
+    body: JSON.stringify(body),
+  });
+  return jar ? jar.store(res) : res;
+}
+
+export async function getJson(app: { request: (p: string, i?: RequestInit) => Response | Promise<Response> }, path: string, jar?: CookieJar) {
+  const res = await app.request(`/api/v1${path}`, { headers: jar?.size ? { Cookie: jar.header() } : {} });
+  return jar ? jar.store(res) : res;
+}

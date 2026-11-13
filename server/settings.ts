@@ -8,6 +8,8 @@ const text = z.string().max(300);
 /** Per-key schemas for `site_settings` values (docs/DATABASE.md §22). */
 export const settingSchemas = {
   lead_notification_emails: z.array(z.email()).min(1),
+  /** Concurrent sessions a student may keep; the oldest is signed out beyond this. */
+  max_student_sessions: z.number().int().min(1).max(10),
   /** Public contact details (same shape as `company` in src/data/content.ts). */
   company: z.object({
     name: text,

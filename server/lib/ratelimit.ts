@@ -37,6 +37,26 @@ export async function hit(db: Database, bucketKey: string, windowSeconds: number
   return { hits: Number(rows[0]?.hits ?? 1), resetAt: expiresAt };
 }
 
+/**
+ * Raw `db.execute()` returns DATETIME as a string like "2026-11-13 16:30:00.000" (UTC, since the pool
+ * uses timezone 'Z'). `new Date()` would read that as local time, so parse it explicitly as UTC.
+ */
+function utcDate(v: Date | string): Date {
+  return v instanceof Date ? v : new Date(`${v.replace(' ', 'T')}Z`);
+}
+
+/** Hits recorded in the current window without adding one (for "count failures only" limits like login). */
+export async function peek(db: Database, bucketKey: string, windowSeconds: number, now = Date.now()) {
+  const windowMs = windowSeconds * 1000;
+  const windowStart = new Date(Math.floor(now / windowMs) * windowMs);
+  const [rows] = (await db.execute(
+    sql`SELECT hits, window_start FROM rate_limit_buckets WHERE bucket_key = ${bucketKey}`,
+  )) as unknown as [{ hits: number; window_start: Date | string }[]];
+  const row = rows[0];
+  if (!row || utcDate(row.window_start).getTime() !== windowStart.getTime()) return { hits: 0, resetAt: new Date(windowStart.getTime() + windowMs) };
+  return { hits: Number(row.hits), resetAt: new Date(windowStart.getTime() + windowMs) };
+}
+
 /** Middleware: 429 RATE_LIMITED with Retry-After once `limit` is exceeded in the window. */
 export function rateLimit(rule: RateLimitRule): MiddlewareHandler<AppEnv> {
   return async (c, next) => {
