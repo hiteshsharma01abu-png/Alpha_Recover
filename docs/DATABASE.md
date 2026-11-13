@@ -16,7 +16,7 @@
 - **Emails:** `varchar(254)`, normalized to lower case in the app; case-insensitive collation `utf8mb4_0900_ai_ci` (MariaDB: `utf8mb4_unicode_ci`).
 - **JSON:** native `json` columns (arrays such as `tags` and `features` are JSON arrays).
 - **Enums:** MySQL `ENUM` columns, values listed per table.
-- **No partial indexes in MySQL.** Where a uniqueness rule applies to only some rows (e.g. one *active* enrollment), a **stored generated column** that is `NULL` for the other rows carries the unique index (MySQL allows many `NULL`s in a unique index).
+- **No partial indexes in MySQL.** Where a uniqueness rule applies to only some rows (e.g. one *active* enrollment), a **stored generated column** that is `NULL` for the other rows carries the unique index (MySQL allows many `NULL`s in a unique index). **MariaDB forbids `CHAR` columns inside generated-column expressions** (error 1901), so keep the generated column a flag (`if(condition, 1, null)`) and put the id columns in the composite unique index instead of concatenating them.
 - **Soft delete + unique slugs/emails:** on soft delete the app rewrites the unique value (`slug` → `slug~deleted~<id>`, `email` → `deleted+<id>@invalid`) so a plain unique index still works and the value can be reused.
 - **Naming:** `snake_case` tables (plural) and columns. Foreign keys are `<entity>_id`.
 - **Slugs:** existing frontend IDs are kept as slugs (`logical`, `firmware-basic`, `mrt`, `d1`…), so current URLs like `/training/logical` keep working.
@@ -313,8 +313,8 @@
 | granted_by | char(36) | FK → users.id, null (admin for manual grants) |
 | created_at / updated_at | datetime(3) | |
 
-**Generated column:** `active_key varchar(73) as (if(status = 'active', concat(user_id, ':', plan_id), null)) stored`.
-**Indexes:** unique(`order_id`) (NULLs allowed for manual grants; **idempotent activation**); unique(`active_key`) (one active enrollment per user + plan); (`user_id`, `status`).
+**Generated column:** `active_flag tinyint as (if(status = 'active', 1, null)) stored`.
+**Indexes:** unique(`order_id`) (NULLs allowed for manual grants; **idempotent activation**); unique(`active_flag`, `user_id`, `plan_id`) (one active enrollment per user + plan: inactive rows have a NULL flag and never collide); (`user_id`, `status`).
 **Access rule:** a user can access course C if an `active`, unexpired enrollment exists for a plan with `grants_all_courses` or a `plan_courses` row for C.
 
 ## 16. `leads`

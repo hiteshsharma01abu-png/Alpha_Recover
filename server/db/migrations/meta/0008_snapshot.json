@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "88d1b1e3-0a94-4eab-a4ae-fc8d6e069523",
+  "id": "cf887de2-c484-4b16-bcee-1498db949bb6",
   "prevId": "3657369e-033f-495e-952d-f0cf1cd391af",
   "tables": {
     "accounts": {
@@ -1138,14 +1138,14 @@
           "notNull": false,
           "autoincrement": false
         },
-        "active_key": {
-          "name": "active_key",
-          "type": "varchar(73)",
+        "active_flag": {
+          "name": "active_flag",
+          "type": "tinyint",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
           "generated": {
-            "as": "if(status = 'active', concat(user_id, ':', plan_id), null)",
+            "as": "if(status = 'active', 1, null)",
             "type": "stored"
           }
         },
@@ -1177,7 +1177,9 @@
         "enrollments_active_uq": {
           "name": "enrollments_active_uq",
           "columns": [
-            "active_key"
+            "active_flag",
+            "user_id",
+            "plan_id"
           ],
           "isUnique": true
         },
