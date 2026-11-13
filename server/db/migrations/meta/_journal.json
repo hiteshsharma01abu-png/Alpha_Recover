@@ -57,6 +57,13 @@
       "when": 1794585557033,
       "tag": "0007_certificates",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1794590223906,
+      "tag": "0008_enrollments",
+      "breakpoints": true
     }
   ]
 }

@@ -136,7 +136,7 @@ Response `200`:
 | GET | `/me` | user | Profile: id, email, firstName, lastName, certificateName, phone, country, role, emailVerified, whatsappOptIn, createdAt. **Implemented (Phase 3)** |
 | PATCH | `/me` | user | Update firstName, lastName, certificateName, phone (E.164), country, whatsappOptIn (consent timestamp kept from the first opt-in). Strict schema: email/role/status are rejected. Audit `user.update_profile`. **Implemented (Phase 3)** |
 | GET | `/me/dashboard` | student | Enrolled courses with progress %, "continue learning" lesson, certificates |
-| GET | `/me/enrollments` | student | Active and past enrollments |
+| GET | `/me/enrollments` | student | Your enrollments, newest first: status (active / revoked / expired, computed from the end date), source, plan slug and name, start and end. **Implemented (Phase 3)** |
 | GET | `/me/orders` | user | Order history |
 | GET | `/me/orders/:orderNumber` | user | Order detail (used by the checkout success page) |
 | GET | `/me/certificates` | student | Own certificates |
@@ -213,8 +213,8 @@ Side effect: when every lesson in the plan's courses is complete (per `certifica
 
 | Method | Endpoint | Auth | Purpose |
 |---|---|---|---|
-| GET | `/me/enrollments` | student | (listed in §3) |
-| GET | `/me/access/courses/:slug` | user | `{ enrolled: boolean }` quick check for the UI |
+| GET | `/me/enrollments` | student | Your enrollments, newest first: status (active / revoked / expired, computed from the end date), source, plan slug and name, start and end. **Implemented (Phase 3)** |
+| GET | `/me/access/courses/:slug` | user | `{ enrolled: boolean }` quick check for the UI (404 for unknown courses). **Implemented (Phase 3)** |
 
 Enrollments are **created only** by the payment service (purchase) or admins (manual/complimentary). There is no public create endpoint.
 

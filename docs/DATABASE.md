@@ -297,6 +297,8 @@
 
 ## 15. `enrollments`
 
+> **Implemented (Phase 3)** with `server/services/enrollments.ts`: `grantEnrollment()` (idempotent per order and per user + plan, safe under concurrency), `revokeEnrollment()`, `accessibleCourseIds()` / `canAccessCourse()` (the access rule below) and `expireEnrollments()` (run by the maintenance cron). **Pending:** the foreign key `order_id → orders.id` is added together with the `orders` table in Phase 5.
+
 | Column | Type | Notes |
 |---|---|---|
 | id | char(36) | PK |

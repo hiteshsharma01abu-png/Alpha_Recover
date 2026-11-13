@@ -304,6 +304,42 @@ export const promotions = mysqlTable(
   (t) => [index('promotions_plan_window_idx').on(t.planId, t.isActive, t.startsAt, t.endsAt)],
 );
 
+// ── Enrollments (Phase 3) ────────────────────────────────────────────────────
+
+export const enrollments = mysqlTable(
+  'enrollments',
+  {
+    id: id(),
+    userId: char('user_id', { length: 36 })
+      .notNull()
+      .references(() => users.id, { onDelete: 'restrict' }),
+    planId: char('plan_id', { length: 36 })
+      .notNull()
+      .references(() => plans.id, { onDelete: 'restrict' }),
+    /** Set for purchases. The FK to orders.id is added with the orders table (Phase 5). */
+    orderId: char('order_id', { length: 36 }),
+    source: mysqlEnum('source', ['purchase', 'manual', 'complimentary']).notNull(),
+    status: mysqlEnum('status', ['active', 'revoked', 'expired']).notNull().default('active'),
+    startsAt: ts('starts_at').notNull(),
+    /** null = lifetime access */
+    expiresAt: ts('expires_at'),
+    revokedAt: ts('revoked_at'),
+    revokedReason: text('revoked_reason'),
+    grantedBy: char('granted_by', { length: 36 }).references(() => users.id),
+    /** "user:plan" while active, else NULL: the unique index allows one active enrollment per user + plan. */
+    activeKey: varchar('active_key', { length: 73 }).generatedAlwaysAs(sql`if(status = 'active', concat(user_id, ':', plan_id), null)`, {
+      mode: 'stored',
+    }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    uniqueIndex('enrollments_order_uq').on(t.orderId),
+    uniqueIndex('enrollments_active_uq').on(t.activeKey),
+    index('enrollments_user_status_idx').on(t.userId, t.status),
+  ],
+);
+
 // ── Demo videos (Phase 2) ────────────────────────────────────────────────────
 
 export const DEMO_CATEGORIES = ['logical', 'electrical', 'mechanical', 'firmware'] as const;
