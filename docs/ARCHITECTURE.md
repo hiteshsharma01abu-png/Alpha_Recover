@@ -59,6 +59,7 @@ public/
 | `/about`, `/services`, `/industries` | Static pages | |
 | `/blog`, `/blog/:slug` | Blog | Excerpts only |
 | `/verify-certificate` | VerifyCertificate | Certificate lookup (API) |
+| `/account/settings` | AccountSettings | Profile, change password, your devices (sign out others) |
 | `/verify-email` | VerifyEmail | Landing page for the verification email link (`?token=`) |
 | `/reset-password` | ResetPassword | Landing page for the password-reset email link (`?token=`) |
 

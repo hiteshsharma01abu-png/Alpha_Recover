@@ -21,6 +21,7 @@ export async function getUser(c: Context<AppEnv>): Promise<SessionUser | null> {
       }
     : null;
   c.set('user', user);
+  c.set('sessionId', session?.session.id ?? null);
   return user;
 }
 

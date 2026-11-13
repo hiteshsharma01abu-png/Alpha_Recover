@@ -13,6 +13,7 @@ import { demoVideoRoutes } from './routes/demoVideos';
 import { healthRoutes } from './routes/health';
 import { internalRoutes } from './routes/internal';
 import { leadRoutes } from './routes/leads';
+import { meRoutes } from './routes/me';
 import { planRoutes } from './routes/plans';
 import { settingsRoutes } from './routes/settings';
 import type { AppEnv, Deps } from './types';
@@ -26,6 +27,7 @@ export function createApp(deps: Deps) {
   app.use('*', async (c, next) => {
     c.set('deps', deps);
     c.set('user', undefined);
+    c.set('sessionId', undefined);
     await next();
   });
   app.use('*', requestContext());
@@ -46,6 +48,7 @@ export function createApp(deps: Deps) {
   app.route('/', blogRoutes);
   app.route('/', certificateRoutes);
   app.route('/', settingsRoutes);
+  app.route('/', meRoutes);
 
   app.notFound((c) =>
     c.json({ error: { code: 'NOT_FOUND', message: 'Route not found', details: [], requestId: c.get('requestId') } }, 404),

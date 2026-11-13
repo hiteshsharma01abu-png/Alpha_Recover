@@ -27,5 +27,7 @@ export type AppEnv = {
     requestId: string;
     /** undefined = not loaded yet, null = anonymous */
     user: SessionUser | null | undefined;
+    /** Id of the current session row (set together with `user`). */
+    sessionId: string | null | undefined;
   };
 };

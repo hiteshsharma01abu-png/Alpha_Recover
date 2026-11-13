@@ -650,3 +650,77 @@ a.contact-info-card:hover {
   color: var(--text);
   font-weight: 600;
 }
+
+/* Account settings */
+.settings-stack {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.settings-panel h2 {
+  margin: 0 0 1rem;
+  font-size: 1.2rem;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.25rem 1rem;
+}
+
+.settings-wide {
+  grid-column: 1 / -1;
+}
+
+.settings-hint {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.85rem;
+  color: var(--content);
+}
+
+.device-list {
+  list-style: none;
+  margin: 0.75rem 0 1rem;
+  padding: 0;
+}
+
+.device-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.device-list li div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.device-list li span {
+  font-size: 0.88rem;
+  color: var(--content);
+}
+
+.device-badge {
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background: var(--chip);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ok);
+}
+
+@media (max-width: 640px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .device-list li {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

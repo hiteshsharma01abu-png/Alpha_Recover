@@ -133,16 +133,16 @@ Response `200`:
 
 | Method | Endpoint | Auth | Purpose |
 |---|---|---|---|
-| GET | `/me` | user | Profile |
-| PATCH | `/me` | user | Update firstName, lastName, certificateName, phone, country, whatsappOptIn |
+| GET | `/me` | user | Profile: id, email, firstName, lastName, certificateName, phone, country, role, emailVerified, whatsappOptIn, createdAt. **Implemented (Phase 3)** |
+| PATCH | `/me` | user | Update firstName, lastName, certificateName, phone (E.164), country, whatsappOptIn (consent timestamp kept from the first opt-in). Strict schema: email/role/status are rejected. Audit `user.update_profile`. **Implemented (Phase 3)** |
 | GET | `/me/dashboard` | student | Enrolled courses with progress %, "continue learning" lesson, certificates |
 | GET | `/me/enrollments` | student | Active and past enrollments |
 | GET | `/me/orders` | user | Order history |
 | GET | `/me/orders/:orderNumber` | user | Order detail (used by the checkout success page) |
 | GET | `/me/certificates` | student | Own certificates |
 | GET | `/me/certificates/:id/download` | student | 302 to a signed PDF URL (5 min) |
-| GET | `/me/sessions` | user | Active sessions (device, IP, last seen) |
-| DELETE | `/me/sessions/:id` | user | Revoke one session |
+| GET | `/me/sessions` | user | Active sessions: id, device ("Chrome on macOS"), ipAddress, createdAt, lastActiveAt, expiresAt, current. **Implemented (Phase 3)** |
+| DELETE | `/me/sessions/:id` | user | Sign out one of your own sessions (someone else's id → 404). Audit `auth.session_revoke`. **Implemented (Phase 3)** |
 
 `GET /me/dashboard` response:
 ```json

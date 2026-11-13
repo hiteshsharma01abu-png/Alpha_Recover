@@ -383,6 +383,9 @@ export function Account() {
                 <p className="account-soon">
                   Your courses, progress and certificates will appear here once training access is available.
                 </p>
+                <Link className="account-link" to="/account/settings">
+                  Account settings: profile, password and devices →
+                </Link>
                 <button className="account-submit" type="button" onClick={() => void run(() => logout())} disabled={busy}>
                   Log out
                   <span aria-hidden>→</span>

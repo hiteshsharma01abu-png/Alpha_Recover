@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import { About } from './pages/About';
 import { Account } from './pages/Account';
+import { AccountSettings } from './pages/AccountSettings';
 import { Blog } from './pages/Blog';
 import { BlogPost } from './pages/BlogPost';
 import { Contact } from './pages/Contact';
@@ -25,6 +26,7 @@ export default function App() {
         <Route path="demos" element={<Demos />} />
         <Route path="contact" element={<Contact />} />
         <Route path="account" element={<Account />} />
+        <Route path="account/settings" element={<AccountSettings />} />
         <Route path="about" element={<About />} />
         <Route path="services" element={<Services />} />
         <Route path="industries" element={<Industries />} />

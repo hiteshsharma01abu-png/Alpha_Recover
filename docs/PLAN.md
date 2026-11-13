@@ -108,7 +108,7 @@ Phase 7 QA & security hardening (continuous, gate before production launch)
 **Status**
 - [x] Auth API: register (Turnstile, common-password check, ISO country, E.164 phone), login (remember-me 30d / 24h browser session, 5-failures lockout, suspended accounts refused), logout, logout-all, verify-email (+ resend), forgot/reset (website links, single-use, signs out everywhere), change password (keeps this session, signs out others), 2-session limit for students (setting). Audit-logged. 18 tests
 - [x] Frontend: shared auth store (`src/lib/auth.ts`); Account page login/register/forgot wired with field errors, remember-me, Turnstile; signed-in view (verification status + resend, log out, log out everywhere); header shows "My Account"; `/verify-email` and `/reset-password` pages; "you were signed out" notice (2-device limit). Browser-verified end to end
-- [ ] Profile & sessions: `/me`, `PATCH /me`, `/me/sessions`, profile page
+- [x] Profile & sessions: `GET`/`PATCH /me` (strict: no email/role/status), `GET /me/sessions` (device names, current flag), `DELETE /me/sessions/:id` (own only). `/account/settings` page: profile (incl. name on certificate, WhatsApp consent), change password, devices with sign-out. 8 tests; browser-verified on two devices
 - [ ] Enrollments table + access-check service
 
 ### Phase 4 — Training delivery · L
