@@ -1,0 +1,62 @@
+.adm-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8rem;
+}
+
+.adm-entry {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.adm-entry h2 {
+  margin: 0;
+  padding-right: 3rem;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+}
+
+.adm .adm-entry > p {
+  margin: 0;
+}
+
+.adm-entry h3 {
+  margin: 0.5rem 0 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--adm-text-2);
+}
+
+.adm-entry-facts {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0;
+}
+
+.adm-entry-facts dt {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--adm-text-2);
+}
+
+.adm-entry-facts dd {
+  margin: 0.1rem 0 0;
+  overflow-wrap: anywhere;
+}
+
+.adm-entry-facts a {
+  color: var(--adm-teal-strong);
+}
+
+.adm-json {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--adm-line);
+  border-radius: 8px;
+  background: var(--adm-bg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

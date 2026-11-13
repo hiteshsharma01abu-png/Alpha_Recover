@@ -1,7 +1,7 @@
 import { eq, sql } from 'drizzle-orm';
 import { afterAll, beforeAll, beforeEach, describe, expect, inject, it } from 'vitest';
 import { permissionsFor, type StaffRole, type UserRole } from '../shared/permissions';
-import { activityLogs, leads, users } from './db/schema';
+import { activityLogs, leads, notificationJobs, users } from './db/schema';
 import { seedBlogPosts, seedCatalog, seedDemoVideos, seedPlans } from './db/seed';
 import { createOrPromoteAdmin } from './scripts/create-admin';
 import { CookieJar, createTestContext, getJson, postJson, readJson, resetTables } from './test/helpers';
@@ -100,6 +100,8 @@ describe.skipIf(!dbAvailable)('admin API (MySQL)', () => {
       expect(result.generatedPassword).toMatch(/^[A-Za-z0-9_-]{24}$/);
       const [u] = await ctx.db.select().from(users).where(eq(users.email, 'owner@alpharecover.com'));
       expect(u).toMatchObject({ role: 'super_admin', emailVerified: true });
+      // No "verify your email" message for an account that's already verified.
+      expect(await ctx.db.$count(notificationJobs, eq(notificationJobs.template, 'verify_email'))).toBe(0);
 
       const jar = new CookieJar();
       expect((await postJson(ctx.app, '/auth/login', { email: 'owner@alpharecover.com', password: result.generatedPassword }, jar)).status).toBe(200);

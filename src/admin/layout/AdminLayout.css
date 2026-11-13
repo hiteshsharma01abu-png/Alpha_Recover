@@ -30,6 +30,11 @@
   --adm-danger: #f08a7a;
   --adm-info: #7dffc0;
   --adm-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  --adm-teal: #12a07e;
+  --adm-gold: #e8c547;
+  --adm-teal-strong: #1fc9a8;
+  --adm-teal-deep: #0b5a4d;
+  --adm-teal-line: #2b7a6c;
 }
 
 .adm[data-theme='light'] {
@@ -48,6 +53,11 @@
   --adm-danger: #b3261e;
   --adm-info: #0f766e;
   --adm-shadow: 0 8px 24px rgba(16, 39, 31, 0.08);
+  --adm-teal: #0f8a72;
+  --adm-gold: #8a6100;
+  --adm-teal-strong: #0f8a72;
+  --adm-teal-deep: #0b5a4d;
+  --adm-teal-line: #9fcfc3;
 }
 
 /* The public site colours headings and paragraphs globally; inside the admin they follow the theme. */
@@ -163,30 +173,121 @@
   height: 18px;
 }
 
+/* Signed-in user */
 .adm-sidebar-foot {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   margin-top: auto;
-  padding: 0.75rem 0.6rem 0;
-  border-top: 1px solid var(--adm-line);
-  font-size: 0.85rem;
+  padding: 1rem 0.25rem 0.25rem;
+  border-top: 1px solid var(--adm-teal-line);
 }
 
-.adm-sidebar-foot strong {
-  display: block;
+.adm-user {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.adm-user-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.4rem;
+}
+
+.adm-avatar {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--adm-teal);
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.15rem;
+}
+
+.adm-user strong {
+  font-size: 0.95rem;
 }
 
 .adm-role {
-  display: inline-block;
-  margin: 0.2rem 0 0.6rem;
-  padding: 0.1rem 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.5rem;
   border-radius: 999px;
-  background: var(--adm-surface-2);
-  color: var(--adm-accent);
-  font-size: 0.75rem;
+  background: color-mix(in srgb, var(--adm-gold) 14%, transparent);
+  color: var(--adm-gold);
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.adm-view-site {
+  justify-self: start;
+  color: var(--adm-text-2);
+  font-size: 0.88rem;
+  text-decoration: none;
+}
+
+.adm-view-site:hover {
+  color: var(--adm-teal-strong);
+}
+
+/* Top bar: theme picker + log out */
+.adm-theme {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  border: 1px solid var(--adm-teal-line);
+  border-radius: 10px;
+  background: var(--adm-surface);
+  color: var(--adm-text);
+}
+
+.adm-theme > svg {
+  position: absolute;
+  pointer-events: none;
+}
+
+.adm-theme > svg:first-child {
+  left: 0.75rem;
+}
+
+.adm-theme > svg:last-child {
+  right: 0.7rem;
+}
+
+.adm-theme select {
+  min-height: 38px;
+  padding: 0 2.2rem 0 2.4rem;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  appearance: none;
+}
+
+.adm-btn.adm-logout {
+  min-height: 40px;
+  padding-inline: 1rem;
+  border: 1px solid var(--adm-teal-strong);
+  border-radius: 10px;
+  background: var(--adm-teal-deep);
+  color: #fff;
   font-weight: 700;
 }
 
-.adm-sidebar-foot a {
-  color: var(--adm-text-2);
+.adm-btn.adm-logout:hover {
+  background: var(--adm-teal-deep);
+  filter: brightness(1.12);
 }
 
 .adm-main {
@@ -332,4 +433,18 @@
 
 .adm-sidebar .adm-logo-text strong {
   font-size: 0.95rem;
+}
+
+@media (max-width: 520px) {
+  .adm-btn.adm-logout span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .adm-btn.adm-logout {
+    padding-inline: 0.7rem;
+  }
 }

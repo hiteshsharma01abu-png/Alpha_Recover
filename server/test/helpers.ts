@@ -1,7 +1,9 @@
-import { sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
+import type { UserRole } from '../../shared/permissions';
 import { createApp } from '../app';
 import { createAuth } from '../auth/auth';
 import { createDb } from '../db';
+import { users } from '../db/schema';
 import { parseEnv } from '../env';
 import type { EmailMessage, Mailer } from '../notifications/mailer';
 
@@ -126,3 +128,27 @@ export async function getJson(app: { request: (p: string, i?: RequestInit) => Re
   const res = await app.request(`/api/v1${path}`, { headers: jar?.size ? { Cookie: jar.header() } : {} });
   return jar ? jar.store(res) : res;
 }
+
+let roleCounter = 0;
+
+/** Registers a fresh account, gives it `role`, and returns its signed-in cookie jar and id. */
+export async function loginAs(ctx: ReturnType<typeof createTestContext>, role: UserRole, firstName = 'Staff') {
+  const jar = new CookieJar();
+  roleCounter += 1;
+  const email = `${role}-${roleCounter}@example.com`;
+  await ctx.db.execute(sql`DELETE FROM rate_limit_buckets`); // register allows 5 per hour per IP
+  const res = await postJson(
+    ctx.app,
+    '/auth/register',
+    { firstName, email, country: 'IN', password: 'correct-horse-battery', confirmPassword: 'correct-horse-battery', acceptTerms: true },
+    jar,
+  );
+  if (res.status !== 201 && res.status !== 200) throw new Error(`register failed: ${res.status}`);
+  await ctx.db.update(users).set({ role }).where(eq(users.email, email));
+  const [u] = await ctx.db.select({ id: users.id }).from(users).where(eq(users.email, email));
+  return { jar, id: u.id, email };
+}
+
+/** Same-origin request with a JSON body and the session cookie. */
+export const sendJson = (ctx: ReturnType<typeof createTestContext>, method: string, path: string, body: unknown, jar: CookieJar) =>
+  ctx.app.request(`/api/v1${path}`, { method, headers: { ...browserHeaders, 'Content-Type': 'application/json', Cookie: jar.header() }, body: JSON.stringify(body) });

@@ -1,6 +1,6 @@
 # Alpha Recover — Admin Panel Navigation & Modules
 
-**Last reviewed:** 2026-11-13 · **Status:** Proposal · built so far: Dashboard, Leads & Inquiries
+**Last reviewed:** 2026-11-14 · **Status:** Proposal · built so far: Dashboard, Leads & Inquiries, Students, Activity Log, Team & Access
 **Related:** [ARCHITECTURE.md](ARCHITECTURE.md) · [AUTH_AND_RBAC.md](AUTH_AND_RBAC.md) (permission strings) · [UI_UX.md](UI_UX.md) (sidebar behaviour) · [../API.md](../API.md) §10–14
 
 ## 1. How the proposed list was finalized against the real project
@@ -62,7 +62,7 @@ Footer of the sidebar: the signed-in user, their role badge, and **View website 
 | `/admin` | Dashboard | `dashboard.view` |
 | `/admin/leads` · `/admin/leads?lead=:id` (drawer) | Leads list · detail (**built**; filters, page and the open lead live in the query string) | `leads.view` |
 | `/admin/orders` · `/admin/orders/:id` | Orders list · detail (payments, webhook events, refund) | `orders.view` |
-| `/admin/students` · `/admin/students/:id` | Students · detail (tabs: profile, enrollments, orders, certificates, sessions) | `students.view` |
+| `/admin/students` · `/admin/students/:id` | Students · detail (**built** as one page: profile, course access, certificates, devices; orders arrive with Phase 5) | `students.view` |
 | `/admin/enrollments` | Enrollments | `enrollments.view` |
 | `/admin/certificates` | Certificates | `certificates.view` |
 | `/admin/courses` · `/admin/courses/:id` | Tracks · editor (modules, lessons, reorder) | `courses.view` |
@@ -70,8 +70,8 @@ Footer of the sidebar: the signed-in user, their role badge, and **View website 
 | `/admin/demo-videos` | Demo videos (drawer editor) | `demos.view` |
 | `/admin/blog` · `/admin/blog/new` · `/admin/blog/:id` | Posts · editor | `blog.view` |
 | `/admin/reports` · `/admin/reports/:tab` | Revenue, leads, students, learning, demo videos | `reports.view` |
-| `/admin/activity` | Audit log | `audit.view` |
-| `/admin/team` · `/admin/team/roles` | Staff users · role matrix (read-only) | `team.view` |
+| `/admin/activity` · `?entry=:id` (drawer) | Audit log (**built**) | `audit.view` |
+| `/admin/team` · `/admin/team/roles` | Staff users · role matrix (read-only) (**built**) | `team.view` |
 | `/admin/notifications` | Email outbox log | `notifications.view` |
 | `/admin/settings` · `/admin/settings/:tab` | General · Site & Contact · Notifications · Policies | `settings.view` |
 | `/admin/account` | My profile, 2FA, sessions | any staff |

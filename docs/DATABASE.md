@@ -1,6 +1,6 @@
 # Alpha Recover — Database Schema
 
-**Last reviewed:** 2026-11-13 · Related: [ARCHITECTURE.md](ARCHITECTURE.md) · [API.md](API.md)
+**Last reviewed:** 2026-11-14 · Related: [ARCHITECTURE.md](ARCHITECTURE.md) · [API.md](API.md)
 
 **Database:** MySQL 8.0+ (MariaDB 10.6+ compatible subset) · **Engine:** InnoDB, `utf8mb4` · **ORM:** Drizzle (`mysql2`) · **Status:** Proposal, nothing created
 
@@ -114,9 +114,9 @@
 | Column | Type | Notes |
 |---|---|---|
 | id | char(36) | PK |
-| identifier | varchar(255) | e.g. `email-verify:<email>`, `reset:<email>` |
-| value | varchar(255) | token (hashed) |
-| expires_at | datetime(3) | verify 24h, reset 1h |
+| identifier | varchar(255) | Better Auth's key, e.g. `reset-password:<token>` for password resets |
+| value | varchar(255) | for resets: the user id |
+| expires_at | datetime(3) | reset 1h; **staff invites 3 days** (the invite route writes a reset token in the same format, see docs/API.md §10) |
 | created_at / updated_at | datetime(3) | |
 
 **Indexes:** (`identifier`); (`expires_at`).
@@ -485,7 +485,7 @@ Values are validated per key with Zod.
 | request_id | varchar(40) | |
 | created_at | datetime(3) | |
 
-**Indexes:** (`entity_type`, `entity_id`, `created_at desc`), (`actor_id`, `created_at desc`), (`action`, `created_at desc`). Append-only: the app's repository layer exposes insert/select only. On a VPS, also revoke UPDATE/DELETE on this table from the app's DB user (cPanel only grants privileges per database, so there it's app-enforced).
+**Indexes:** (`entity_type`, `entity_id`, `created_at desc`), (`actor_id`, `created_at desc`), (`action`, `created_at desc`), (`created_at`) for the unfiltered "newest first" admin view (migration `0011`). Append-only: the app's repository layer exposes insert/select only. On a VPS, also revoke UPDATE/DELETE on this table from the app's DB user (cPanel only grants privileges per database, so there it's app-enforced).
 
 ## 25. `rate_limit_buckets`
 

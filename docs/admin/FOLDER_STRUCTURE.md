@@ -1,6 +1,6 @@
 # Alpha Recover — Admin Panel Folder Structure
 
-**Last reviewed:** 2026-11-13 · **Status:** Proposal; built so far (paths as implemented): `components/DataTable.tsx` (StatusBadge, Pagination, Drawer on native `<dialog>`), `components/AdmIcon.tsx`, `components/BrandLogo.tsx`, `auth/RequirePermission.tsx`, `lib/useResource.ts`, `lib/useTableState.ts`, `modules/leads/` (LeadsPage, LeadDrawer, leadDisplay). React Query files below are deferred
+**Last reviewed:** 2026-11-14 · **Status:** Proposal; built so far (paths as implemented): `components/DataTable.tsx` (StatusBadge, Pagination, Drawer on native `<dialog>`), `components/AdmIcon.tsx`, `components/BrandLogo.tsx`, `auth/RequirePermission.tsx`, `lib/useResource.ts`, `lib/useTableState.ts`, `modules/leads/` (LeadsPage, LeadDrawer, leadDisplay), `modules/students/` (StudentsPage, StudentDetailPage), `modules/team/` (TeamPage, RolesPage), `modules/activity/` (ActivityPage, activityDisplay), `components/Dialog.tsx`, `lib/format.ts`. React Query files below are deferred
 **Related:** [ARCHITECTURE.md](ARCHITECTURE.md) · [NAVIGATION.md](NAVIGATION.md) · [AUTH_AND_RBAC.md](AUTH_AND_RBAC.md)
 
 Follows the existing conventions in `AGENTS.md`:

@@ -1,0 +1,98 @@
+/* Tabs rendered as links (Members / Roles) reuse .adm-tabs */
+.adm-tabs a {
+  padding: 0.6rem 0.85rem;
+  border-bottom: 2px solid transparent;
+  color: var(--adm-text-2);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.adm-tabs a.active {
+  border-bottom-color: var(--adm-accent);
+  color: var(--adm-text);
+}
+
+.adm-team-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.adm .adm-team-bar p {
+  margin: 0;
+  max-width: 60ch;
+}
+
+.adm-member {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.adm-avatar.adm-avatar-sm {
+  width: 34px;
+  height: 34px;
+  font-size: 0.9rem;
+}
+
+/* Rows without a click target */
+.adm-table .adm-static-rows tr {
+  cursor: default;
+}
+
+.adm-table .adm-static-rows tr:hover {
+  background: none;
+}
+
+.adm-manage-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--adm-line);
+}
+
+.adm-manage-actions:empty {
+  display: none;
+}
+
+.adm-roles-wrap {
+  margin-top: 1rem;
+  overflow-x: auto;
+}
+
+.adm-roles th[scope='row'] {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.adm-roles td {
+  min-width: 150px;
+}
+
+.adm-chip {
+  display: inline-block;
+  margin: 0 0.25rem 0.25rem 0;
+  padding: 0.1rem 0.45rem;
+  border-radius: 6px;
+  background: var(--adm-surface-2);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+@media (max-width: 767px) {
+  .adm-roles th[scope='row'] {
+    display: block;
+    padding: 0.5rem 0.85rem 0.25rem;
+    border: 0;
+    background: none;
+  }
+
+  .adm-roles td {
+    min-width: 0;
+  }
+}

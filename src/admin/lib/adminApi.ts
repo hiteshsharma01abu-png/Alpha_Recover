@@ -72,6 +72,59 @@ export type LeadDetail = Omit<LeadRow, 'assignee'> & {
   notes: LeadNote[];
 };
 
+
+export type StudentRow = {
+  id: string;
+  firstName: string;
+  lastName: string | null;
+  email: string;
+  phone: string | null;
+  country: string;
+  status: 'active' | 'suspended';
+  emailVerified: boolean;
+  enrolled: boolean;
+  lastLoginAt: string | null;
+  createdAt: string;
+};
+
+export type StudentDetail = Omit<StudentRow, 'enrolled'> & {
+  certificateName: string | null;
+  whatsappOptIn: boolean;
+  enrollments: { id: string; plan: string; source: string; status: string; startsAt: string; expiresAt: string | null; revokedReason: string | null }[];
+  certificates: { id: string; code: string; programTitle: string; status: string; issuedAt: string }[];
+  sessions: { id: string; device: string; signedInAt: string; lastActiveAt: string }[];
+};
+
+export type StudentUpdate = Partial<{ firstName: string; lastName: string | null; certificateName: string | null; phone: string | null; country: string }>;
+
+export type TeamMember = {
+  id: string;
+  firstName: string;
+  lastName: string | null;
+  email: string;
+  role: UserRole;
+  roleLabel: string;
+  status: 'active' | 'suspended';
+  invitePending: boolean;
+  sessions: number;
+  lastLoginAt: string | null;
+  createdAt: string;
+};
+
+export type ActivityEntry = {
+  id: number;
+  action: string;
+  actorRole: UserRole | null;
+  actor: { id: string; firstName: string | null; email: string | null } | null;
+  entityType: string | null;
+  entityId: string | null;
+  metadata: unknown;
+  requestId: string | null;
+  createdAt: string;
+};
+
+export type PageMeta = { page: number; pageSize: number; total: number };
+
 export type Assignee = { id: string; firstName: string; role: UserRole };
 
 const qs = (params: Record<string, string | undefined>) => {
@@ -92,5 +145,30 @@ export const adminApi = {
     assignees: () => api.get<Assignee[]>('/admin/leads/assignees').then((r) => r.data),
     /** A plain link: the browser downloads it with the session cookie. */
     exportUrl: (params: Record<string, string | undefined>) => `/api/v1/admin/leads/export.csv${qs(params)}`,
+  },
+  students: {
+    list: (params: Record<string, string | undefined>) =>
+      api.get<StudentRow[]>(`/admin/students${qs(params)}`).then((r) => ({ rows: r.data, meta: r.meta as PageMeta })),
+    get: (id: string) => api.get<StudentDetail>(`/admin/students/${id}`).then((r) => r.data),
+    update: (id: string, body: StudentUpdate) => api.patch<{ ok: true; changed: string[] }>(`/admin/students/${id}`, body).then((r) => r.data),
+    suspend: (id: string, reason: string) => api.post<{ ok: true }>(`/admin/students/${id}/suspend`, { reason }).then((r) => r.data),
+    unsuspend: (id: string) => api.post<{ ok: true }>(`/admin/students/${id}/unsuspend`).then((r) => r.data),
+    revokeSessions: (id: string) => api.post<{ ok: true; revoked: number }>(`/admin/students/${id}/sessions/revoke`).then((r) => r.data),
+    passwordReset: (id: string) => api.post<{ ok: true }>(`/admin/students/${id}/password-reset`).then((r) => r.data),
+  },
+  team: {
+    list: () => api.get<TeamMember[]>('/admin/team').then((r) => r.data),
+    invite: (body: { email: string; firstName: string; role: UserRole }) =>
+      api.post<{ id: string; action: 'invited' | 'promoted' }>('/admin/team', body).then((r) => r.data),
+    resendInvite: (id: string) => api.post<{ ok: true }>(`/admin/team/${id}/resend-invite`).then((r) => r.data),
+    setRole: (id: string, role: UserRole) => api.patch<{ id: string; role: UserRole }>(`/admin/team/${id}/role`, { role }).then((r) => r.data),
+    deactivate: (id: string) => api.post<{ id: string }>(`/admin/team/${id}/deactivate`).then((r) => r.data),
+    reactivate: (id: string) => api.post<{ id: string }>(`/admin/team/${id}/reactivate`).then((r) => r.data),
+  },
+  activity: {
+    list: (params: Record<string, string | undefined>) =>
+      api.get<ActivityEntry[]>(`/admin/activity${qs(params)}`).then((r) => ({ rows: r.data, meta: r.meta as PageMeta })),
+    facets: () => api.get<{ actions: string[]; actors: { id: string; firstName: string; role: UserRole }[] }>('/admin/activity/facets').then((r) => r.data),
+    exportUrl: (params: Record<string, string | undefined>) => `/api/v1/admin/activity/export.csv${qs(params)}`,
   },
 };

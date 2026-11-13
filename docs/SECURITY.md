@@ -1,6 +1,6 @@
 # Alpha Recover — Security, Authentication & Permissions
 
-**Last reviewed:** 2026-11-13 · **Status:** Proposal · Related: [API.md](API.md) · [DATABASE.md](DATABASE.md)
+**Last reviewed:** 2026-11-14 · **Status:** Proposal · Related: [API.md](API.md) · [DATABASE.md](DATABASE.md)
 
 ---
 
@@ -19,7 +19,7 @@
 | Password reset | Token (hashed), 1h, single use; response is identical whether or not the email exists |
 | Brute force | 5 **failed** logins / 15 min per IP + email → 429 (successful logins don't count); failures logged to `activity_logs` (`auth.login_failed`, email stored only as a salted hash). Register 5/hour, forgot 5/hour, reset 10/hour, verify-resend 3/hour. **Implemented** |
 | Account enumeration | Generic messages on login, register conflict and forgot password |
-| Staff accounts | Invite-only (no public staff signup); **TOTP 2FA required for `admin` and `super_admin`** (Better Auth 2FA plugin); staff login alerts by email |
+| Staff accounts | Invite-only (no public staff signup). **Implemented:** a Super Admin invites from Team & Access; the account starts with an unusable random password and the invitee sets their own through a single-use link (3 days; resending invalidates the old link). Role changes, removal and deactivation sign the person out; nobody changes their own role or deactivates themselves; at least one active Super Admin always remains. A route × role test checks every admin endpoint against `shared/permissions.ts`. **Planned:** TOTP 2FA (owner decision: optional for now), staff login alerts by email |
 | Logout | `POST /auth/logout` deletes the server session and clears the cookie |
 
 ## 2. Authorization (RBAC)

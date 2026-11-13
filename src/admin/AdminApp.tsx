@@ -1,4 +1,6 @@
 import { useEffect } from 'react';
+import type { ComponentType } from 'react';
+import type { Permission } from '../../shared/permissions';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { AdminSessionProvider } from './auth/AdminSession';
 import { AdminLoginPage } from './auth/AdminLoginPage';
@@ -6,7 +8,22 @@ import { RequirePermission } from './auth/RequirePermission';
 import { RequireStaff } from './auth/RequireStaff';
 import { AdminLayout } from './layout/AdminLayout';
 import { DashboardPage } from './modules/dashboard/DashboardPage';
+import { ActivityPage } from './modules/activity/ActivityPage';
 import { LeadsPage } from './modules/leads/LeadsPage';
+import { StudentDetailPage } from './modules/students/StudentDetailPage';
+import { StudentsPage } from './modules/students/StudentsPage';
+import { RolesPage } from './modules/team/RolesPage';
+import { TeamPage } from './modules/team/TeamPage';
+
+/** Module routes and the permission each needs (the sidebar uses the same permissions via routes.ts). */
+const GUARDED: [path: string, perm: Permission, Page: ComponentType][] = [
+  ['leads', 'leads.view', LeadsPage],
+  ['students', 'students.view', StudentsPage],
+  ['students/:id', 'students.view', StudentDetailPage],
+  ['activity', 'audit.view', ActivityPage],
+  ['team', 'team.view', TeamPage],
+  ['team/roles', 'team.view', RolesPage],
+];
 
 /** Keeps admin pages out of search engines and labels the tab. */
 function useAdminDocument() {
@@ -34,14 +51,11 @@ export default function AdminApp() {
         <Route element={<RequireStaff />}>
           <Route element={<AdminLayout />}>
             <Route index element={<DashboardPage />} />
-            <Route
-              path="leads"
-              element={
-                <RequirePermission perm="leads.view">
-                  <LeadsPage />
-                </RequirePermission>
-              }
-            />
+            {GUARDED.map(([path, perm, Page]) => (
+              <Route key={path} path={path} element={<RequirePermission perm={perm}>
+                    <Page />
+                  </RequirePermission>} />
+            ))}
             <Route path="*" element={<Navigate to="/admin" replace />} />
           </Route>
         </Route>

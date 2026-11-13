@@ -38,6 +38,15 @@ export const templates = {
       `<p>Hi ${escapeHtml(p.firstName)},</p><p>We received a request to reset your password.</p>${button(p.url, 'Reset password')}<p style="font-size:13px">This link expires in 1 hour. If you didn't ask for this, ignore this email.</p>`,
     ),
   }),
+  /** A Super Admin added this person to the team; the link sets their first password. */
+  staff_invite: (p: { firstName: string; invitedBy: string; roleLabel: string; url: string }): Rendered => ({
+    subject: `You're invited to the Alpha Recover admin panel`,
+    text: `Hi ${p.firstName},\n\n${p.invitedBy} added you to the Alpha Recover team as ${p.roleLabel}.\n\nSet your password to get started:\n${p.url}\n\nThis link expires in 3 days. After that, ask for a new invite.`,
+    html: layout(
+      'Join the Alpha Recover team',
+      `<p>Hi ${escapeHtml(p.firstName)},</p><p>${escapeHtml(p.invitedBy)} added you to the Alpha Recover team as <strong>${escapeHtml(p.roleLabel)}</strong>.</p>${button(p.url, 'Set your password')}<p style="font-size:13px">This link expires in 3 days. After that, ask for a new invite.</p>`,
+    ),
+  }),
   /** To the team: a new lead arrived. */
   lead_alert: (p: {
     source: string;

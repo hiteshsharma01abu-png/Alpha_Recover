@@ -1,0 +1,75 @@
+.adm-dialog {
+  width: min(460px, calc(100vw - 2rem));
+  padding: 1.4rem;
+  border: 1px solid var(--adm-line);
+  border-radius: 14px;
+  background: var(--adm-surface);
+  color: var(--adm-text);
+  box-shadow: var(--adm-shadow);
+}
+
+.adm-dialog::backdrop {
+  background: rgba(6, 18, 14, 0.5);
+}
+
+.adm-dialog h2 {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+}
+
+.adm-dialog-body {
+  display: grid;
+  gap: 0.85rem;
+  color: var(--adm-text-2);
+}
+
+.adm-dialog-body p {
+  margin: 0;
+}
+
+.adm-dialog-body label {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--adm-text);
+}
+
+.adm-dialog-body input,
+.adm-dialog-body textarea,
+.adm-dialog-body select {
+  width: 100%;
+  min-height: 40px;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--adm-line);
+  border-radius: 8px;
+  background: var(--adm-bg);
+  color: var(--adm-text);
+  font: inherit;
+  font-weight: 400;
+}
+
+.adm .adm-dialog-error {
+  margin: 0.75rem 0 0;
+  color: var(--adm-danger);
+  font-size: 0.9rem;
+}
+
+.adm-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+.adm-btn.adm-btn-danger {
+  border-color: transparent;
+  background: var(--adm-danger);
+  color: #fff;
+}
+
+.adm-btn.adm-btn-danger:hover {
+  background: var(--adm-danger);
+  filter: brightness(1.08);
+}

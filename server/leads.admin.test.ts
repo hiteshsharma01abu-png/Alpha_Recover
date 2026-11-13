@@ -1,9 +1,9 @@
 import { eq, sql } from 'drizzle-orm';
 import { afterAll, beforeAll, beforeEach, describe, expect, inject, it } from 'vitest';
 import type { UserRole } from '../shared/permissions';
-import { activityLogs, leadNotes, leads, users } from './db/schema';
+import { activityLogs, leadNotes, leads } from './db/schema';
 import { csvCell, maskEmail, maskPhone } from './lib/mask';
-import { browserHeaders, CookieJar, createTestContext, getJson, postJson, readJson, resetTables } from './test/helpers';
+import { CookieJar, createTestContext, getJson, loginAs, postJson, readJson, resetTables, sendJson } from './test/helpers';
 
 const dbAvailable = inject('dbAvailable');
 
@@ -27,20 +27,10 @@ describe('masking and CSV helpers', () => {
 
 describe.skipIf(!dbAvailable)('admin leads API (MySQL)', () => {
   let ctx: ReturnType<typeof createTestContext>;
-  let counter = 0;
   const ids: Record<string, string> = {};
 
-  async function asRole(role: UserRole, name = 'Staff') {
-    const jar = new CookieJar();
-    const email = `${role}-${(counter += 1)}@example.com`;
-    await ctx.db.execute(sql`DELETE FROM rate_limit_buckets`);
-    await postJson(ctx.app, '/auth/register', { firstName: name, email, country: 'IN', password: 'correct-horse-battery', confirmPassword: 'correct-horse-battery', acceptTerms: true }, jar);
-    await ctx.db.update(users).set({ role }).where(eq(users.email, email));
-    const [u] = await ctx.db.select({ id: users.id }).from(users).where(eq(users.email, email));
-    return { jar, id: u.id };
-  }
-  const patch = (jar: CookieJar, id: string, body: unknown) =>
-    ctx.app.request(`/api/v1/admin/leads/${id}`, { method: 'PATCH', headers: { ...browserHeaders, 'Content-Type': 'application/json', Cookie: jar.header() }, body: JSON.stringify(body) });
+  const asRole = (role: UserRole, name = 'Staff') => loginAs(ctx, role, name);
+  const patch = (jar: CookieJar, id: string, body: unknown) => sendJson(ctx, 'PATCH', `/admin/leads/${id}`, body, jar);
 
   beforeAll(() => {
     ctx = createTestContext();

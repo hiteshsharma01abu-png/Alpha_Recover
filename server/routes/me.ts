@@ -23,7 +23,7 @@ const optionalName = (max: number) =>
     .optional();
 
 /** Only these fields can be changed here: never email, role or status. */
-const profileUpdate = z
+export const profileUpdate = z
   .object({
     firstName: z.string().trim().min(1, 'Enter your first name').max(80).optional(),
     lastName: optionalName(80),

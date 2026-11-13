@@ -78,6 +78,13 @@
       "when": 1794592471461,
       "tag": "0010_lead_notes",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1794594722024,
+      "tag": "0011_activity_created_idx",
+      "breakpoints": true
     }
   ]
 }

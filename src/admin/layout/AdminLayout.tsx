@@ -3,6 +3,8 @@ import type { ReactNode } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { logout } from '../../lib/auth';
 import { useAdminSession } from '../auth/adminSessionContext';
+import { AdmIcon } from '../components/AdmIcon';
+import type { AdmIconName } from '../components/AdmIcon';
 import { BrandLogo } from '../components/BrandLogo';
 import { useAdminTheme, type ThemePreference } from '../lib/theme';
 import { ADMIN_NAV, type AdminNavItem } from '../routes';
@@ -43,15 +45,25 @@ const ICONS: Record<AdminNavItem['icon'], ReactNode> = {
 
 const GROUP_ORDER: AdminNavItem['group'][] = ['Overview', 'Sales', 'Learners', 'Content', 'Insights', 'System'];
 
+const THEME_ICON: Record<ThemePreference, AdmIconName> = { system: 'monitor', light: 'sun', dark: 'moon' };
+const ROLE_ICON: Record<string, AdmIconName> = {
+  super_admin: 'crown',
+  admin: 'shieldCheck',
+  finance_manager: 'chart',
+  content_manager: 'book',
+  support_manager: 'users',
+};
+
 function ThemeSelect({ preference, choose }: { preference: ThemePreference; choose: (t: ThemePreference) => void }) {
   return (
-    <label>
-      <span className="adm-skip">Theme</span>
-      <select className="adm-select" value={preference} onChange={(e) => choose(e.target.value as ThemePreference)} aria-label="Theme">
+    <label className="adm-theme">
+      <AdmIcon name={THEME_ICON[preference]} size={18} />
+      <select value={preference} onChange={(e) => choose(e.target.value as ThemePreference)} aria-label="Theme">
         <option value="system">System</option>
         <option value="light">Light</option>
         <option value="dark">Dark</option>
       </select>
+      <AdmIcon name="chevronDown" size={16} />
     </label>
   );
 }
@@ -71,7 +83,8 @@ export function AdminLayout({ title }: { title?: string }) {
   }, [navOpen]);
 
   const items = ADMIN_NAV.filter((i) => can(i.permission));
-  const current = ADMIN_NAV.find((i) => `/admin${i.path ? `/${i.path}` : ''}` === location.pathname);
+  // Exact match for the dashboard, prefix match for modules (so /admin/students/:id is "Students").
+  const current = ADMIN_NAV.find((i) => (i.path ? location.pathname.startsWith(`/admin/${i.path}`) : location.pathname === '/admin'));
 
   return (
     <div className="adm" data-theme={theme.resolved}>
@@ -101,13 +114,21 @@ export function AdminLayout({ title }: { title?: string }) {
             })}
           </nav>
           <div className="adm-sidebar-foot">
-            <strong>{me?.user.firstName}</strong>
-            <span className="adm-role">{me?.roleLabel}</span>
-            <p>
-              <a href="/" target="_blank" rel="noopener noreferrer">
-                View website ↗
+            <span className="adm-avatar" aria-hidden>
+              {me?.user.firstName.charAt(0).toUpperCase()}
+            </span>
+            <div className="adm-user">
+              <div className="adm-user-line">
+                <strong>{me?.user.firstName}</strong>
+                <span className={`adm-role adm-role--${me?.role ?? ''}`}>
+                  {me ? <AdmIcon name={ROLE_ICON[me.role] ?? 'shield'} size={14} /> : null}
+                  {me?.roleLabel}
+                </span>
+              </div>
+              <a className="adm-view-site" href="/" target="_blank" rel="noopener noreferrer">
+                View website <span aria-hidden>↗</span>
               </a>
-            </p>
+            </div>
           </div>
         </aside>
         <div className="adm-backdrop" onClick={() => setNavOpen(false)} aria-hidden />
@@ -125,8 +146,9 @@ export function AdminLayout({ title }: { title?: string }) {
             <h1>{title ?? current?.label ?? 'Admin'}</h1>
             <div className="adm-topbar-actions">
               <ThemeSelect preference={theme.preference} choose={theme.choose} />
-              <button type="button" className="adm-btn" onClick={() => void logout().then(() => window.location.assign('/admin/login'))}>
-                Log out
+              <button type="button" className="adm-btn adm-logout" onClick={() => void logout().then(() => window.location.assign('/admin/login'))}>
+                <AdmIcon name="logout" size={18} />
+                <span>Log out</span>
               </button>
             </div>
           </header>

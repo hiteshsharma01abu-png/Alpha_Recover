@@ -11,12 +11,12 @@
 import { randomBytes } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { USER_ROLES, type StaffRole, type UserRole } from '../../shared/permissions';
 import { passwordProblem } from '../../shared/passwords';
 import { createAuth } from '../auth/auth';
 import { createDb, type Database } from '../db';
-import { activityLogs, sessions, users } from '../db/schema';
+import { activityLogs, notificationJobs, sessions, users } from '../db/schema';
 import { env } from '../env';
 
 export type CreateAdminInput = { email: string; name: string; role: StaffRole; password?: string };
@@ -47,6 +47,10 @@ export async function createOrPromoteAdmin(db: Database, auth: ReturnType<typeof
   });
   await db.update(users).set({ role: input.role, emailVerified: true }).where(eq(users.id, res.user.id));
   await db.delete(sessions).where(eq(sessions.userId, res.user.id));
+  // Already verified: drop the "verify your email" message sign-up queued.
+  await db
+    .delete(notificationJobs)
+    .where(and(eq(notificationJobs.toAddress, email), eq(notificationJobs.template, 'verify_email'), eq(notificationJobs.status, 'pending')));
   await db.insert(activityLogs).values({
     action: 'team.create',
     entityType: 'user',

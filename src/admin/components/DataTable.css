@@ -276,7 +276,15 @@
     text-align: left;
   }
 
-  .adm-table td[data-label=''] {
+  .adm-table td[data-label='']:not(.adm-td-actions) {
+    display: none;
+  }
+
+  .adm-table td.adm-td-actions {
+    justify-content: flex-end;
+  }
+
+  .adm-table td.adm-td-actions:empty {
     display: none;
   }
 

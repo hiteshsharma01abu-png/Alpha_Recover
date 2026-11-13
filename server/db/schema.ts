@@ -173,6 +173,7 @@ export const activityLogs = mysqlTable(
     index('activity_logs_entity_idx').on(t.entityType, t.entityId, t.createdAt),
     index('activity_logs_actor_idx').on(t.actorId, t.createdAt),
     index('activity_logs_action_idx').on(t.action, t.createdAt),
+    index('activity_logs_created_idx').on(t.createdAt),
   ],
 );
 

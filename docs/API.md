@@ -311,6 +311,21 @@ The featured video is excluded from the list and from `counts` (matching current
 | PATCH | `/admin/leads/:id` | `leads.edit` | Strict `{ status?, assignedTo?: id \| null }`. Writes `status_change` / `assignment` notes in the same transaction; the assignee must be active staff with `leads.view` (else 400 on `assignedTo`); no-op updates write nothing. Audit `leads.update` |
 | POST | `/admin/leads/:id/notes` | `leads.edit` | `{ type: note\|call\|email\|whatsapp, body (1–5000) }` → 201. Audit `leads.note` |
 | GET | `/admin/leads/export.csv` | `leads.export` | Same filters as the list, full contact data, UTF-8 BOM (Excel), max 50,000 rows, cells starting with `= + - @` are prefixed with `'` (formula injection). Audit `leads.export` with the row count. Step-up confirmation comes with staff 2FA |
+| GET | `/admin/students` | `students.view` | **Implemented.** Students only (`role = student`). Filters `q` (name/email; phone digits when ≥ 4), `status`, `country`, `enrolled` (`yes`/`no`: has an active enrollment), `verified`; `page`, `pageSize` ≤ 100, `sort` (`-createdAt`, `createdAt`, `name`, `-lastLoginAt`). Email and phone masked |
+| GET | `/admin/students/:id` | `students.view` | Full profile, enrollments (with plan), certificates, live sessions (device name only, no IP). Staff ids → 404 |
+| PATCH | `/admin/students/:id` | `students.edit` | Strict `{ firstName?, lastName?, certificateName?, phone?, country? }` (same rules as `PATCH /me`); returns `changed[]`. Audit `students.update` with before/after |
+| POST | `/admin/students/:id/suspend` | `students.edit` | `{ reason (3–500) }`. Sets `suspended` and deletes all sessions. Audit `students.suspend` |
+| POST | `/admin/students/:id/unsuspend` | `students.edit` | Audit `students.unsuspend` |
+| POST | `/admin/students/:id/sessions/revoke` | `students.edit` | Signs out every device; returns `revoked`. Audit |
+| POST | `/admin/students/:id/password-reset` | `students.edit` | Queues the normal reset email (1-hour link). 422 while suspended. Audit |
+| GET | `/admin/team` | `team.view` | **Implemented.** Staff accounts with `roleLabel`, `status`, `invitePending` (never signed in), live `sessions` count |
+| POST | `/admin/team` | `team.add` | Strict `{ email, firstName, role (staff role) }`. New email → account created (verified, unusable random password) and a `staff_invite` email with a set-password link valid **3 days**; existing student → promoted (signed out); existing staff → 409. Audit `team.invite` / `team.role_change` |
+| POST | `/admin/team/:id/resend-invite` | `team.add` | New link (old one invalidated); 422 once the person has signed in. Audit |
+| PATCH | `/admin/team/:id/role` | `team.manage_roles` | `{ role }`; `student` removes admin access. Not on yourself (422); the last active Super Admin can't be demoted; signs the member out. Audit `team.role_change` / `team.remove` |
+| POST | `/admin/team/:id/deactivate` · `/reactivate` | `team.edit` | Suspend/restore a staff account (deactivate deletes sessions; not yourself; not the last Super Admin). Audit |
+| GET | `/admin/activity` | `audit.view` | **Implemented.** Newest first. Filters `actor`, `action` (exact, or a module prefix ending in `.` such as `leads.`), `entityType`, `entityId`, `from`/`to` (IST days); `page`, `pageSize` ≤ 100 (default 50). Never returns the IP hash |
+| GET | `/admin/activity/facets` | `audit.view` | Distinct actions and actors for the filter menus |
+| GET | `/admin/activity/export.csv` | `audit.export` | Same filters; BOM, formula escaping, max 50,000 rows. Audit `audit.export` |
 
 The rest of this section is planned and is built module by module:
 
@@ -319,12 +334,6 @@ Every admin mutation writes `activity_logs`. Lists support `page`, `pageSize`, `
 | Method | Endpoint | Permission | Purpose / filters |
 |---|---|---|---|
 | GET | `/admin/dashboard` | `dashboard.view` | KPIs: revenue (today/7d/30d), orders, new students, new leads by status, conversion, top demo videos |
-| GET | `/admin/students` | `students.read` | `?status&country&enrolled&q` |
-| GET | `/admin/students/:id` | `students.read` | Profile, enrollments, orders, progress, certificates, sessions |
-| PATCH | `/admin/students/:id` | `students.write` | Edit name, phone, country, certificateName |
-| POST | `/admin/students/:id/suspend` · `/unsuspend` | `students.write` | Suspend revokes all sessions |
-| POST | `/admin/students/:id/sessions/revoke` | `students.write` | Force logout |
-| POST | `/admin/students/:id/password-reset` | `students.write` | Send a reset email |
 | GET/POST | `/admin/courses` | `courses.read` / `courses.write` | List / create track |
 | GET/PATCH/DELETE | `/admin/courses/:id` | `courses.*` | Detail / update / soft delete (blocked if it has enrollments' progress, otherwise archived) |
 | POST | `/admin/courses/:id/modules` | `courses.write` | Create module |
@@ -349,9 +358,6 @@ Every admin mutation writes `activity_logs`. Lists support `page`, `pageSize`, `
 | GET/POST | `/admin/certificates` | `certificates.*` | List / manual issue `{ userId, planId|courseId, recipientName? }` |
 | POST | `/admin/certificates/:id/revoke` | `certificates.write` | `{ reason }` |
 | POST | `/admin/certificates/:id/regenerate-pdf` | `certificates.write` | After a name correction |
-| GET/POST | `/admin/users` | `admins.manage` | Staff accounts (invite by email) |
-| PATCH | `/admin/users/:id/role` | `admins.manage` | Change role (can't demote the last super_admin) |
-| GET | `/admin/activity-logs` | `audit.read` | `?actorId&action&entityType&entityId&from&to` |
 
 ## 11. CMS APIs
 
@@ -387,7 +393,7 @@ All read-only aggregates over existing tables (no separate analytics store at th
 | POST | `/internal/cron/maintenance` (**implemented**) | `Authorization: Bearer $CRON_SECRET` (host cron) | Expire orders, delete expired sessions and verifications, end promotions |
 | POST | `/webhooks/postmark` | Postmark basic-auth | Bounce/spam complaints → mark email undeliverable |
 
-Templates: `verify_email`, `password_reset`, `order_receipt`, `enrollment_welcome`, `lead_ack`, `lead_alert`, `certificate_issued`, `refund_processed`. WhatsApp templates are added when the BSP is onboarded.
+Templates: `verify_email`, `password_reset`, `staff_invite` (implemented), `order_receipt`, `enrollment_welcome`, `lead_ack`, `lead_alert`, `certificate_issued`, `refund_processed`. WhatsApp templates are added when the BSP is onboarded.
 
 ## 14. Settings APIs
 

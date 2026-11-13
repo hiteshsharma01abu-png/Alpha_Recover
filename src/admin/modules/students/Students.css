@@ -1,0 +1,195 @@
+.adm-badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.adm-back {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: var(--adm-text-2);
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.adm-back:hover {
+  color: var(--adm-text);
+}
+
+.adm-student-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.adm-student-head .adm-avatar {
+  width: 56px;
+  height: 56px;
+  font-size: 1.4rem;
+}
+
+.adm-student-head h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+}
+
+.adm .adm-student-head p {
+  margin: 0.2rem 0 0.5rem;
+  color: var(--adm-text-2);
+  overflow-wrap: anywhere;
+}
+
+.adm-student-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.adm-btn.adm-btn-danger-outline {
+  border-color: color-mix(in srgb, var(--adm-danger) 60%, transparent);
+  color: var(--adm-danger);
+}
+
+.adm .adm-notice {
+  margin: 0 0 1rem;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--adm-success) 45%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--adm-success) 10%, transparent);
+  color: var(--adm-text);
+}
+
+.adm-student-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.adm-panel {
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-radius);
+  background: var(--adm-surface);
+}
+
+.adm-panel-wide {
+  grid-column: 1 / -1;
+}
+
+.adm-panel h3 {
+  margin: 0 0 0.8rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--adm-text-2);
+}
+
+.adm-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem 1rem;
+  margin: 0;
+}
+
+.adm-facts dt {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--adm-text-2);
+}
+
+.adm-facts dd {
+  margin: 0.1rem 0 0;
+  overflow-wrap: anywhere;
+}
+
+.adm-facts a {
+  color: inherit;
+}
+
+.adm-list {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.adm-list li {
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--adm-line);
+}
+
+.adm-list li:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.adm-list .adm-sub {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.85rem;
+  color: var(--adm-text-2);
+}
+
+.adm-list-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.adm-profile-form {
+  display: grid;
+  gap: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.adm-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.8rem;
+}
+
+.adm-form-grid label {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.adm-form-grid input {
+  min-height: 40px;
+  padding: 0 0.7rem;
+  border: 1px solid var(--adm-line);
+  border-radius: 8px;
+  background: var(--adm-bg);
+  color: var(--adm-text);
+  font: inherit;
+  font-weight: 400;
+}
+
+.adm-field-error {
+  color: var(--adm-danger);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.adm .adm-small {
+  margin: 0;
+  font-size: 0.82rem;
+}
+
+@media (max-width: 860px) {
+  .adm-student-grid,
+  .adm-facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .adm-student-actions {
+    margin-left: 0;
+  }
+}

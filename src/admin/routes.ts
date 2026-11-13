@@ -16,4 +16,7 @@ export type AdminNavItem = {
 export const ADMIN_NAV: AdminNavItem[] = [
   { path: '', label: 'Dashboard', icon: 'dashboard', permission: 'dashboard.view', group: 'Overview' },
   { path: 'leads', label: 'Leads & Inquiries', icon: 'leads', permission: 'leads.view', group: 'Sales' },
+  { path: 'students', label: 'Students', icon: 'students', permission: 'students.view', group: 'Learners' },
+  { path: 'activity', label: 'Activity Log', icon: 'activity', permission: 'audit.view', group: 'Insights' },
+  { path: 'team', label: 'Team & Access', icon: 'team', permission: 'team.view', group: 'System' },
 ];

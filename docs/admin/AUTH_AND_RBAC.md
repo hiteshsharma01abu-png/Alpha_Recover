@@ -1,6 +1,6 @@
 # Alpha Recover — Admin Authentication & RBAC
 
-**Last reviewed:** 2026-11-13 · **Status:** **Roles and matrix approved and implemented (2026-11-13):** `users.role` migrated (`finance_manager` added, `support` → `support_manager`), matrix in `shared/permissions.ts`, `GET /admin/me`. **2FA: optional for now (owner's decision)**, built in a later admin piece. Staff session limits (8h / 30 min idle) also come later.
+**Last reviewed:** 2026-11-14 · **Status:** **Roles and matrix approved and implemented (2026-11-13):** `users.role` migrated (`finance_manager` added, `support` → `support_manager`), matrix in `shared/permissions.ts`, `GET /admin/me`. **2FA: optional for now (owner's decision)**, built in a later admin piece. Staff session limits (8h / 30 min idle) also come later.
 **Related:** [ARCHITECTURE.md](ARCHITECTURE.md) · [NAVIGATION.md](NAVIGATION.md) · [SECURITY.md](SECURITY.md) · [../SECURITY.md](../SECURITY.md)
 
 ## 1. Current system (verified in code, 2026-11-13)
@@ -51,7 +51,7 @@ flowchart TD
 ```
 The hierarchy only governs **who can manage whom**:
 - Only `super_admin` can assign or change roles, or create another `super_admin`.
-- `admin` can deactivate or reset `*_manager` accounts, but not `admin` or `super_admin` ones.
+- `admin` can deactivate or reset `*_manager` accounts, but not `admin` or `super_admin` ones. **Not implemented:** the matrix in §3 gives `admin` only `team.view`, and the API follows the matrix, so today only a `super_admin` changes the team.
 - Nobody can change their own role.
 - The last `super_admin` can't be demoted or deactivated.
 
@@ -108,7 +108,7 @@ V view · A add · E edit · D delete · X export · I import · ★ special act
 - **Step-up** (`requireStepUp()`): password or TOTP re-confirmed within the last 10 minutes for refunds, role changes, deletes, certificate revocation, policy edits and CSV exports of personal data.
 - **Field whitelists:** update schemas list allowed fields, so `role`, `status`, `email_verified`, amounts and ids can't be mass-assigned.
 - **Audit:** every mutation calls `logActivity()` with actor, role, action, entity and before/after metadata. Denied attempts on sensitive actions (`auth.forbidden`) are logged too.
-- **Tests:** a generated suite hits **every admin route × every role** and compares the result with `can()`. A new route without a permission fails CI.
+- **Tests:** **implemented** in `server/activity.admin.test.ts`: every admin route × every role is compared with `can()`. New admin routes must be added to its route list.
 
 ## 5. Admin authentication flow
 
@@ -135,7 +135,7 @@ sequenceDiagram
   - **Required** for `super_admin`, `admin` and `finance_manager`.
   - **Strongly recommended** for the other staff roles, and enforceable later via a policy setting.
   - First login forces enrolment (QR code plus 10 backup codes).
-- **Invites:** staff are created by invite. A `super_admin` enters an email and role, and the invitee receives a single-use link (24h) to set a password and enrol 2FA. There's no public staff sign-up.
+- **Invites (implemented, without 2FA yet):** a `super_admin` enters an email, first name and role; the invitee receives a single-use link (**3 days**) to set a password. An existing student account is promoted instead. There's no public staff sign-up.
 
 ## 6. Session handling
 
