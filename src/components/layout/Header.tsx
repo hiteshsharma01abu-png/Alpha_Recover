@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { company } from '../../data/content';
+import { useAuth } from '../../lib/auth';
 import { useTrainingTracks } from '../../lib/catalog';
 import './Header.css';
 
@@ -164,6 +165,7 @@ function DrawerRow({
 
 function DesktopNavLinks() {
   const trainingTracks = useTrainingTracks();
+  const { user } = useAuth();
   return (
     <>
       <NavLink to="/" end>
@@ -200,7 +202,7 @@ function DesktopNavLinks() {
       <NavLink to="/demos">Demo Videos</NavLink>
       <NavLink to="/contact">Contact</NavLink>
       <NavLink to="/account" className="nav-cta">
-        Register / Login
+        {user ? 'My Account' : 'Register / Login'}
         <span aria-hidden>→</span>
       </NavLink>
     </>
@@ -209,6 +211,7 @@ function DesktopNavLinks() {
 
 function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const trainingTracks = useTrainingTracks();
+  const { user } = useAuth();
   return (
     <div
       id="mobile-nav"
@@ -260,7 +263,7 @@ function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void })
           <span className="drawer-row-icon">
             <MenuIcon name="user" />
           </span>
-          <span className="drawer-row-label">Register / Login</span>
+          <span className="drawer-row-label">{user ? 'My Account' : 'Register / Login'}</span>
           <span className="drawer-row-chevron">
             <MenuIcon name="chevron" />
           </span>

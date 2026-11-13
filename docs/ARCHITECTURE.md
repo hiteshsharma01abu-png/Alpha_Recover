@@ -55,10 +55,12 @@ public/
 | `/pricing` | Pricing | Professional Plan with Buy Now (checkout stub) |
 | `/demos` | Demos | Filter, search, pagination over demo videos |
 | `/contact` | Contact | Contact form (stub) |
-| `/account` | Account | Login / register (stubs) |
+| `/account` | Account | Login, register, forgot password; signed-in view (verification status, log out) |
 | `/about`, `/services`, `/industries` | Static pages | |
 | `/blog`, `/blog/:slug` | Blog | Excerpts only |
-| `/verify-certificate` | VerifyCertificate | Lookup form (stub) |
+| `/verify-certificate` | VerifyCertificate | Certificate lookup (API) |
+| `/verify-email` | VerifyEmail | Landing page for the verification email link (`?token=`) |
+| `/reset-password` | ResetPassword | Landing page for the password-reset email link (`?token=`) |
 
 Because every route is eagerly imported, **all CSS ships in one bundle**: class prefixes must stay unique per section to avoid cross-file cascade clashes.
 

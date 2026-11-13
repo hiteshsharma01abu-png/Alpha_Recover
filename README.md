@@ -82,6 +82,8 @@ The pages don't call the API yet: auth, payments, leads and the training portal 
 | `/blog` | Blog |
 | `/blog/:slug` | Blog post |
 | `/verify-certificate` | Verify certificate |
+| `/verify-email` | Email verification (link from email) |
+| `/reset-password` | Choose a new password (link from email) |
 
 ## Documentation
 

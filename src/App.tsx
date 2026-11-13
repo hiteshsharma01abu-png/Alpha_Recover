@@ -9,10 +9,12 @@ import { Demos } from './pages/Demos';
 import { Home } from './pages/Home';
 import { Industries } from './pages/Industries';
 import { Pricing } from './pages/Pricing';
+import { ResetPassword } from './pages/ResetPassword';
 import { Services } from './pages/Services';
 import { TrainingIndex } from './pages/TrainingIndex';
 import { TrainingTrack } from './pages/TrainingTrack';
 import { VerifyCertificate } from './pages/VerifyCertificate';
+import { VerifyEmail } from './pages/VerifyEmail';
 
 export default function App() {
   return (
@@ -29,6 +31,8 @@ export default function App() {
         <Route path="blog" element={<Blog />} />
         <Route path="blog/:slug" element={<BlogPost />} />
         <Route path="verify-certificate" element={<VerifyCertificate />} />
+        <Route path="verify-email" element={<VerifyEmail />} />
+        <Route path="reset-password" element={<ResetPassword />} />
         <Route path="training" element={<TrainingIndex />} />
         <Route path="training/:trackId" element={<TrainingTrack />} />
         <Route path="*" element={<Navigate to="/" replace />} />

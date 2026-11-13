@@ -435,3 +435,20 @@
     padding-bottom: 2.75rem;
   }
 }
+/* Signed-in view */
+.account-verify {
+  padding: 0.85rem 1rem;
+  border-left: 3px solid var(--brass);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--surface-alt);
+}
+
+.account-verify p {
+  margin: 0 0 0.35rem;
+}
+
+.account-soon {
+  margin: 0.9rem 0 0;
+  color: var(--content);
+  font-size: 0.92rem;
+}
