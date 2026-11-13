@@ -82,7 +82,7 @@ Phase 7 QA & security hardening (continuous, gate before production launch)
 - [x] Catalog: `courses` / `course_modules` / `lessons` (9 / 16 / 117, insert-only seed), `GET /courses[?include=outline]`, `GET /courses/:slug` (video ids never exposed). Header menus, Training explorer and track pages read the API with the static catalog as fallback; verified in the browser with and without the API
 - [x] Plans & promotions: `plans` / `plan_courses` / `promotions`, server-side pricing (`server/services/pricing.ts`), `GET /plans[/:slug]`. Professional Plan ₹5,999 with the Festival Sale at ₹2,500 until 30 Nov 2026 11:59 PM IST. Real countdown; at zero the sale hides and the price becomes ₹5,999 without a reload. Static fallback applies the same window. Browser-verified (live, expiry, fallback)
 - [x] Demo videos: `demo_videos` (one featured video enforced by the DB), insert-only seed of the 6 videos, `GET /demo-videos` (category, search, pagination, counts), `/featured`, `/:slug`, `POST /:slug/view` (1 per IP per 30 min). Demos page and Home preview read the API with static fallback; real view counts and upload dates. Browser-verified with and without the API
-- [ ] Blog
+- [x] Blog: `blog_posts` (insert-only seed of the 3 posts; bodies = excerpts until written), `GET /blog` (scheduling via `publishedAt`), `GET /blog/:slug`. Blog pages read the API with static fallback; safe Markdown renderer (no raw HTML, safe links) with article styles; post page sets title/meta description. Developer placeholder text removed. Browser-verified with and without the API
 - [ ] Certificate verification
 - [ ] Public settings endpoint
 

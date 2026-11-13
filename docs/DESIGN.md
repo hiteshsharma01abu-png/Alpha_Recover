@@ -69,6 +69,7 @@ Fonts load from Google Fonts at the top of `global.css`. Base body size is 16px,
 | Tabs / filters | Account toggle, TrainingExplorer tracks, Demos filters | `role="tab"`, `aria-selected`, `is-active` class |
 | Form states | `.field-error`, `.form-error`, `.form-success`, `.hp-field` (honeypot), `.turnstile-box` in `global.css`; `.success` (page-scoped in `SimplePages.css`) | Use these for every API-backed form: errors in `--danger`, success in `--ok`. The `<Turnstile>` widget lives in `src/components/ui/Turnstile.tsx`; `submitLead()` / `formErrors()` in `src/lib/leads.ts` |
 | Floating actions | WhatsApp float, scroll-to-top | Bottom corners; keep new floating UI clear of them |
+| Article content | `.prose` (in `SimplePages.css`) + `<Markdown source>` from `src/components/ui/Markdown.tsx` | Headings (`#`/`##` → h2), lists, quotes (brass left border), code blocks (`--dark-band`), inline code (`--chip`), brass underlined links |
 
 ## 6. Icons
 

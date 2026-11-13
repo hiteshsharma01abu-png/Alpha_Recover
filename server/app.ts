@@ -6,6 +6,7 @@ import { logger } from './lib/logger';
 import { requestContext } from './lib/request';
 import { csrfGuard } from './lib/security';
 import { authRoutes } from './routes/auth';
+import { blogRoutes } from './routes/blog';
 import { catalogRoutes } from './routes/catalog';
 import { demoVideoRoutes } from './routes/demoVideos';
 import { healthRoutes } from './routes/health';
@@ -40,6 +41,7 @@ export function createApp(deps: Deps) {
   app.route('/', catalogRoutes);
   app.route('/', planRoutes);
   app.route('/', demoVideoRoutes);
+  app.route('/', blogRoutes);
 
   app.notFound((c) =>
     c.json({ error: { code: 'NOT_FOUND', message: 'Route not found', details: [], requestId: c.get('requestId') } }, 404),

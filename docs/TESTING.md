@@ -9,7 +9,7 @@ npm run db:up      # local MySQL in Docker (also creates the alpharecover_test d
 npm test           # wipes alpharecover_test, applies all migrations, runs every *.test.ts
 ```
 
-- Tests live next to the code as `server/**/*.test.ts`; shared helpers are in `server/test/helpers.ts` (`createTestContext()`, `signUp()`, `resetTables()`, a recording mailer).
+- Tests live next to the code: `server/**/*.test.ts` (API, mostly against real MySQL) and `src/**/*.test.{ts,tsx}` (frontend units rendered with `react-dom/server`, e.g. `src/components/ui/Markdown.test.tsx`). Shared API helpers are in `server/test/helpers.ts` (`createTestContext()`, `signUp()`, `resetTables()`, a recording mailer).
 - If MySQL isn't reachable locally, DB tests are **skipped with a warning** and unit tests still run. In CI (`CI=true`) an unreachable database **fails** the run instead.
 - CI (`.github/workflows/ci.yml`) runs lint, build, the API bundle and the tests against **MySQL 8.4 and MariaDB 10.6**.
 

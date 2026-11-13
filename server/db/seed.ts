@@ -1,14 +1,14 @@
 /**
- * Seeds catalog, pricing and demo video data from the original static content (src/data/content.ts).
+ * Seeds catalog, pricing, demo video and blog data from the original static content (src/data/content.ts).
  * Insert-only: existing rows (matched by slug) are never updated, so admin edits survive re-runs.
  * Run: `npm run db:seed` (dev) or `node dist-server/seed.mjs` (production, after migrate).
  */
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { and, eq } from 'drizzle-orm';
-import { demoVideos as staticDemoVideos, pricing, trainingTracks, type TrainingTrack } from '../../src/data/content';
+import { blogPosts as staticBlogPosts, demoVideos as staticDemoVideos, pricing, trainingTracks, type TrainingTrack } from '../../src/data/content';
 import { createDb, type Database } from './index';
-import { courseModules, courses, demoVideos, lessons, plans, promotions } from './schema';
+import { blogPosts, courseModules, courses, demoVideos, lessons, plans, promotions } from './schema';
 
 export async function seedCatalog(db: Database, tracks: TrainingTrack[] = trainingTracks) {
   const counts = { courses: 0, modules: 0, lessons: 0 };
@@ -129,6 +129,24 @@ export async function seedDemoVideos(db: Database, now = new Date()) {
   return { demoVideos: inserted[0].affectedRows };
 }
 
+/** The three posts from content.ts. Only excerpts exist, so each body starts as its excerpt until written. */
+export async function seedBlogPosts(db: Database) {
+  const inserted = await db
+    .insert(blogPosts)
+    .ignore()
+    .values(
+      staticBlogPosts.map((p) => ({
+        slug: p.slug,
+        title: p.title,
+        excerpt: p.excerpt,
+        bodyMarkdown: p.excerpt,
+        status: 'published' as const,
+        publishedAt: new Date(`${p.date}T09:00:00+05:30`),
+      })),
+    );
+  return { blogPosts: inserted[0].affectedRows };
+}
+
 const isEntry = process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
 if (isEntry) {
   const url = process.env.DATABASE_URL;
@@ -137,10 +155,10 @@ if (isEntry) {
     process.exit(1);
   }
   const { db, pool } = createDb(url);
-  Promise.all([seedCatalog(db), seedPlans(db), seedDemoVideos(db)])
-    .then(([c, p, v]) =>
+  Promise.all([seedCatalog(db), seedPlans(db), seedDemoVideos(db), seedBlogPosts(db)])
+    .then(([c, p, v, b]) =>
       console.log(
-        `Seeded (new rows): ${c.courses} courses, ${c.modules} modules, ${c.lessons} lessons, ${p.plans} plans, ${p.promotions} promotions, ${v.demoVideos} demo videos`,
+        `Seeded (new rows): ${c.courses} courses, ${c.modules} modules, ${c.lessons} lessons, ${p.plans} plans, ${p.promotions} promotions, ${v.demoVideos} demo videos, ${b.blogPosts} blog posts`,
       ),
     )
     .catch((err: unknown) => {

@@ -343,6 +343,31 @@ export const demoVideos = mysqlTable(
   ],
 );
 
+// ── Blog (Phase 2) ───────────────────────────────────────────────────────────
+
+export const blogPosts = mysqlTable(
+  'blog_posts',
+  {
+    id: id(),
+    slug: varchar('slug', { length: 120 }).notNull(),
+    title: varchar('title', { length: 200 }).notNull(),
+    excerpt: varchar('excerpt', { length: 400 }).notNull(),
+    /** Markdown; rendered without raw HTML on the site. */
+    bodyMarkdown: text('body_markdown').notNull(),
+    coverImageUrl: varchar('cover_image_url', { length: 500 }),
+    seoTitle: varchar('seo_title', { length: 70 }),
+    seoDescription: varchar('seo_description', { length: 160 }),
+    authorId: char('author_id', { length: 36 }).references(() => users.id),
+    status: mysqlEnum('status', PUBLISH_STATUSES).notNull().default('draft'),
+    /** A published post appears once this time has passed (allows scheduling). */
+    publishedAt: ts('published_at'),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+    deletedAt: ts('deleted_at'),
+  },
+  (t) => [uniqueIndex('blog_posts_slug_uq').on(t.slug), index('blog_posts_status_published_idx').on(t.status, t.publishedAt)],
+);
+
 // ── Leads (Phase 2) ──────────────────────────────────────────────────────────
 
 export const LEAD_STATUSES = ['new', 'contacted', 'qualified', 'converted', 'closed', 'spam'] as const;

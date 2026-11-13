@@ -106,8 +106,8 @@ Request: `{ "token": "…", "password": "…", "confirmPassword": "…" }` → `
 | Method | Endpoint | Auth | Purpose |
 |---|---|---|---|
 | GET | `/settings/public` | public | Company contact, hours, WhatsApp, social links (Footer, Contact, CTA) |
-| GET | `/blog` | public | Published posts (paginated): slug, title, excerpt, cover, publishedAt |
-| GET | `/blog/:slug` | public | Full post including `bodyMarkdown`, SEO fields |
+| GET | `/blog` | public | Published posts, newest first (`?page`, `?pageSize` ≤ 50): slug, title, excerpt, coverImageUrl, publishedAt; `meta.total`. Only `published`, not deleted, and `publishedAt` ≤ now (scheduling works). **Implemented (Phase 2)** |
+| GET | `/blog/:slug` | public | Full post: adds `bodyMarkdown`, `seoTitle`, `seoDescription`. The site renders the Markdown with `src/components/ui/Markdown.tsx` (no raw HTML) and sets the page title and meta description. **Implemented (Phase 2)** |
 | GET | `/certificates/verify/:code` | public | Certificate verification (details below) |
 
 `GET /settings/public` response:

@@ -43,6 +43,13 @@
       "when": 1794583521173,
       "tag": "0005_demo_videos",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1794584765760,
+      "tag": "0006_blog_posts",
+      "breakpoints": true
     }
   ]
 }

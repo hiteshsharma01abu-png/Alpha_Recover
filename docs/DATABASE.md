@@ -415,6 +415,8 @@ Incremented inside the issuing transaction with
 
 ## 21. `blog_posts`
 
+> **Implemented (Phase 2)**, seeded insert-only with the three posts from `content.ts`. Only excerpts exist, so each `body_markdown` starts as the excerpt until the article is written. `author_id` is nullable (seeded posts have no author).
+
 | Column | Type | Notes |
 |---|---|---|
 | id | char(36) | PK |

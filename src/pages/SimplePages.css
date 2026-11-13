@@ -414,10 +414,67 @@ a.contact-info-card:hover {
 }
 
 .prose p,
-.prose ul {
+.prose ul,
+.prose ol {
   color: #F0EDE4;
   line-height: 1.65;
   margin-bottom: 1.25rem;
+}
+
+/* Blog article content (rendered by components/ui/Markdown) */
+.prose h3,
+.prose h4 {
+  color: var(--text);
+  margin: 1.5rem 0 0.6rem;
+}
+
+.prose li + li {
+  margin-top: 0.35rem;
+}
+
+.prose time {
+  display: block;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: var(--content);
+}
+
+.prose p a,
+.prose li a {
+  color: var(--brass);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.prose blockquote {
+  margin: 0 0 1.25rem;
+  padding: 0.75rem 1rem;
+  border-left: 3px solid var(--brass);
+  background: var(--surface);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  color: var(--text-sub);
+}
+
+.prose code {
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  background: var(--chip);
+  font-size: 0.9em;
+}
+
+.prose pre {
+  margin: 0 0 1.25rem;
+  padding: 1rem;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--dark-band);
+}
+
+.prose pre code {
+  padding: 0;
+  background: none;
+  color: var(--text-sub);
 }
 
 .list-grid {

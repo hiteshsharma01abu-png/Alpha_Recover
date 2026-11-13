@@ -81,7 +81,7 @@ Implementation: a `permissions.ts` map `role → Set<permission>`; middleware `r
 | SQL injection | Drizzle parameterized queries only; no string-built SQL |
 | CSRF | SameSite=Lax cookie + Origin/Referer check on mutations + `X-Requested-With: fetch` header requirement; webhooks exempt (signature-verified) |
 | CORS | Same origin only (SPA and API on one domain); no wildcard |
-| XSS | React escapes by default; blog Markdown rendered without raw HTML (sanitized); CSP header (below) |
+| XSS | React escapes by default. Blog Markdown is rendered by `src/components/ui/Markdown.tsx` into React elements (never `dangerouslySetInnerHTML`), so HTML in the text is shown as text; links are allowed only for `http(s)`, `mailto`, site-relative and `#` targets (`javascript:`, `data:`, protocol-relative are dropped). Covered by `Markdown.test.tsx`. CSP header (below) |
 | Security headers | `Content-Security-Policy` (self, Razorpay checkout, Bunny iframe/CDN, Turnstile, Google Fonts), `Strict-Transport-Security`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`, `frame-ancestors 'none'`. Set in `vercel.json` for static files and in middleware for the API |
 | Rate limiting | MySQL-backed fixed-window counters (`rate_limit_buckets`, limits in API spec §0); 429 + `Retry-After`. Client IP taken only from the trusted proxy header configured for the host |
 | Bot protection | Turnstile on register, forgot password, leads; honeypot field on leads |

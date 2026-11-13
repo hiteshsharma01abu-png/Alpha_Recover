@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
-import { blogPosts } from '../data/content';
+import { useBlogPosts } from '../lib/blog';
 import './SimplePages.css';
 
 export function Blog() {
+  const blogPosts = useBlogPosts();
   return (
     <div>
       <div className="page-hero">
