@@ -9,7 +9,7 @@ const live = (now: Date) => and(eq(enrollments.status, 'active'), or(isNull(enro
 
 /**
  * Grants a plan to a user. Idempotent: an order activates at most once (unique order_id), and a user
- * holds at most one active enrollment per plan (unique active_key), so repeated calls return the
+ * holds at most one active enrollment per plan (unique active_flag + user + plan), so repeated calls return the
  * existing row instead of failing. Callers that need atomicity (payments) pass their transaction.
  */
 export async function grantEnrollment(
