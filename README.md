@@ -97,3 +97,4 @@ The pages don't call the API yet: auth, payments, leads and the training portal 
 | [docs/TESTING.md](docs/TESTING.md) | QA & testing strategy |
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | cPanel / VPS deployment, cron, migrations, rollback, troubleshooting |
 | [docs/PLAN.md](docs/PLAN.md) | Implementation roadmap and status |
+| [docs/admin/](docs/admin/ARCHITECTURE.md) | Admin panel plan (proposal): architecture, folder structure, navigation, auth & RBAC, UI/UX, security |

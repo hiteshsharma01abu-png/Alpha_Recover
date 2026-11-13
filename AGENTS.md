@@ -38,6 +38,7 @@ Verify with `npm run build` + `npm run lint` + `npm test`; for visual changes, r
 | [docs/TESTING.md](docs/TESTING.md) | write tests or prepare a release |
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | deploy, configure the host, cron, rollback, troubleshoot |
 | [docs/PLAN.md](docs/PLAN.md) | need the roadmap and phase status |
+| [docs/admin/](docs/admin/ARCHITECTURE.md) | work on the admin panel (proposal: architecture, folders, navigation, RBAC, UI/UX, security) |
 | `docs/archive/` | historical snapshots: read-only, never update |
 
 ## Code conventions
