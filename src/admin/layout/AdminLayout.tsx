@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { logout } from '../../lib/auth';
 import { useAdminSession } from '../auth/adminSessionContext';
+import { BrandLogo } from '../components/BrandLogo';
 import { useAdminTheme, type ThemePreference } from '../lib/theme';
 import { ADMIN_NAV, type AdminNavItem } from '../routes';
 import './AdminLayout.css';
@@ -80,7 +81,7 @@ export function AdminLayout({ title }: { title?: string }) {
       <div className={`adm-shell${navOpen ? ' is-nav-open' : ''}`}>
         <aside className="adm-sidebar" aria-label="Admin navigation">
           <Link to="/admin" className="adm-brand" onClick={() => setNavOpen(false)}>
-            Alpha Recover <small>Admin</small>
+            <BrandLogo tagline="Admin Panel" />
           </Link>
           <nav className="adm-nav">
             {GROUP_ORDER.map((group) => {

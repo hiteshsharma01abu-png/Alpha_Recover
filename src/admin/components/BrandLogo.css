@@ -1,0 +1,108 @@
+/* Mirrors .brand-mark in components/layout/Header.css; colours adapt via --logo-* (set on dark surfaces). */
+.adm-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  line-height: 1;
+}
+
+.adm-logo-mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+}
+
+.adm-logo-lg .adm-logo-mark {
+  width: 46px;
+  height: 46px;
+}
+
+.adm-logo-ring {
+  position: absolute;
+  inset: 0;
+  border: 2px solid #d9b56e;
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 0 5px rgba(217, 181, 110, 0.12),
+    0 0 10px rgba(217, 181, 110, 0.25);
+  animation: adm-platter-spin 18s linear infinite;
+}
+
+.adm-logo-ring::after {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1px dashed rgba(217, 181, 110, 0.7);
+  border-radius: 50%;
+}
+
+.adm-logo-lg .adm-logo-ring::after {
+  inset: 8px;
+}
+
+.adm-logo-hub {
+  z-index: 1;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d9b56e;
+  box-shadow: 0 0 8px rgba(217, 181, 110, 0.55);
+}
+
+.adm-logo-lg .adm-logo-hub {
+  width: 10px;
+  height: 10px;
+}
+
+.adm-logo-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.adm-logo-text strong {
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.adm-logo-lg .adm-logo-text strong {
+  font-size: 1.5rem;
+}
+
+.adm-logo-alpha {
+  color: var(--logo-alpha, var(--adm-text));
+}
+
+.adm-logo-recover {
+  color: var(--logo-recover, #0f8a72);
+}
+
+.adm[data-theme='dark'] .adm-logo-recover {
+  color: var(--logo-recover, #7dffc0);
+}
+
+.adm-logo-text small {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--logo-tagline, var(--adm-text-2));
+}
+
+@keyframes adm-platter-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .adm-logo-ring {
+    animation: none;
+  }
+}

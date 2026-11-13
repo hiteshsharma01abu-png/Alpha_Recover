@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { REGISTER_COUNTRIES, type CountryCode } from '../../shared/countries';
 import { Turnstile } from '../components/ui/Turnstile';
 import { company } from '../data/content';
@@ -132,7 +132,8 @@ const FieldError = ({ msg }: { msg?: string }) => (msg ? <span className="field-
 
 export function Account() {
   const auth = useAuth();
-  const [mode, setMode] = useState<Mode>('login');
+  const [params] = useSearchParams();
+  const [mode, setMode] = useState<Mode>(params.get('mode') === 'forgot' ? 'forgot' : 'login');
   const [note, setNote] = useState('');
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});

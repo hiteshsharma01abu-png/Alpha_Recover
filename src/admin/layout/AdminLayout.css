@@ -329,3 +329,7 @@
     transition: none;
   }
 }
+
+.adm-sidebar .adm-logo-text strong {
+  font-size: 0.95rem;
+}
