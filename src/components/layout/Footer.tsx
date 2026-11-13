@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { company, services } from '../../data/content';
+import { services, type SocialPlatform } from '../../data/content';
+import { useSiteSettings } from '../../lib/settings';
 import { icons } from '../../lib/icons';
 import './Footer.css';
 
@@ -33,14 +34,17 @@ const highlights = [
   { label: 'Trusted Support', icon: icons.headphones },
 ];
 
-const social = [
-  { href: 'https://youtube.com', label: 'YouTube', icon: icons.youtube, className: 'yt' },
-  { href: 'https://linkedin.com', label: 'LinkedIn', icon: icons.linkedin, className: 'in' },
-  { href: 'https://facebook.com', label: 'Facebook', icon: icons.facebook, className: 'fb' },
-  { href: 'https://instagram.com', label: 'Instagram', icon: icons.instagram, className: 'ig' },
-];
+/** Icon and style per platform; the URLs come from site settings. */
+const socialStyle: Record<SocialPlatform, { label: string; icon: string; className: string }> = {
+  youtube: { label: 'YouTube', icon: icons.youtube, className: 'yt' },
+  linkedin: { label: 'LinkedIn', icon: icons.linkedin, className: 'in' },
+  facebook: { label: 'Facebook', icon: icons.facebook, className: 'fb' },
+  instagram: { label: 'Instagram', icon: icons.instagram, className: 'ig' },
+};
 
 export function Footer() {
+  const { company, socialLinks } = useSiteSettings();
+  const social = socialLinks.map((s) => ({ href: s.url, ...socialStyle[s.platform] }));
   const [desktop, setDesktop] = useState(true);
 
   useEffect(() => {
@@ -233,20 +237,22 @@ export function Footer() {
                 </Link>
               </div>
 
-              <div className="footer-social">
-                {social.map((s) => (
-                  <a
-                    key={s.label}
-                    href={s.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label={s.label}
-                    className={`social ${s.className}`}
-                  >
-                    <img src={s.icon} alt="" width={18} height={18} decoding="async" />
-                  </a>
-                ))}
-              </div>
+              {social.length ? (
+                <div className="footer-social">
+                  {social.map((s) => (
+                    <a
+                      key={s.label}
+                      href={s.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={s.label}
+                      className={`social ${s.className}`}
+                    >
+                      <img src={s.icon} alt="" width={18} height={18} decoding="async" />
+                    </a>
+                  ))}
+                </div>
+              ) : null}
             </div>
           </div>
 

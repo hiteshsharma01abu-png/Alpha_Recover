@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { company } from '../../data/content';
 import { icons } from '../../lib/icons';
 import { formErrors, submitLead } from '../../lib/leads';
+import { useSiteSettings } from '../../lib/settings';
 import { Reveal } from '../ui/Reveal';
 import { Turnstile } from '../ui/Turnstile';
 import './ContactCtaSection.css';
@@ -13,6 +13,7 @@ type ContactCtaSectionProps = {
 };
 
 export function ContactCtaSection({ hideHead = false }: ContactCtaSectionProps) {
+  const { company } = useSiteSettings();
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});

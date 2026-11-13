@@ -1,14 +1,22 @@
 /**
- * Seeds catalog, pricing, demo video and blog data from the original static content (src/data/content.ts).
+ * Seeds catalog, pricing, demo video, blog and settings data from the original static content (src/data/content.ts).
  * Insert-only: existing rows (matched by slug) are never updated, so admin edits survive re-runs.
  * Run: `npm run db:seed` (dev) or `node dist-server/seed.mjs` (production, after migrate).
  */
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { and, eq } from 'drizzle-orm';
-import { blogPosts as staticBlogPosts, demoVideos as staticDemoVideos, pricing, trainingTracks, type TrainingTrack } from '../../src/data/content';
+import {
+  blogPosts as staticBlogPosts,
+  company,
+  demoVideos as staticDemoVideos,
+  pricing,
+  socialLinks,
+  trainingTracks,
+  type TrainingTrack,
+} from '../../src/data/content';
 import { createDb, type Database } from './index';
-import { blogPosts, courseModules, courses, demoVideos, lessons, plans, promotions } from './schema';
+import { blogPosts, courseModules, courses, demoVideos, lessons, plans, promotions, siteSettings } from './schema';
 
 export async function seedCatalog(db: Database, tracks: TrainingTrack[] = trainingTracks) {
   const counts = { courses: 0, modules: 0, lessons: 0 };
@@ -147,6 +155,18 @@ export async function seedBlogPosts(db: Database) {
   return { blogPosts: inserted[0].affectedRows };
 }
 
+/** Public contact details and social links (insert-only: admin edits are never overwritten). */
+export async function seedSettings(db: Database) {
+  const inserted = await db
+    .insert(siteSettings)
+    .ignore()
+    .values([
+      { key: 'company', value: company, isPublic: true },
+      { key: 'social_links', value: socialLinks, isPublic: true },
+    ]);
+  return { settings: inserted[0].affectedRows };
+}
+
 const isEntry = process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
 if (isEntry) {
   const url = process.env.DATABASE_URL;
@@ -155,10 +175,10 @@ if (isEntry) {
     process.exit(1);
   }
   const { db, pool } = createDb(url);
-  Promise.all([seedCatalog(db), seedPlans(db), seedDemoVideos(db), seedBlogPosts(db)])
-    .then(([c, p, v, b]) =>
+  Promise.all([seedCatalog(db), seedPlans(db), seedDemoVideos(db), seedBlogPosts(db), seedSettings(db)])
+    .then(([c, p, v, b, s]) =>
       console.log(
-        `Seeded (new rows): ${c.courses} courses, ${c.modules} modules, ${c.lessons} lessons, ${p.plans} plans, ${p.promotions} promotions, ${v.demoVideos} demo videos, ${b.blogPosts} blog posts`,
+        `Seeded (new rows): ${c.courses} courses, ${c.modules} modules, ${c.lessons} lessons, ${p.plans} plans, ${p.promotions} promotions, ${v.demoVideos} demo videos, ${b.blogPosts} blog posts, ${s.settings} settings`,
       ),
     )
     .catch((err: unknown) => {

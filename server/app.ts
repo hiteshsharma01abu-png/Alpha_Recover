@@ -14,6 +14,7 @@ import { healthRoutes } from './routes/health';
 import { internalRoutes } from './routes/internal';
 import { leadRoutes } from './routes/leads';
 import { planRoutes } from './routes/plans';
+import { settingsRoutes } from './routes/settings';
 import type { AppEnv, Deps } from './types';
 
 export const API_BASE = '/api/v1';
@@ -44,6 +45,7 @@ export function createApp(deps: Deps) {
   app.route('/', demoVideoRoutes);
   app.route('/', blogRoutes);
   app.route('/', certificateRoutes);
+  app.route('/', settingsRoutes);
 
   app.notFound((c) =>
     c.json({ error: { code: 'NOT_FOUND', message: 'Route not found', details: [], requestId: c.get('requestId') } }, 404),

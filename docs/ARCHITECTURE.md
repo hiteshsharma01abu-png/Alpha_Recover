@@ -139,7 +139,7 @@ src/lib/api.ts        ✓ typed fetch client for the frontend (not used by pages
 
 **No Vercel adapter yet.** Vercel deploys any top-level `api/` folder as functions automatically; with no database configured there, they'd deploy broken. Add it only if a Vercel staging environment with a managed MySQL is set up.
 
-**API data with static fallback:** pages that show API-backed content (so far the training catalog, via `useTrainingTracks()` in `src/lib/catalog.ts`) render the bundled data from `content.ts` immediately and switch to the API response when it arrives. The site therefore works unchanged on static hosting with no API, and reflects admin edits once the API is live.
+**API data with static fallback:** every page with API-backed content renders the bundled data from `content.ts` immediately and switches to the API response when it arrives: `useTrainingTracks()` (`src/lib/catalog.ts`), `usePlan()` (`plans.ts`), `useDemoVideos()` (`demoVideos.ts`), `useBlogPosts()` / `useBlogPost()` (`blog.ts`), `useSiteSettings()` (`settings.ts`). The site therefore works unchanged on static hosting with no API, and reflects admin edits once the API is live. Pages that only make sense live (forms, certificate lookup) show a clear error when the API is unreachable.
 
 **Local development:** `npm run dev` (Vite, :5173) proxies `/api` to `npm run dev:api` (:8787), so the browser sees one origin, just like production.
 

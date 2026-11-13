@@ -63,7 +63,7 @@ Phase 7 QA & security hardening (continuous, gate before production launch)
 - [x] CI green on GitHub: 28/28 tests on MySQL 8.4 and MariaDB 10.6 (run 43248868357, `Dev` @ 2be5bf6)
 - [ ] Staging deploy (needs a host or managed MySQL; deploy-over-SSH job added when the host is chosen)
 
-### Phase 2 — Public website backend · M–L · **In progress**
+### Phase 2 — Public website backend · M–L · **Done (2026-11-13), on `Dev`**
 | Task | API | [FE] work |
 |---|---|---|
 | Leads | `POST /leads` + Turnstile + honeypot + `lead_alert` / `lead_ack` emails | Wire Contact form and callback CTA; add a `name` to the consent checkbox; phone field on the callback form (required) |
@@ -84,7 +84,14 @@ Phase 7 QA & security hardening (continuous, gate before production launch)
 - [x] Demo videos: `demo_videos` (one featured video enforced by the DB), insert-only seed of the 6 videos, `GET /demo-videos` (category, search, pagination, counts), `/featured`, `/:slug`, `POST /:slug/view` (1 per IP per 30 min). Demos page and Home preview read the API with static fallback; real view counts and upload dates. Browser-verified with and without the API
 - [x] Blog: `blog_posts` (insert-only seed of the 3 posts; bodies = excerpts until written), `GET /blog` (scheduling via `publishedAt`), `GET /blog/:slug`. Blog pages read the API with static fallback; safe Markdown renderer (no raw HTML, safe links) with article styles; post page sets title/meta description. Developer placeholder text removed. Browser-verified with and without the API
 - [x] Certificate verification: `certificates` + `certificate_sequences` (gap-free per-year codes, tested with 20 concurrent issues; column renamed to `last_number` since `last_value` is reserved in MySQL 8), `GET /certificates/verify/:code` (30/min, same 404 for unknown/malformed, no private data). Verify page shows valid/revoked/not found, supports `?code=` links, and says "temporarily unavailable" without the API. Browser-verified
-- [ ] Public settings endpoint
+- [x] Public settings: `company` + `social_links` in `site_settings` (insert-only seed), `GET /settings/public`; Footer, Contact page, callback section, pricing and floating WhatsApp buttons read it with static fallback; an empty social list hides the icons. Browser-verified
+
+**Open items (need the owner)**
+- Real social profile URLs (YouTube, LinkedIn, Facebook, Instagram), or which to hide. Placeholders for now; owner asked to be reminded later
+- Blog article text (the 3 posts only have one-line excerpts)
+- Postmark server token + verified `alpharecover.com` sender (lead emails are logged, not sent, until then)
+- Cloudflare Turnstile site + secret keys (required in production)
+- Production host (see ARCHITECTURE.md §3); the API isn't deployed yet, so the live site runs on the static fallbacks
 
 ### Phase 3 — Auth & student backend · M
 | Task | API | [FE] work |

@@ -1,8 +1,9 @@
-import { company } from '../../data/content';
+import { useSiteSettings } from '../../lib/settings';
 import { icons } from '../../lib/icons';
 import './WhatsAppFloat.css';
 
 export function WhatsAppFloat() {
+  const { company } = useSiteSettings();
   return (
     <a
       className="wa-float"

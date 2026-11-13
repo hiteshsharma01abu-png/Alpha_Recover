@@ -437,6 +437,8 @@ Incremented inside the issuing transaction with
 
 ## 22. `site_settings`
 
+> **Implemented (Phase 1–2).** Live keys: `lead_notification_emails` (private, seeded by migration), `company` and `social_links` (public, seeded insert-only by `server/db/seed.ts` from `content.ts`). Values are validated per key by `settingSchemas` in `server/settings.ts`. The social links are placeholders until the owner provides real profile URLs.
+
 | Column | Type | Notes |
 |---|---|---|
 | key | varchar(64) | PK |

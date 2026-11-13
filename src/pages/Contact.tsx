@@ -3,11 +3,12 @@ import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { LEAD_REASONS, type LeadReason } from '../../shared/leads';
 import { Turnstile } from '../components/ui/Turnstile';
-import { company } from '../data/content';
 import { formErrors, submitLead } from '../lib/leads';
+import { useSiteSettings } from '../lib/settings';
 import './SimplePages.css';
 
 export function Contact() {
+  const { company } = useSiteSettings();
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});

@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { company } from '../../data/content';
 import { Reveal } from '../ui/Reveal';
 import { icons } from '../../lib/icons';
 import { usePlan, withoutSale } from '../../lib/plans';
+import { useSiteSettings } from '../../lib/settings';
 import {
   pricingFeatureIcons,
   pricingHeroVisual,
@@ -124,6 +124,7 @@ export function ProfessionalPlanSection({
   buyMode = 'link',
   hideHead = false,
 }: ProfessionalPlanSectionProps) {
+  const { company } = useSiteSettings();
   const narrow = useIsNarrow(980);
   const [featuresOpen, setFeaturesOpen] = useState(false);
   const livePlan = usePlan('professional');

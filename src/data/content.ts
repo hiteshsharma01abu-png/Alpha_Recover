@@ -16,6 +16,19 @@ export const company = {
   gst: 'Pending',
 };
 
+export type SocialPlatform = 'youtube' | 'linkedin' | 'facebook' | 'instagram';
+
+/**
+ * Footer social links. Placeholders until the real profile URLs are provided (open item in
+ * docs/PLAN.md); also seeded into site_settings.social_links.
+ */
+export const socialLinks: { platform: SocialPlatform; url: string }[] = [
+  { platform: 'youtube', url: 'https://youtube.com' },
+  { platform: 'linkedin', url: 'https://linkedin.com' },
+  { platform: 'facebook', url: 'https://facebook.com' },
+  { platform: 'instagram', url: 'https://instagram.com' },
+];
+
 export const stats = [
   { value: '4', label: 'Languages', detail: 'English - Hindi - Spanish - French' },
   { value: '10K+', label: 'Trainees', detail: 'Learners worldwide' },

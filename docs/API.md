@@ -105,7 +105,7 @@ Request: `{ "token": "…", "password": "…", "confirmPassword": "…" }` → `
 
 | Method | Endpoint | Auth | Purpose |
 |---|---|---|---|
-| GET | `/settings/public` | public | Company contact, hours, WhatsApp, social links (Footer, Contact, CTA) |
+| GET | `/settings/public` | public | Company contact details and social links (Footer, Contact page, callback section, pricing WhatsApp button, floating WhatsApp). Only `company` and `social_links`; each value is validated and skipped if invalid. **Implemented (Phase 2)** |
 | GET | `/blog` | public | Published posts, newest first (`?page`, `?pageSize` ≤ 50): slug, title, excerpt, coverImageUrl, publishedAt; `meta.total`. Only `published`, not deleted, and `publishedAt` ≤ now (scheduling works). **Implemented (Phase 2)** |
 | GET | `/blog/:slug` | public | Full post: adds `bodyMarkdown`, `seoTitle`, `seoDescription`. The site renders the Markdown with `src/components/ui/Markdown.tsx` (no raw HTML) and sets the page title and meta description. **Implemented (Phase 2)** |
 | GET | `/certificates/verify/:code` | public | Certificate verification (details below). **Implemented (Phase 2)**; rate limited 30/min per IP |
