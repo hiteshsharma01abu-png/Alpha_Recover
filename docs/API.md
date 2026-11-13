@@ -281,10 +281,10 @@ Errors: 400, 400 `CAPTCHA_FAILED`, 429.
 
 | Method | Endpoint | Auth | Purpose |
 |---|---|---|---|
-| GET | `/demo-videos` | public | Catalog: `?category=logical&q=bitlocker&page=1&pageSize=12` |
-| GET | `/demo-videos/featured` | public | The featured video (Demos hero, home preview) |
-| GET | `/demo-videos/:slug` | public | Detail + embed URL |
-| POST | `/demo-videos/:id/view` | public | Increment the view count (rate limited) |
+| GET | `/demo-videos` | public | Catalog: `?category=logical&q=bitlocker&page=1&pageSize=12` (pageSize ≤ 100). **Implemented (Phase 2)** |
+| GET | `/demo-videos/featured` | public | The featured video (Demos hero, home preview); `data: null` if none. **Implemented** |
+| GET | `/demo-videos/:slug` | public | Detail; `embedUrl` is `null` until video hosting arrives (Phase 4). **Implemented** |
+| POST | `/demo-videos/:slug/view` | public | Count a view: at most once per IP per video per 30 min (repeats return `counted: false`). **Implemented**; the site calls it once a real player exists |
 
 `GET /demo-videos` response:
 ```json
@@ -293,7 +293,7 @@ Errors: 400, 400 `CAPTCHA_FAILED`, 429.
   "viewCount": 9240, "publishedAt": "…" }],
   "meta": { "page": 1, "pageSize": 12, "total": 23, "counts": { "all": 23, "logical": 8, "electrical": 6, "mechanical": 4, "firmware": 5 } } }
 ```
-The featured video is excluded from the list (matching current UI behaviour). `counts` replaces the hard-coded `demoCategoryFilters`. Search uses a MySQL `FULLTEXT` index plus a `LIKE` fallback on title/tag/tags. Cache `s-maxage=120`.
+The featured video is excluded from the list and from `counts` (matching current UI behaviour); `counts` ignore `category` and `q`, so the filter tabs always show totals. Search is a case-insensitive `LIKE` on title, tag and tags (wildcards in `q` are escaped); the catalog is small, so the site currently loads it whole (`pageSize=100`) and filters in the browser, while the server-side filtering is ready for when it grows. Each item has `hasVideo` (`false` = "coming soon") and never the video id. Cache `s-maxage=120`.
 
 ---
 

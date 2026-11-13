@@ -1,11 +1,10 @@
 import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
-import { demoVideos } from '../../data/content';
 import {
   demoCategoryIconSrc,
   demoPlayIconMint,
-  demoVideoImages,
 } from '../visuals/demoVisuals';
+import { demoThumb, useDemoVideos } from '../../lib/demoVideos';
 import '../../styles/sections.css';
 import './DemoVideosSection.css';
 
@@ -16,7 +15,7 @@ type DemoVideosSectionProps = {
 };
 
 function onPlay() {
-  alert('Video player + CDN hosting will be wired with your backend choice.');
+  alert('This demo video is coming soon.');
 }
 
 /**
@@ -28,7 +27,7 @@ export function DemoVideosSection({
   showViewAll = false,
   linkCards = false,
 }: DemoVideosSectionProps) {
-  const videos = demoVideos.slice(0, limit);
+  const videos = useDemoVideos().slice(0, limit);
 
   return (
     <section className="section demos-section">
@@ -74,7 +73,7 @@ export function DemoVideosSection({
                 <div className="dv-thumb">
                   <img
                     className="dv-art"
-                    src={demoVideoImages[d.id]}
+                    src={demoThumb(d)}
                     alt=""
                     width={1200}
                     height={675}

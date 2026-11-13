@@ -19,6 +19,7 @@ import {
   primaryKey,
   smallint,
   text,
+  tinyint,
   uniqueIndex,
   varchar,
 } from 'drizzle-orm/mysql-core';
@@ -301,6 +302,45 @@ export const promotions = mysqlTable(
     deletedAt: ts('deleted_at'),
   },
   (t) => [index('promotions_plan_window_idx').on(t.planId, t.isActive, t.startsAt, t.endsAt)],
+);
+
+// ── Demo videos (Phase 2) ────────────────────────────────────────────────────
+
+export const DEMO_CATEGORIES = ['logical', 'electrical', 'mechanical', 'firmware'] as const;
+export const SKILL_LEVELS = ['beginner', 'intermediate', 'advanced'] as const;
+
+export const demoVideos = mysqlTable(
+  'demo_videos',
+  {
+    id: id(),
+    slug: varchar('slug', { length: 64 }).notNull(),
+    title: varchar('title', { length: 200 }).notNull(),
+    /** Display label on the card, e.g. "Native Solution". */
+    tag: varchar('tag', { length: 40 }).notNull(),
+    category: mysqlEnum('category', DEMO_CATEGORIES).notNull(),
+    description: text('description').notNull(),
+    tags: json('tags').$type<string[]>().notNull(),
+    level: mysqlEnum('level', SKILL_LEVELS).notNull(),
+    durationSeconds: int('duration_seconds', { unsigned: true }).notNull(),
+    videoProvider: mysqlEnum('video_provider', ['bunny', 'youtube']),
+    videoId: varchar('video_id', { length: 128 }),
+    thumbnailUrl: varchar('thumbnail_url', { length: 500 }),
+    viewCount: int('view_count', { unsigned: true }).notNull().default(0),
+    isFeatured: boolean('is_featured').notNull().default(false),
+    /** 1 for the featured, non-deleted video, else NULL: the unique index allows only one featured video. */
+    featuredKey: tinyint('featured_key').generatedAlwaysAs(sql`if(is_featured and deleted_at is null, 1, null)`, { mode: 'stored' }),
+    status: mysqlEnum('status', PUBLISH_STATUSES).notNull().default('draft'),
+    publishedAt: ts('published_at'),
+    sortOrder: int('sort_order').notNull().default(0),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+    deletedAt: ts('deleted_at'),
+  },
+  (t) => [
+    uniqueIndex('demo_videos_slug_uq').on(t.slug),
+    uniqueIndex('demo_videos_featured_uq').on(t.featuredKey),
+    index('demo_videos_list_idx').on(t.status, t.category, t.publishedAt),
+  ],
 );
 
 // ── Leads (Phase 2) ──────────────────────────────────────────────────────────

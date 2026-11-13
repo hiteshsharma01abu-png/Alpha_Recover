@@ -1,14 +1,14 @@
 /**
- * Seeds catalog and pricing data from the original static content (src/data/content.ts).
+ * Seeds catalog, pricing and demo video data from the original static content (src/data/content.ts).
  * Insert-only: existing rows (matched by slug) are never updated, so admin edits survive re-runs.
  * Run: `npm run db:seed` (dev) or `node dist-server/seed.mjs` (production, after migrate).
  */
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { and, eq } from 'drizzle-orm';
-import { pricing, trainingTracks, type TrainingTrack } from '../../src/data/content';
+import { demoVideos as staticDemoVideos, pricing, trainingTracks, type TrainingTrack } from '../../src/data/content';
 import { createDb, type Database } from './index';
-import { courseModules, courses, lessons, plans, promotions } from './schema';
+import { courseModules, courses, demoVideos, lessons, plans, promotions } from './schema';
 
 export async function seedCatalog(db: Database, tracks: TrainingTrack[] = trainingTracks) {
   const counts = { courses: 0, modules: 0, lessons: 0 };
@@ -85,6 +85,50 @@ export async function seedPlans(db: Database) {
   return { plans: created ? 1 : 0, promotions: created ? 1 : 0 };
 }
 
+/** "18:24" → 1104 seconds. */
+export function parseDuration(mmss: string): number {
+  const [m, sec] = mmss.split(':').map(Number);
+  return m * 60 + (sec || 0);
+}
+
+/** "2 months ago" / "5 weeks ago" → a Date that far before `now`. */
+export function parseAgo(text: string, now = new Date()): Date {
+  const match = /^(\d+)\s+(day|week|month|year)s?\s+ago$/.exec(text.trim());
+  if (!match) return now;
+  const n = Number(match[1]);
+  const d = new Date(now);
+  if (match[2] === 'day') d.setUTCDate(d.getUTCDate() - n);
+  if (match[2] === 'week') d.setUTCDate(d.getUTCDate() - 7 * n);
+  if (match[2] === 'month') d.setUTCMonth(d.getUTCMonth() - n);
+  if (match[2] === 'year') d.setUTCFullYear(d.getUTCFullYear() - n);
+  return d;
+}
+
+/** The six demo videos from content.ts (no video files yet: they show as "coming soon"). */
+export async function seedDemoVideos(db: Database, now = new Date()) {
+  const inserted = await db
+    .insert(demoVideos)
+    .ignore()
+    .values(
+      staticDemoVideos.map((v, i) => ({
+        slug: v.id,
+        title: v.title,
+        tag: v.tag,
+        category: v.category,
+        description: v.description,
+        tags: v.tags,
+        level: v.level.toLowerCase() as 'beginner' | 'intermediate' | 'advanced',
+        durationSeconds: parseDuration(v.durationLong),
+        viewCount: Number(v.views.replace(/\D/g, '')),
+        isFeatured: Boolean('featured' in v && v.featured),
+        status: 'published' as const,
+        publishedAt: parseAgo(v.uploaded, now),
+        sortOrder: i,
+      })),
+    );
+  return { demoVideos: inserted[0].affectedRows };
+}
+
 const isEntry = process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
 if (isEntry) {
   const url = process.env.DATABASE_URL;
@@ -93,10 +137,10 @@ if (isEntry) {
     process.exit(1);
   }
   const { db, pool } = createDb(url);
-  Promise.all([seedCatalog(db), seedPlans(db)])
-    .then(([c, p]) =>
+  Promise.all([seedCatalog(db), seedPlans(db), seedDemoVideos(db)])
+    .then(([c, p, v]) =>
       console.log(
-        `Seeded (new rows): ${c.courses} courses, ${c.modules} modules, ${c.lessons} lessons, ${p.plans} plans, ${p.promotions} promotions`,
+        `Seeded (new rows): ${c.courses} courses, ${c.modules} modules, ${c.lessons} lessons, ${p.plans} plans, ${p.promotions} promotions, ${v.demoVideos} demo videos`,
       ),
     )
     .catch((err: unknown) => {

@@ -81,7 +81,7 @@ Phase 7 QA & security hardening (continuous, gate before production launch)
 - [x] Leads: `leads` table, `POST /leads` (validation, phone normalization, honeypot, Turnstile, 5/hour rate limit), `lead_alert` + `lead_ack` emails via the outbox, recipients from `site_settings.lead_notification_emails` (seeded `info@alpharecover.com`). Contact form + callback form (now with required phone) wired; verified in a real browser
 - [x] Catalog: `courses` / `course_modules` / `lessons` (9 / 16 / 117, insert-only seed), `GET /courses[?include=outline]`, `GET /courses/:slug` (video ids never exposed). Header menus, Training explorer and track pages read the API with the static catalog as fallback; verified in the browser with and without the API
 - [x] Plans & promotions: `plans` / `plan_courses` / `promotions`, server-side pricing (`server/services/pricing.ts`), `GET /plans[/:slug]`. Professional Plan ₹5,999 with the Festival Sale at ₹2,500 until 30 Nov 2026 11:59 PM IST. Real countdown; at zero the sale hides and the price becomes ₹5,999 without a reload. Static fallback applies the same window. Browser-verified (live, expiry, fallback)
-- [ ] Demo videos
+- [x] Demo videos: `demo_videos` (one featured video enforced by the DB), insert-only seed of the 6 videos, `GET /demo-videos` (category, search, pagination, counts), `/featured`, `/:slug`, `POST /:slug/view` (1 per IP per 30 min). Demos page and Home preview read the API with static fallback; real view counts and upload dates. Browser-verified with and without the API
 - [ ] Blog
 - [ ] Certificate verification
 - [ ] Public settings endpoint

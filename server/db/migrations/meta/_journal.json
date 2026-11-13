@@ -36,6 +36,13 @@
       "when": 1794500587184,
       "tag": "0004_plans_promotions",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1794583521173,
+      "tag": "0005_demo_videos",
+      "breakpoints": true
     }
   ]
 }

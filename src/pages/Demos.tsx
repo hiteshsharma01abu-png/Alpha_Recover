@@ -1,18 +1,14 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  demoCategoryFilters,
-  demoVideos,
-  type DemoCategory,
-} from '../data/content';
+import { demoCategoryFilters, type DemoCategory } from '../data/content';
 import {
   demoCategoryIconSrc,
   demoHeroHighlights,
   demoPlayIcon,
   demoPlayIconMint,
   demoSearchIcon,
-  demoVideoImages,
 } from '../components/visuals/demoVisuals';
+import { demoThumb, useDemoVideos } from '../lib/demoVideos';
 import { icons } from '../lib/icons';
 import '../components/sections/DemoVideosSection.css';
 import './Demos.css';
@@ -20,7 +16,7 @@ import './Demos.css';
 const PAGE_SIZE = 12;
 
 function onPlay() {
-  alert('Video player + CDN hosting will be wired with your backend choice.');
+  alert('This demo video is coming soon.');
 }
 
 function pageWindow(current: number, total: number): (number | '…')[] {
@@ -40,6 +36,7 @@ export function Demos() {
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
 
+  const demoVideos = useDemoVideos();
   const featured = demoVideos.find((d) => d.featured) ?? demoVideos[0];
 
   const filterCounts = useMemo(() => {
@@ -51,7 +48,7 @@ export function Demos() {
       mechanical: catalog.filter((d) => d.category === 'mechanical').length,
       firmware: catalog.filter((d) => d.category === 'firmware').length,
     };
-  }, []);
+  }, [demoVideos]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -65,7 +62,7 @@ export function Demos() {
         d.tags.some((t) => t.toLowerCase().includes(q))
       );
     });
-  }, [filter, query]);
+  }, [demoVideos, filter, query]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -143,7 +140,7 @@ export function Demos() {
         <article className="demos-featured">
           <button type="button" className="demos-featured-media" onClick={onPlay}>
             <img
-              src={demoVideoImages[featured.id]}
+              src={demoThumb(featured)}
               alt=""
               width={1200}
               height={675}
@@ -230,7 +227,7 @@ export function Demos() {
               <div className="dv-thumb">
                 <img
                   className="dv-art"
-                  src={demoVideoImages[d.id]}
+                  src={demoThumb(d)}
                   alt=""
                   width={800}
                   height={450}

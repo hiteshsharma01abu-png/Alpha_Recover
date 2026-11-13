@@ -356,6 +356,8 @@
 
 ## 18. `demo_videos`
 
+> **Implemented (Phase 2)**, seeded insert-only with the six videos from `content.ts` (no video files yet). Search uses `LIKE` instead of FULLTEXT: the catalog is tiny, and FULLTEXT behaves differently on MySQL and MariaDB. `tags_text` was therefore not needed.
+
 | Column | Type | Notes |
 |---|---|---|
 | id | char(36) | PK |
@@ -378,7 +380,7 @@
 | created_at / updated_at / deleted_at | datetime(3) | |
 
 **Generated columns:** `featured_key tinyint as (if(is_featured and deleted_at is null, 1, null)) stored`; `tags_text varchar(500) as (json_unquote(tags)) stored` (search text).
-**Indexes:** unique(`slug`); unique(`featured_key`) (at most one featured video); (`status`, `category`, `published_at`); `FULLTEXT(title, tag, tags_text)` for search (with a `LIKE` fallback for very short terms; the catalog is small).
+**Indexes:** unique(`slug`); unique(`featured_key`) (at most one featured video; `featured_key` = `if(is_featured and deleted_at is null, 1, null)` stored); (`status`, `category`, `published_at`).
 
 ## 19. `certificates`
 
