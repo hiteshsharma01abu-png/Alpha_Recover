@@ -23,6 +23,7 @@ import {
   uniqueIndex,
   varchar,
 } from 'drizzle-orm/mysql-core';
+import { LEAD_STATUSES } from '../../shared/leads';
 import { USER_ROLES } from '../../shared/permissions';
 import { uuidv7 } from '../lib/ids';
 
@@ -442,7 +443,7 @@ export const certificateSequences = mysqlTable('certificate_sequences', {
 
 // ── Leads (Phase 2) ──────────────────────────────────────────────────────────
 
-export const LEAD_STATUSES = ['new', 'contacted', 'qualified', 'converted', 'closed', 'spam'] as const;
+export { LEAD_STATUSES };
 
 export const leads = mysqlTable(
   'leads',

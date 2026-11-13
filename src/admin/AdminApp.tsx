@@ -2,9 +2,11 @@ import { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { AdminSessionProvider } from './auth/AdminSession';
 import { AdminLoginPage } from './auth/AdminLoginPage';
+import { RequirePermission } from './auth/RequirePermission';
 import { RequireStaff } from './auth/RequireStaff';
 import { AdminLayout } from './layout/AdminLayout';
 import { DashboardPage } from './modules/dashboard/DashboardPage';
+import { LeadsPage } from './modules/leads/LeadsPage';
 
 /** Keeps admin pages out of search engines and labels the tab. */
 function useAdminDocument() {
@@ -32,6 +34,14 @@ export default function AdminApp() {
         <Route element={<RequireStaff />}>
           <Route element={<AdminLayout />}>
             <Route index element={<DashboardPage />} />
+            <Route
+              path="leads"
+              element={
+                <RequirePermission perm="leads.view">
+                  <LeadsPage />
+                </RequirePermission>
+              }
+            />
             <Route path="*" element={<Navigate to="/admin" replace />} />
           </Route>
         </Route>

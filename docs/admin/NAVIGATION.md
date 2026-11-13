@@ -1,6 +1,6 @@
 # Alpha Recover — Admin Panel Navigation & Modules
 
-**Last reviewed:** 2026-11-13 · **Status:** Proposal
+**Last reviewed:** 2026-11-13 · **Status:** Proposal · built so far: Dashboard, Leads & Inquiries
 **Related:** [ARCHITECTURE.md](ARCHITECTURE.md) · [AUTH_AND_RBAC.md](AUTH_AND_RBAC.md) (permission strings) · [UI_UX.md](UI_UX.md) (sidebar behaviour) · [../API.md](../API.md) §10–14
 
 ## 1. How the proposed list was finalized against the real project
@@ -60,7 +60,7 @@ Footer of the sidebar: the signed-in user, their role badge, and **View website 
 |---|---|---|
 | `/admin/login`, `/admin/login/2fa` | Login, TOTP | public / pending 2FA |
 | `/admin` | Dashboard | `dashboard.view` |
-| `/admin/leads` · `/admin/leads/:id` (drawer) | Leads list · detail | `leads.view` |
+| `/admin/leads` · `/admin/leads?lead=:id` (drawer) | Leads list · detail (**built**; filters, page and the open lead live in the query string) | `leads.view` |
 | `/admin/orders` · `/admin/orders/:id` | Orders list · detail (payments, webhook events, refund) | `orders.view` |
 | `/admin/students` · `/admin/students/:id` | Students · detail (tabs: profile, enrollments, orders, certificates, sessions) | `students.view` |
 | `/admin/enrollments` | Enrollments | `enrollments.view` |

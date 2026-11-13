@@ -1,6 +1,6 @@
 # Alpha Recover — Admin Panel Architecture
 
-**Last reviewed:** 2026-11-13 · **Status:** Approved. **Foundation built on `Dev`:** lazy `/admin` route tree, staff login, layout with light/dark themes, role-aware dashboard, `GET /admin/me`, `GET /admin/dashboard`, create-admin CLI. React Query isn't added yet: it comes with the first data-table module.
+**Last reviewed:** 2026-11-13 · **Status:** Approved. **Foundation built on `Dev`:** lazy `/admin` route tree, staff login, layout with light/dark themes, role-aware dashboard, `GET /admin/me`, `GET /admin/dashboard`, create-admin CLI. **Leads module built** (list, drawer, notes, export). React Query is deferred (§4).
 **Related:** [FOLDER_STRUCTURE.md](FOLDER_STRUCTURE.md) · [NAVIGATION.md](NAVIGATION.md) · [AUTH_AND_RBAC.md](AUTH_AND_RBAC.md) · [UI_UX.md](UI_UX.md) · [SECURITY.md](SECURITY.md) · system-wide: [../ARCHITECTURE.md](../ARCHITECTURE.md), [../API.md](../API.md) §10–14, [../PLAN.md](../PLAN.md) Phase 6
 
 > **Reference used:** the admin module plan in `docs/PLAN.md` (Phase 6 table), the role matrix in `docs/SECURITY.md` §2 and the `/admin/*` inventory in `docs/API.md`. The separate "Admin Panel Audit and Development Plan" mentioned in the task wasn't included in this conversation; if it exists, reconcile it with this document.
@@ -95,7 +95,7 @@ Keep the public site's "three runtime dependencies" rule. The admin chunk may ad
 
 | Package | Why | Loaded |
 |---|---|---|
-| `@tanstack/react-query` | Server-state caching, pagination, mutations and invalidation for dozens of tables; avoids hand-rolled stale-data bugs | Admin chunk only |
+| `@tanstack/react-query` | Server-state caching, pagination, mutations and invalidation for dozens of tables; avoids hand-rolled stale-data bugs. **Deferred (2026-11-13):** the Leads module uses `src/admin/lib/useResource.ts` (load on key change, drop stale responses, reload after mutations), which keeps the admin chunk dependency-free. Revisit when several modules need shared caching or optimistic updates | Admin chunk only |
 | `zod` (already a server dependency) | Share the exact request schemas from `shared/schemas/admin/*` for client-side form validation | Admin chunk only |
 
 **Not added:**

@@ -13,4 +13,7 @@ export type AdminNavItem = {
  * Sidebar + route permissions in one place (docs/admin/NAVIGATION.md). Modules are added here as they
  * ship, so the sidebar never links to unfinished pages.
  */
-export const ADMIN_NAV: AdminNavItem[] = [{ path: '', label: 'Dashboard', icon: 'dashboard', permission: 'dashboard.view', group: 'Overview' }];
+export const ADMIN_NAV: AdminNavItem[] = [
+  { path: '', label: 'Dashboard', icon: 'dashboard', permission: 'dashboard.view', group: 'Overview' },
+  { path: 'leads', label: 'Leads & Inquiries', icon: 'leads', permission: 'leads.view', group: 'Sales' },
+];

@@ -163,7 +163,7 @@ Built module by module, right after the domain it depends on ships. The admin **
 
 **Status** (plan: docs/admin/)
 - [x] Foundation: role migration (`finance_manager`, `support_manager`), `shared/permissions.ts` matrix, `requireStaffAny()`, `GET /admin/me`, role-aware `GET /admin/dashboard`, create-admin CLI; `/admin` lazy chunk (12.5 KB JS, not loaded by public pages) with staff login, permission-filtered sidebar, System/Light/Dark themes, mobile drawer, noindex. 14 tests; browser-verified for super admin, content manager and student
-- [ ] Leads module (table, filters, detail drawer, notes, CSV export) + data-table components + React Query
+- [x] Leads module: `lead_notes` table, `/admin/leads` API (filters, IST date range, masked list, status/assignee with timeline notes, notes, CSV export with formula escaping, audit) and the Leads & Inquiries screen (status tabs with counts, search, filters in the URL, mobile cards, detail drawer with call/WhatsApp/email, status, assignee and notes). 11 API tests; browser-verified as support manager (full flow) and content manager (no access). React Query deferred: a small `useResource` hook covers it (docs/admin/ARCHITECTURE.md §4)
 - [ ] Students, Team & Access, Activity log
 - [ ] Optional staff 2FA; staff session limits
 
