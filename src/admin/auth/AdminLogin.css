@@ -1,0 +1,92 @@
+.adm-login {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 480px);
+  min-height: 100vh;
+}
+
+.adm-login-brand {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3rem;
+  background:
+    radial-gradient(ellipse 70% 60% at 30% 30%, rgba(125, 255, 192, 0.14), transparent 60%),
+    linear-gradient(160deg, #123128 0%, #0a1b16 100%);
+  color: #f0ede4;
+}
+
+.adm-login-brand h1 {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+}
+
+.adm-login-brand p {
+  max-width: 34ch;
+  color: #a9c2bc;
+}
+
+.adm-login-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3rem 2.5rem;
+  background: var(--adm-surface);
+}
+
+.adm-login-panel h2 {
+  margin: 0 0 1.25rem;
+  font-family: var(--font-display);
+}
+
+.adm-field {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 0.9rem;
+}
+
+.adm-field label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.adm-field input {
+  min-height: 42px;
+  padding: 0 0.75rem;
+  border: 1px solid var(--adm-line);
+  border-radius: 8px;
+  background: var(--adm-bg);
+  color: var(--adm-text);
+  font: inherit;
+}
+
+.adm-error {
+  color: var(--adm-danger);
+  font-size: 0.9rem;
+}
+
+.adm-login-panel .adm-btn-primary {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 0.5rem;
+}
+
+.adm-login-foot {
+  margin-top: 1.25rem;
+  font-size: 0.85rem;
+  color: var(--adm-text-2);
+}
+
+@media (max-width: 860px) {
+  .adm-login {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .adm-login-brand {
+    padding: 2rem 1.25rem;
+  }
+
+  .adm-login-panel {
+    padding: 2rem 1.25rem;
+  }
+}

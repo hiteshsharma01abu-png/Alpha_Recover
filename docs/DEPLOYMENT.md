@@ -1,6 +1,6 @@
 # Alpha Recover — Deployment
 
-**Last reviewed:** 2026-11-12 · Related: [ARCHITECTURE.md](ARCHITECTURE.md) (§3 hosting checklist) · [SECURITY.md](SECURITY.md) · [TESTING.md](TESTING.md) §8 (release validation)
+**Last reviewed:** 2026-11-13 · Related: [ARCHITECTURE.md](ARCHITECTURE.md) (§3 hosting checklist) · [SECURITY.md](SECURITY.md) · [TESTING.md](TESTING.md) §8 (release validation)
 
 > **Status:** the production host isn't chosen yet. The frontend is temporarily on Vercel; the API has never been deployed. This guide covers both targets the backend is built for: **cPanel with "Setup Node.js App"** and a **VPS**. The automated deploy job is added to CI once the host is known.
 
@@ -11,7 +11,7 @@
 | Piece | Built with | Output | Served by |
 |---|---|---|---|
 | Frontend | `npm run build` | `dist/` (static files) | Apache/LiteSpeed (cPanel) or Nginx (VPS) |
-| API | `npm run build:api` | `dist-server/index.mjs` (+ `migrate.mjs`, `seed.mjs`, `migrations/`) | Node.js 20+ (cPanel Node.js App / Passenger, or PM2) |
+| API | `npm run build:api` | `dist-server/index.mjs` (+ `migrate.mjs`, `seed.mjs`, `create-admin.mjs`, `migrations/`) | Node.js 20+ (cPanel Node.js App / Passenger, or PM2) |
 | Database | `node dist-server/migrate.mjs`, then `node dist-server/seed.mjs` | schema changes; seed inserts missing catalog rows (never overwrites) | MySQL 8.0+ / MariaDB 10.6+ |
 | Scheduled jobs | host cron | — | `curl` → `/api/v1/internal/cron/*` |
 
@@ -36,6 +36,8 @@ Set these in the cPanel Node.js App's environment settings, or in a `chmod 600` 
 **Frontend build variable:** `VITE_TURNSTILE_SITE_KEY` (the public site key) must be set when running `npm run build`, otherwise the forms render without the security check and the API rejects them in production.
 
 ## 3. cPanel (shared hosting with Node.js support)
+
+> **First Super Admin** (any host, once, after the first migration): `node create-admin.mjs --email you@alpharecover.com --name YourName` in the API folder. It prints a one-time temporary password; sign in at `/admin/login` and change it under Account settings. Run it again with `--role admin|finance_manager|content_manager|support_manager` to add or promote staff until the Team module exists.
 
 **One-time setup**
 1. **MySQL Databases:** create the database and user, and grant all privileges. Keep **Remote MySQL** disabled.

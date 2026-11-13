@@ -24,52 +24,29 @@
 
 ## 2. Authorization (RBAC)
 
-### Roles
+**Approved 2026-11-13.** Roles, the module × action permission matrix, refund limits, the role hierarchy, staff sessions and unauthorized-access handling are defined in **[admin/AUTH_AND_RBAC.md](admin/AUTH_AND_RBAC.md)**. The code source of truth is [`shared/permissions.ts`](../shared/permissions.ts), used by both the API and the admin UI.
 
-| Role | Who | Summary |
-|---|---|---|
-| `student` | Registered learners | Own profile, own orders, enrolled content |
-| `support` | Sales / support staff | Leads, read students/orders/enrollments, resend emails |
-| `content_manager` | Course / content team | Courses, lessons, demo videos, blog, media |
-| `admin` | Operations manager | Everything except staff role management and destructive settings |
-| `super_admin` | Owner | Everything, including staff roles, settings, refunds above the threshold |
+| Role | Summary |
+|---|---|
+| `student` | Own profile, own orders, enrolled content; no admin access |
+| `support_manager` | Leads, student accounts (contact details, resets, sessions), view orders/enrollments/certificates, email log |
+| `content_manager` | Courses, lessons, demo videos, blog (incl. publishing); views plans |
+| `finance_manager` | Orders, refunds (no limit), plans and promotions, enrollments tied to payments, revenue reports |
+| `admin` | All modules; team view only; refunds up to ₹5,000; no policy settings |
+| `super_admin` | Everything, incl. roles, policies, unlimited refunds |
 
-### Permission matrix
-
-| Permission | support | content_manager | admin | super_admin |
-|---|:-:|:-:|:-:|:-:|
-| `dashboard.view` | ✓ | ✓ | ✓ | ✓ |
-| `leads.read` / `leads.write` | ✓ | | ✓ | ✓ |
-| `leads.export` | | | ✓ | ✓ |
-| `students.read` | ✓ | | ✓ | ✓ |
-| `students.write` (edit, suspend, force logout) | | | ✓ | ✓ |
-| `enrollments.read` | ✓ | | ✓ | ✓ |
-| `enrollments.write` (manual grant / revoke) | | | ✓ | ✓ |
-| `orders.read` | ✓ | | ✓ | ✓ |
-| `orders.refund` | | | ✓ (≤ ₹5,000) | ✓ |
-| `plans.read` / `plans.write` (price, promotions) | | | ✓ | ✓ |
-| `courses.read` / `courses.write` | | ✓ | ✓ | ✓ |
-| `demos.read` / `demos.write` | | ✓ | ✓ | ✓ |
-| `blog.read` / `blog.write` / `blog.publish` | | ✓ | ✓ | ✓ |
-| `certificates.read` | ✓ | | ✓ | ✓ |
-| `certificates.write` (issue / revoke) | | | ✓ | ✓ |
-| `notifications.read` / `notifications.write` | ✓ / | | ✓ | ✓ |
-| `reports.view` / `reports.export` | | | ✓ | ✓ |
-| `audit.read` | | | ✓ | ✓ |
-| `settings.read` | | | ✓ | ✓ |
-| `settings.write` | | | | ✓ |
-| `admins.manage` | | | | ✓ |
-
-Implementation: a `permissions.ts` map `role → Set<permission>`; middleware `requireStaff('orders.refund')`. A permission check happens on **every** admin route (no route-level "is staff" shortcut). Role changes revoke the target's sessions.
+Implementation:
+- `requireStaffAny()` guards the whole `/api/v1/admin/*` router (signed in, active, staff role).
+- Each route adds `requireStaff('<module>.<action>')`. There are no blanket "is staff" routes for mutations.
+- Role changes revoke the target's sessions.
 
 ### Resource ownership (students)
-- All `/me/*` queries are scoped by `session.userId`. IDs in URLs are never trusted for ownership (`/me/orders/:orderNumber` → `WHERE order_number = $1 AND user_id = $session`).
-- Course access = active, unexpired enrollment for a plan that grants the course (see the schema access rule). Checked server-side on every playback request, not just in the UI.
+- All `/me/*` queries are scoped by the session user. IDs in URLs are never trusted for ownership (e.g. `DELETE /me/sessions/:id` only finds your own sessions; anyone else's is a 404).
+- Course access = an active, unexpired enrollment for a plan that grants the course (`server/services/enrollments.ts`). It is checked on the server for every playback request, not just in the UI.
 
 ### Guard rails
-- The last `super_admin` can't be demoted or suspended.
-- Staff can't change their own role.
-- Refunds above the threshold need `super_admin`.
+- The last `super_admin` can't be demoted or suspended; staff can't change their own role.
+- Refunds above the role's limit (`REFUND_LIMITS`) are refused.
 - All admin mutations write `activity_logs` with before/after metadata.
 
 ## 3. API security

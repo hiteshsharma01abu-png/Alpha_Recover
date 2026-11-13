@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import { About } from './pages/About';
@@ -17,9 +18,20 @@ import { TrainingTrack } from './pages/TrainingTrack';
 import { VerifyCertificate } from './pages/VerifyCertificate';
 import { VerifyEmail } from './pages/VerifyEmail';
 
+// The admin panel is a separate chunk: visitors never download it (docs/admin/ARCHITECTURE.md §2).
+const AdminApp = lazy(() => import('./admin/AdminApp'));
+
 export default function App() {
   return (
     <Routes>
+      <Route
+        path="admin/*"
+        element={
+          <Suspense fallback={null}>
+            <AdminApp />
+          </Suspense>
+        }
+      />
       <Route element={<Layout />}>
         <Route index element={<Home />} />
         <Route path="pricing" element={<Pricing />} />

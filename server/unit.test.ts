@@ -1,6 +1,6 @@
 /** Pure unit tests — no database needed. */
 import { describe, expect, it } from 'vitest';
-import { can, isStaff, PERMISSIONS } from './auth/permissions';
+import { can, isStaff, PERMISSIONS, permissionsFor, REFUND_LIMITS } from './auth/permissions';
 import { USER_ROLES } from './db/schema';
 import { parseEnv } from './env';
 import { uuidv7 } from './lib/ids';
@@ -23,7 +23,7 @@ describe('uuidv7', () => {
   });
 });
 
-describe('permissions (docs/SECURITY.md §2)', () => {
+describe('permissions (docs/admin/AUTH_AND_RBAC.md §3)', () => {
   it('gives students no permissions', () => {
     expect(PERMISSIONS.some((p) => can('student', p))).toBe(false);
     expect(isStaff('student')).toBe(false);
@@ -33,21 +33,36 @@ describe('permissions (docs/SECURITY.md §2)', () => {
     expect(PERMISSIONS.every((p) => can('super_admin', p))).toBe(true);
   });
 
-  it('keeps settings.write and admins.manage for super_admin only', () => {
+  it('keeps role management and policy edits for super_admin only', () => {
     for (const role of USER_ROLES.filter((r) => r !== 'super_admin')) {
-      expect(can(role, 'settings.write')).toBe(false);
-      expect(can(role, 'admins.manage')).toBe(false);
+      expect(can(role, 'team.manage_roles')).toBe(false);
+      expect(can(role, 'settings.edit_policies')).toBe(false);
     }
   });
 
   it('matches the documented matrix for key cells', () => {
-    expect(can('support', 'leads.write')).toBe(true);
-    expect(can('support', 'leads.export')).toBe(false);
-    expect(can('support', 'orders.refund')).toBe(false);
-    expect(can('content_manager', 'courses.write')).toBe(true);
-    expect(can('content_manager', 'students.read')).toBe(false);
+    expect(can('support_manager', 'leads.edit')).toBe(true);
+    expect(can('support_manager', 'leads.delete')).toBe(false);
+    expect(can('support_manager', 'orders.refund')).toBe(false);
+    expect(can('finance_manager', 'orders.refund')).toBe(true);
+    expect(can('finance_manager', 'plans.edit')).toBe(true);
+    expect(can('finance_manager', 'leads.view')).toBe(false);
+    expect(can('content_manager', 'courses.edit')).toBe(true);
+    expect(can('content_manager', 'blog.publish')).toBe(true);
+    expect(can('content_manager', 'students.view')).toBe(false);
     expect(can('admin', 'orders.refund')).toBe(true);
-    expect(can('admin', 'audit.read')).toBe(true);
+    expect(can('admin', 'team.view')).toBe(true);
+    expect(can('admin', 'team.edit')).toBe(false);
+    expect(REFUND_LIMITS.admin).toBe(500_000);
+    expect(REFUND_LIMITS.finance_manager).toBeNull();
+  });
+
+  it('lists permissions per role in matrix order', () => {
+    expect(permissionsFor('content_manager')).toEqual([
+      'dashboard.view', 'courses.view', 'courses.add', 'courses.edit', 'courses.delete', 'courses.import',
+      'plans.view', 'demos.view', 'demos.add', 'demos.edit', 'demos.delete',
+      'blog.view', 'blog.add', 'blog.edit', 'blog.delete', 'blog.publish', 'reports.view',
+    ]);
   });
 });
 

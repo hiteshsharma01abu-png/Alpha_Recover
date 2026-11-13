@@ -157,7 +157,7 @@ describe.skipIf(!dbAvailable)('API foundation (MySQL)', () => {
       const app = guardedApp();
       const { cookie, userId } = await signUp(ctx);
       expect((await app.request('/admin', { headers: { Cookie: cookie } })).status).toBe(403);
-      await ctx.db.update(users).set({ role: 'support' }).where(eq(users.id, userId));
+      await ctx.db.update(users).set({ role: 'support_manager' }).where(eq(users.id, userId));
       expect((await app.request('/admin', { headers: { Cookie: cookie } })).status).toBe(403);
       await ctx.db.update(users).set({ role: 'admin' }).where(eq(users.id, userId));
       expect((await app.request('/admin', { headers: { Cookie: cookie } })).status).toBe(200);

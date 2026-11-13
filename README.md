@@ -50,6 +50,7 @@ Without a `POSTMARK_SERVER_TOKEN`, emails are printed to the API log instead of 
 | `npm run db:generate` | SQL migration from schema changes |
 | `npm run db:migrate` | Apply migrations to `DATABASE_URL` |
 | `npm run db:seed` | Insert the catalog from `content.ts` (insert-only; never overwrites) |
+| `npm run admin:create -- --email … --name …` | Create or promote a staff account (default role `super_admin`; prints a one-time password) |
 
 ## Stack
 
@@ -82,6 +83,7 @@ The pages don't call the API yet: auth, payments, leads and the training portal 
 | `/blog` | Blog |
 | `/blog/:slug` | Blog post |
 | `/verify-certificate` | Verify certificate |
+| `/admin` | Admin panel (staff only; separate lazy-loaded chunk) |
 | `/account/settings` | Account settings: profile, password, devices |
 | `/verify-email` | Email verification (link from email) |
 | `/reset-password` | Choose a new password (link from email) |

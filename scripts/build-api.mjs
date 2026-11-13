@@ -6,7 +6,7 @@ import { cp, rm } from 'node:fs/promises';
 await rm('dist-server', { recursive: true, force: true });
 
 await build({
-  entryPoints: { index: 'server/index.ts', migrate: 'server/db/migrate.ts', seed: 'server/db/seed.ts' },
+  entryPoints: { index: 'server/index.ts', migrate: 'server/db/migrate.ts', seed: 'server/db/seed.ts', 'create-admin': 'server/scripts/create-admin.ts' },
   outdir: 'dist-server',
   outExtension: { '.js': '.mjs' },
   bundle: true,
@@ -23,4 +23,4 @@ await build({
 });
 
 await cp('server/db/migrations', 'dist-server/migrations', { recursive: true });
-console.log('dist-server/ ready: index.mjs (API), migrate.mjs (migrations), seed.mjs (catalog, plans, demo videos, blog, settings)');
+console.log('dist-server/ ready: index.mjs (API), migrate.mjs (migrations), seed.mjs (catalog, plans, demo videos, blog, settings), create-admin.mjs');

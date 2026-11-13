@@ -64,6 +64,13 @@
       "when": 1794590718204,
       "tag": "0008_enrollments",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1794591394818,
+      "tag": "0009_staff_roles",
+      "breakpoints": true
     }
   ]
 }

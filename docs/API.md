@@ -299,6 +299,15 @@ The featured video is excluded from the list and from `counts` (matching current
 
 ## 10. Admin Panel APIs (`/admin/*`, all `staff:*`)
 
+**Implemented (admin foundation):** the router requires a signed-in, active staff account for everything under `/admin` (`requireStaffAny()`: 401 anonymous, 403 student or suspended).
+
+| Method | Endpoint | Permission | Purpose |
+|---|---|---|---|
+| GET | `/admin/me` | any staff | `{ user, role, roleLabel, permissions[] }`: the admin UI renders menus and actions from this list |
+| GET | `/admin/dashboard` | any staff (filtered) | KPI blocks, each included only if the role may open that module: `leads` (leads.view), `students` (students.view), `content` (courses.view), `demoVideos` (demos.view), `pricing` (plans.view), `email` (notifications.view) |
+
+The rest of this section is planned and is built module by module:
+
 Every admin mutation writes `activity_logs`. Lists support `page`, `pageSize`, `q`, `sort`, and the filters shown.
 
 | Method | Endpoint | Permission | Purpose / filters |

@@ -23,6 +23,7 @@ import {
   uniqueIndex,
   varchar,
 } from 'drizzle-orm/mysql-core';
+import { USER_ROLES } from '../../shared/permissions';
 import { uuidv7 } from '../lib/ids';
 
 const id = () => char('id', { length: 36 }).primaryKey().$defaultFn(uuidv7);
@@ -34,8 +35,7 @@ const updatedAt = () =>
     .default(sql`CURRENT_TIMESTAMP(3)`)
     .$onUpdate(() => new Date());
 
-export const USER_ROLES = ['student', 'support', 'content_manager', 'admin', 'super_admin'] as const;
-export type UserRole = (typeof USER_ROLES)[number];
+export { USER_ROLES, type UserRole } from '../../shared/permissions';
 
 // ── Auth (Better Auth models: user, account, session, verification) ──────────
 

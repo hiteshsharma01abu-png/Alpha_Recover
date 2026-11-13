@@ -1,6 +1,6 @@
 # Alpha Recover — Architecture
 
-**Last reviewed:** 2026-11-12
+**Last reviewed:** 2026-11-13
 **Scope:** how the system is built: the current frontend, the planned backend, hosting and repository layout. Product scope and requirements live in [PRD.md](PRD.md); the visual system lives in [DESIGN.md](DESIGN.md).
 
 ---
@@ -137,7 +137,9 @@ scripts/build-api.mjs ✓ esbuild bundle → dist-server/ (all deps bundled: no 
 deploy/               ✓ htaccess.example, nginx.conf.example, crontab.example
 docker-compose.yml    ✓ local MySQL 8.4
 .github/workflows/    ✓ CI: lint, build, tests on MySQL 8.4 + MariaDB 10.6
-src/lib/api.ts        ✓ typed fetch client for the frontend (not used by pages yet)
+src/lib/api.ts        ✓ typed fetch client for the frontend
+src/admin/            ✓ admin panel (lazy chunk): AdminApp, auth (login, session, guard), layout (themes), modules/
+shared/permissions.ts ✓ roles + permission matrix (API and admin UI)
 ```
 
 **No Vercel adapter yet.** Vercel deploys any top-level `api/` folder as functions automatically; with no database configured there, they'd deploy broken. Add it only if a Vercel staging environment with a managed MySQL is set up.

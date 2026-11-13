@@ -5,6 +5,7 @@ import { AppError } from './lib/errors';
 import { logger } from './lib/logger';
 import { requestContext } from './lib/request';
 import { csrfGuard } from './lib/security';
+import { adminRoutes } from './routes/admin';
 import { authRoutes } from './routes/auth';
 import { blogRoutes } from './routes/blog';
 import { catalogRoutes } from './routes/catalog';
@@ -49,6 +50,7 @@ export function createApp(deps: Deps) {
   app.route('/', certificateRoutes);
   app.route('/', settingsRoutes);
   app.route('/', meRoutes);
+  app.route('/admin', adminRoutes);
 
   app.notFound((c) =>
     c.json({ error: { code: 'NOT_FOUND', message: 'Route not found', details: [], requestId: c.get('requestId') } }, 404),

@@ -20,6 +20,7 @@ npm run build:api  # API bundle → dist-server/
 npm run lint       # oxlint (.oxlintrc.json), covers src/ and server/
 npm test           # Vitest: unit + MySQL integration tests
 npm run db:generate  # after editing server/db/schema.ts → commit the new migration
+npm run admin:create -- --email you@example.com --name You   # local staff account (prints a password)
 ```
 
 Verify with `npm run build` + `npm run lint` + `npm test`; for visual changes, run the dev server and check 390 / 768 / 1024 / 1440px.
@@ -56,7 +57,8 @@ Verify with `npm run build` + `npm run lint` + `npm test`; for visual changes, r
 
 - Routes are small Hono routers in `server/routes/`, mounted in `server/app.ts` under `/api/v1`. Get dependencies from `c.get('deps')`; never import a global db.
 - Throw `AppError(code, message)` for expected failures; the error handler renders the envelope from docs/API.md §0. Validate every input with `validate('json' | 'query' | 'param', zodSchema)`.
-- Guard routes with `requireUser()` or `requireStaff('<permission>')`; permissions live in `server/auth/permissions.ts` and must match docs/SECURITY.md §2.
+- Guard routes with `requireUser()` or `requireStaff('<module>.<action>')`. Roles and permissions live in `shared/permissions.ts` (used by API and admin UI) and must match docs/admin/AUTH_AND_RBAC.md §3. Admin routes go in `server/routes/admin/` behind `requireStaffAny()`.
+- Admin UI lives in `src/admin/` (lazy chunk, `adm-` class prefix, themes in `layout/AdminLayout.css`). Never use `dangerouslySetInnerHTML` (lint error).
 - Never send email inline: `enqueueEmail()` and let the cron drain it.
 - Admin mutations and security events call `logActivity()`.
 - Schema changes: edit `server/db/schema.ts`, run `npm run db:generate`, commit the SQL. Expand/contract only (docs/DEPLOYMENT.md §5). Keep it MySQL 8 **and** MariaDB 10.6 compatible (CI tests both).

@@ -35,6 +35,17 @@ export function requireUser(): MiddlewareHandler<AppEnv> {
   };
 }
 
+/** Baseline for the whole admin router: signed in, active, and any staff role (not a student). */
+export function requireStaffAny(): MiddlewareHandler<AppEnv> {
+  return async (c, next) => {
+    const user = await getUser(c);
+    if (!user) throw new AppError('UNAUTHENTICATED', 'Please log in to continue');
+    if (user.status !== 'active') throw new AppError('FORBIDDEN', 'This account is suspended');
+    if (!isStaff(user.role)) throw new AppError('FORBIDDEN', 'This account does not have admin access');
+    await next();
+  };
+}
+
 /** Staff-only route guarded by a specific permission (checked on every admin route). */
 export function requireStaff(permission: Permission): MiddlewareHandler<AppEnv> {
   return async (c, next) => {

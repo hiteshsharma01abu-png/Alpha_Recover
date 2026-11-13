@@ -1,0 +1,42 @@
+.adm-state {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: start;
+  padding: 1.25rem;
+  border: 1px dashed var(--adm-line);
+  border-radius: var(--adm-radius);
+  color: var(--adm-text-2);
+}
+
+.adm-state--error {
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--adm-danger) 50%, var(--adm-line));
+  color: var(--adm-text);
+}
+
+.adm-state code {
+  font-size: 0.8rem;
+  color: var(--adm-text-2);
+}
+
+.adm-skeleton {
+  border-radius: var(--adm-radius);
+  background: linear-gradient(90deg, var(--adm-surface) 0%, var(--adm-surface-2) 50%, var(--adm-surface) 100%);
+  background-size: 200% 100%;
+  animation: adm-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes adm-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .adm-skeleton {
+    animation: none;
+  }
+}

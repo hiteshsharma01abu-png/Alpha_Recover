@@ -1,6 +1,6 @@
 # Alpha Recover — Admin Authentication & RBAC
 
-**Last reviewed:** 2026-11-13 · **Status:** Proposal. When approved, this matrix replaces `docs/SECURITY.md` §2, and `server/auth/permissions.ts` moves to `shared/permissions.ts` in the same change.
+**Last reviewed:** 2026-11-13 · **Status:** **Roles and matrix approved and implemented (2026-11-13):** `users.role` migrated (`finance_manager` added, `support` → `support_manager`), matrix in `shared/permissions.ts`, `GET /admin/me`. **2FA: optional for now (owner's decision)**, built in a later admin piece. Staff session limits (8h / 30 min idle) also come later.
 **Related:** [ARCHITECTURE.md](ARCHITECTURE.md) · [NAVIGATION.md](NAVIGATION.md) · [SECURITY.md](SECURITY.md) · [../SECURITY.md](../SECURITY.md)
 
 ## 1. Current system (verified in code, 2026-11-13)

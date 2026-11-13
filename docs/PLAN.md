@@ -138,7 +138,7 @@ Phase 7 QA & security hardening (continuous, gate before production launch)
 
 **Exit:** a live ₹1 test plan purchase activates access end to end; webhook replay is safe; refund revokes access.
 
-### Phase 6 — Admin panel backend · L (incremental)
+### Phase 6 — Admin panel backend · L (incremental) · **In progress**
 Built module by module, right after the domain it depends on ships. The admin **UI** is a separate frontend effort. Recommended: a protected `/admin` area in the same SPA, reusing the design tokens, lazy-loaded so it doesn't grow the public bundle.
 
 | # | Module | Services / APIs | Models | CRUD | Permission | Depends on | Priority |
@@ -160,6 +160,12 @@ Built module by module, right after the domain it depends on ships. The admin **
 | 15 | Reports & analytics | revenue, leads, students, learning, demos, CSV | all (read) | R | `reports.*` | P2–P5 | **P2** |
 | 16 | Learning materials | upload, attach, delete | learning_materials | C R U D | `courses.write` | P4 (if confirmed) | **P3** |
 | 17 | Coupons & offers | — | coupons | — | — | Coupon UI | **Deferred** |
+
+**Status** (plan: docs/admin/)
+- [x] Foundation: role migration (`finance_manager`, `support_manager`), `shared/permissions.ts` matrix, `requireStaffAny()`, `GET /admin/me`, role-aware `GET /admin/dashboard`, create-admin CLI; `/admin` lazy chunk (12.5 KB JS, not loaded by public pages) with staff login, permission-filtered sidebar, System/Light/Dark themes, mobile drawer, noindex. 14 tests; browser-verified for super admin, content manager and student
+- [ ] Leads module (table, filters, detail drawer, notes, CSV export) + data-table components + React Query
+- [ ] Students, Team & Access, Activity log
+- [ ] Optional staff 2FA; staff session limits
 
 ### Phase 7 — QA, security & launch · M (continuous, final gate)
 See [TESTING.md](TESTING.md) and [SECURITY.md](SECURITY.md). Gate items: auth/RBAC test suite green, payment idempotency tests, webhook replay test, rate limits verified, backups restore-tested, Sentry alerts configured, runbook written, rollback rehearsed.
