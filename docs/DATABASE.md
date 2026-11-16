@@ -1,6 +1,6 @@
 # Alpha Recover — Database Schema
 
-**Last reviewed:** 2026-11-14 · Related: [ARCHITECTURE.md](ARCHITECTURE.md) · [API.md](API.md)
+**Last reviewed:** 2026-11-16 · Related: [ARCHITECTURE.md](ARCHITECTURE.md) · [API.md](API.md)
 
 **Database:** MySQL 8.0+ (MariaDB 10.6+ compatible subset) · **Engine:** InnoDB, `utf8mb4` · **ORM:** Drizzle (`mysql2`) · **Status:** Proposal, nothing created
 
@@ -439,7 +439,7 @@ Incremented inside the issuing transaction with
 
 ## 22. `site_settings`
 
-> **Implemented (Phase 1–2).** Live keys: `lead_notification_emails` (private, seeded by migration), `company` and `social_links` (public, seeded insert-only by `server/db/seed.ts` from `content.ts`). Values are validated per key by `settingSchemas` in `server/settings.ts`. The social links are placeholders until the owner provides real profile URLs.
+> **Implemented (Phase 1–2).** Live keys: `lead_notification_emails` (private, seeded by migration), `company` and `social_links` (public, seeded insert-only by `server/db/seed.ts` from `content.ts`), and `max_student_sessions` (private policy; unset = 2). Values are validated per key by `settingSchemas` in `server/settings.ts`, which also lists the public and policy keys. Staff edit them under Admin → Settings (`updated_by` records who). The social links are placeholders until the owner provides real profile URLs.
 
 | Column | Type | Notes |
 |---|---|---|

@@ -4,7 +4,7 @@ export type AdminNavItem = {
   /** Path under /admin ('' = dashboard). */
   path: string;
   label: string;
-  icon: 'dashboard' | 'leads' | 'students' | 'enrollments' | 'plans' | 'demos' | 'team' | 'activity';
+  icon: 'dashboard' | 'leads' | 'students' | 'enrollments' | 'plans' | 'demos' | 'team' | 'activity' | 'settings';
   permission: Permission;
   group: 'Overview' | 'Sales' | 'Learners' | 'Content' | 'Insights' | 'System';
 };
@@ -22,4 +22,5 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { path: 'demo-videos', label: 'Demo Videos', icon: 'demos', permission: 'demos.view', group: 'Content' },
   { path: 'activity', label: 'Activity Log', icon: 'activity', permission: 'audit.view', group: 'Insights' },
   { path: 'team', label: 'Team & Access', icon: 'team', permission: 'team.view', group: 'System' },
+  { path: 'settings', label: 'Settings', icon: 'settings', permission: 'settings.view', group: 'System' },
 ];

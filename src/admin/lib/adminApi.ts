@@ -1,6 +1,8 @@
 import type { LeadReason, LeadStatus } from '../../../shared/leads';
 import type { Permission, UserRole } from '../../../shared/permissions';
 import { api } from '../../lib/api';
+import type { SocialPlatform } from '../../data/content';
+import type { Company } from '../../lib/settings';
 
 export type AdminMe = {
   user: { id: string; email: string; firstName: string; emailVerified: boolean };
@@ -200,6 +202,16 @@ export type DemoVideoInput = {
 
 export type AdminDemoVideo = DemoVideoInput & { id: string; slug: string; hasVideo: boolean; viewCount: number; publishedAt: string | null; updatedAt: string };
 
+export type SettingEntry<T> = { value: T | null; isPublic: boolean; isPolicy: boolean; updatedAt: string | null; updatedBy: StaffRef | null };
+
+/** Unset (null) values mean the built-in default applies; the UI shows that default. */
+export type AdminSettings = {
+  company: SettingEntry<Company>;
+  social_links: SettingEntry<{ platform: SocialPlatform; url: string }[]>;
+  lead_notification_emails: SettingEntry<string[]>;
+  max_student_sessions: SettingEntry<number>;
+};
+
 export type TeamMember = {
   id: string;
   firstName: string;
@@ -286,6 +298,11 @@ export const adminApi = {
     create: (body: DemoVideoInput & { slug: string }) => api.post<{ id: string }>('/admin/demo-videos', body).then((r) => r.data),
     update: (id: string, body: Partial<DemoVideoInput>) => api.patch<{ ok: true; changed: string[] }>(`/admin/demo-videos/${id}`, body).then((r) => r.data),
     remove: (id: string) => api.delete<{ ok: true }>(`/admin/demo-videos/${id}`).then((r) => r.data),
+  },
+  settings: {
+    get: () => api.get<AdminSettings>('/admin/settings').then((r) => r.data),
+    save: <K extends keyof AdminSettings>(key: K, value: NonNullable<AdminSettings[K]['value']>) =>
+      api.put<{ ok: true; changed: boolean }>(`/admin/settings/${key}`, { value }).then((r) => r.data),
   },
   team: {
     list: () => api.get<TeamMember[]>('/admin/team').then((r) => r.data),

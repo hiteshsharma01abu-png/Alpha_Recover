@@ -4,10 +4,12 @@ import type { Database } from './db';
 import { siteSettings } from './db/schema';
 
 const text = z.string().max(300);
+/** Rendered as links on the public site, so only https (no javascript:/data: URLs). */
+const httpsUrl = z.url({ protocol: /^https$/, error: 'Use an https:// link' });
 
 /** Per-key schemas for `site_settings` values (docs/DATABASE.md §22). */
 export const settingSchemas = {
-  lead_notification_emails: z.array(z.email()).min(1),
+  lead_notification_emails: z.array(z.email()).min(1, 'Add at least one address').max(10),
   /** Concurrent sessions a student may keep; the oldest is signed out beyond this. */
   max_student_sessions: z.number().int().min(1).max(10),
   /** Public contact details (same shape as `company` in src/data/content.ts). */
@@ -18,8 +20,8 @@ export const settingSchemas = {
     email: z.email(),
     phone: text,
     phoneDisplay: text,
-    phoneHref: text,
-    whatsapp: z.url(),
+    phoneHref: z.string().regex(/^tel:\+?\d{6,15}$/, 'Use tel: followed by the number, e.g. tel:+916355197917'),
+    whatsapp: httpsUrl,
     address: text,
     addressFull: text,
     hours: text,
@@ -29,11 +31,16 @@ export const settingSchemas = {
     gst: text,
   }),
   social_links: z.array(
-    z.object({ platform: z.enum(['youtube', 'linkedin', 'facebook', 'instagram']), url: z.url() }),
+    z.object({ platform: z.enum(['youtube', 'linkedin', 'facebook', 'instagram']), url: httpsUrl }),
   ),
 } as const;
 
 export type SettingKey = keyof typeof settingSchemas;
+
+/** Keys the public site reads through GET /settings/public. */
+export const PUBLIC_SETTING_KEYS: readonly SettingKey[] = ['company', 'social_links'];
+/** Keys that change access rules: editing them needs settings.edit_policies (Super Admin). */
+export const POLICY_SETTING_KEYS: readonly SettingKey[] = ['max_student_sessions'];
 export type SettingValue<K extends SettingKey> = z.infer<(typeof settingSchemas)[K]>;
 
 /** Reads and validates a setting; returns `fallback` if it's missing or invalid. */

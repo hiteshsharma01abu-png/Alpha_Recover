@@ -1,6 +1,6 @@
 # Alpha Recover — Security, Authentication & Permissions
 
-**Last reviewed:** 2026-11-14 · **Status:** Proposal · Related: [API.md](API.md) · [DATABASE.md](DATABASE.md)
+**Last reviewed:** 2026-11-16 · **Status:** Proposal · Related: [API.md](API.md) · [DATABASE.md](DATABASE.md)
 
 ---
 
@@ -13,7 +13,7 @@
 | Password policy | 8–128 chars; reject the top breached passwords; no composition rules (NIST 800-63B) |
 | Session | Opaque random token in cookie `ar.session_token` (`__Secure-ar.session_token` over HTTPS), signed with `BETTER_AUTH_SECRET`: `HttpOnly; Secure; SameSite=Lax; Path=/`. Stored server-side (`sessions`) so it's revocable |
 | Lifetime | "Remember me": 30 days, refreshed daily. Otherwise 24 hours with a browser-session cookie (ends when the browser closes) and no refresh. Staff rules come with the admin panel (docs/admin/AUTH_AND_RBAC.md §6) |
-| Session limit | Students: max 2 concurrent (`site_settings.max_student_sessions`). Staff: 3. Each new login signs out the oldest sessions beyond the limit (`server/services/sessions.ts`). **Implemented** |
+| Session limit | Students: max 2 concurrent by default (`site_settings.max_student_sessions`, 1–10, editable only by Super Admin under Admin → Settings → Policies). Staff: 3. Each new login signs out the oldest sessions beyond the limit (`server/services/sessions.ts`). **Implemented** |
 | Rotation | New session ID on login, privilege change and password change; all sessions revoked on password reset |
 | Email verification | Token (hashed at rest), 24h, single use. Purchases require a verified email (setting) |
 | Password reset | Token (hashed), 1h, single use; response is identical whether or not the email exists |
@@ -58,7 +58,7 @@ Implementation:
 | SQL injection | Drizzle parameterized queries only; no string-built SQL |
 | CSRF | SameSite=Lax cookie + Origin/Referer check on mutations + `X-Requested-With: fetch` header requirement; webhooks exempt (signature-verified) |
 | CORS | Same origin only (SPA and API on one domain); no wildcard |
-| XSS | React escapes by default. Blog Markdown is rendered by `src/components/ui/Markdown.tsx` into React elements (never `dangerouslySetInnerHTML`), so HTML in the text is shown as text; links are allowed only for `http(s)`, `mailto`, site-relative and `#` targets (`javascript:`, `data:`, protocol-relative are dropped). Covered by `Markdown.test.tsx`. CSP header (below) |
+| XSS | React escapes by default. Blog Markdown is rendered by `src/components/ui/Markdown.tsx` into React elements (never `dangerouslySetInnerHTML`), so HTML in the text is shown as text; links are allowed only for `http(s)`, `mailto`, site-relative and `#` targets (`javascript:`, `data:`, protocol-relative are dropped). Covered by `Markdown.test.tsx`. Staff-editable links that the site renders are validated on the server: settings links must be `https://` (WhatsApp, social) or `tel:` (`server/settings.ts`); demo video thumbnails must be `/assets/…` or `https://`. CSP header (below) |
 | Security headers | `Content-Security-Policy` (self, Razorpay checkout, Bunny iframe/CDN, Turnstile, Google Fonts), `Strict-Transport-Security`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`, `frame-ancestors 'none'`. Set in `vercel.json` for static files and in middleware for the API |
 | Rate limiting | MySQL-backed fixed-window counters (`rate_limit_buckets`, limits in API spec §0); 429 + `Retry-After`. Client IP taken only from the trusted proxy header configured for the host |
 | Bot protection | Turnstile on register, forgot password, leads; honeypot field on leads |

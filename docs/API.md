@@ -411,8 +411,8 @@ Templates: `verify_email`, `password_reset`, `staff_invite` (implemented), `orde
 | Method | Endpoint | Permission | Purpose |
 |---|---|---|---|
 | GET | `/settings/public` | public | (listed in §2) |
-| GET | `/admin/settings` | `settings.read` | All keys |
-| PUT | `/admin/settings/:key` | `settings.write` | Value validated by a per-key Zod schema; audit logged |
+| GET | `/admin/settings` | `settings.view` | **Implemented.** Every known key (`company`, `social_links`, `lead_notification_emails`, `max_student_sessions`) as `{ value, isPublic, isPolicy, updatedAt, updatedBy }`. `value: null` when unset or stored invalid (the code default applies) |
+| PUT | `/admin/settings/:key` | `settings.edit` (+ `settings.edit_policies` for policy keys: `max_student_sessions`) | **Implemented.** Strict `{ value }`, validated by the key's schema in `server/settings.ts`; errors point at `value.<path>`. Public-facing links must be `https://` (WhatsApp, social) or `tel:` (call link). Unknown key → 400; unchanged value → `changed: false`, nothing written. Upsert with `updated_by`. Audit `settings.update` with before/after |
 
 ---
 

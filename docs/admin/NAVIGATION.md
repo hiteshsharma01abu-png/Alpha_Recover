@@ -1,6 +1,6 @@
 # Alpha Recover — Admin Panel Navigation & Modules
 
-**Last reviewed:** 2026-11-16 · **Status:** Proposal · built so far: Dashboard, Leads & Inquiries, Students, Enrollments, Plans & Offers, Demo Videos, Activity Log, Team & Access
+**Last reviewed:** 2026-11-16 · **Status:** Proposal · built so far: Dashboard, Leads & Inquiries, Students, Enrollments, Plans & Offers, Demo Videos, Activity Log, Team & Access, Settings
 **Related:** [ARCHITECTURE.md](ARCHITECTURE.md) · [AUTH_AND_RBAC.md](AUTH_AND_RBAC.md) (permission strings) · [UI_UX.md](UI_UX.md) (sidebar behaviour) · [../API.md](../API.md) §10–14
 
 ## 1. How the proposed list was finalized against the real project
@@ -73,7 +73,7 @@ Footer of the sidebar: the signed-in user, their role badge, and **View website 
 | `/admin/activity` · `?entry=:id` (drawer) | Audit log (**built**) | `audit.view` |
 | `/admin/team` · `/admin/team/roles` | Staff users · role matrix (read-only) (**built**) | `team.view` |
 | `/admin/notifications` | Email outbox log | `notifications.view` |
-| `/admin/settings` · `/admin/settings/:tab` | General · Site & Contact · Notifications · Policies | `settings.view` |
+| `/admin/settings` · `/admin/settings/notifications` · `/admin/settings/policies` | Site & contact · Notifications · Policies (**built**; no separate General tab: nothing to put there yet) | `settings.view` |
 | `/admin/account` | My profile, 2FA, sessions | any staff |
 | `/admin/*` (unknown) | Not found inside the shell | any staff |
 
