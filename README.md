@@ -33,6 +33,12 @@ npm run dev:api               # API on http://localhost:8787 (Vite proxies /api 
 curl localhost:5173/api/v1/health
 ```
 
+Or start the site and the API together in one terminal (output prefixed `[web]` / `[api]`; Ctrl+C stops both):
+
+```bash
+npm run dev:all
+```
+
 Without a `POSTMARK_SERVER_TOKEN`, emails are printed to the API log instead of being sent.
 
 ## Scripts
@@ -44,6 +50,7 @@ Without a `POSTMARK_SERVER_TOKEN`, emails are printed to the API log instead of 
 | `npm run preview` | Preview the production build |
 | `npm run lint` | Oxlint |
 | `npm run dev:api` | API server with reload (`server/`) |
+| `npm run dev:all` | `dev` + `dev:api` in one terminal; refuses to start if port 5173 or 8787 is already taken (MySQL must be up) |
 | `npm run build:api` | Production API bundle → `dist-server/` |
 | `npm test` | Unit + MySQL integration tests (DB tests skip if MySQL isn't running) |
 | `npm run db:up` / `db:down` | Start / stop local MySQL (Docker) |
