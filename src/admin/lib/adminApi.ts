@@ -212,6 +212,26 @@ export type AdminSettings = {
   max_student_sessions: SettingEntry<number>;
 };
 
+export type EmailState = 'queued' | 'retrying' | 'sent' | 'failed';
+
+/** One outbox row. The email body/payload is never sent to the browser (it can hold sign-in links). */
+export type EmailJob = {
+  id: string;
+  channel: 'email' | 'whatsapp';
+  template: string;
+  to: string;
+  subject: string | null;
+  state: EmailState;
+  attempts: number;
+  lastError: string | null;
+  providerMessageId: string | null;
+  createdAt: string;
+  sentAt: string | null;
+  nextAttemptAt: string | null;
+  /** null = the Retry button can be offered. */
+  retryBlockedReason: string | null;
+};
+
 export type TeamMember = {
   id: string;
   firstName: string;
@@ -303,6 +323,11 @@ export const adminApi = {
     get: () => api.get<AdminSettings>('/admin/settings').then((r) => r.data),
     save: <K extends keyof AdminSettings>(key: K, value: NonNullable<AdminSettings[K]['value']>) =>
       api.put<{ ok: true; changed: boolean }>(`/admin/settings/${key}`, { value }).then((r) => r.data),
+  },
+  notifications: {
+    list: (params: Record<string, string | undefined>) =>
+      api.get<EmailJob[]>(`/admin/notifications${qs(params)}`).then((r) => ({ rows: r.data, meta: r.meta as PageMeta & { counts: Record<EmailState, number>; stalledSince: string | null } })),
+    retry: (id: string) => api.post<{ ok: true }>(`/admin/notifications/${id}/retry`).then((r) => r.data),
   },
   team: {
     list: () => api.get<TeamMember[]>('/admin/team').then((r) => r.data),

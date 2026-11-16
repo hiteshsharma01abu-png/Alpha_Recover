@@ -1,6 +1,6 @@
 # Alpha Recover — Deployment
 
-**Last reviewed:** 2026-11-13 · Related: [ARCHITECTURE.md](ARCHITECTURE.md) (§3 hosting checklist) · [SECURITY.md](SECURITY.md) · [TESTING.md](TESTING.md) §8 (release validation)
+**Last reviewed:** 2026-11-16 · Related: [ARCHITECTURE.md](ARCHITECTURE.md) (§3 hosting checklist) · [SECURITY.md](SECURITY.md) · [TESTING.md](TESTING.md) §8 (release validation)
 
 > **Status:** the production host isn't chosen yet. The frontend is temporarily on Vercel; the API has never been deployed. This guide covers both targets the backend is built for: **cPanel with "Setup Node.js App"** and a **VPS**. The automated deploy job is added to CI once the host is known.
 
@@ -105,7 +105,7 @@ Then watch Sentry and the app log for 30 minutes.
 | `/api/v1/health` returns 503 | Wrong `DATABASE_URL`, MySQL down, or the user lacks privileges |
 | Every route returns `index.html`, even `/api/...` | `.htaccess` is missing the `RewriteRule ^api/ - [L]` line, or the Node app URL isn't `/api` |
 | POST requests get 403 "Cross-origin request rejected" | `APP_URL` doesn't match the site's real origin (`https://` vs `http://`, `www` vs bare domain) |
-| Emails never arrive | Cron isn't running (check `notification_jobs.status = 'pending'`), `POSTMARK_SERVER_TOKEN` is wrong, or the sender domain isn't verified in Postmark |
+| Emails never arrive | Cron isn't running (Admin → Email Log shows a red warning when due emails have waited over 30 minutes; or check `notification_jobs.status = 'pending'`), `POSTMARK_SERVER_TOKEN` is wrong, or the sender domain isn't verified in Postmark |
 | Jobs stuck in `dead` | Read `notification_jobs.last_error`; fix the cause, then reset `status = 'pending', attempts = 0` |
 | All users appear to share one IP (rate limits trip for everyone) | Set `TRUSTED_PROXY_HEADER` to the header your host's proxy adds |
 | Changes not visible after upload (cPanel) | Restart the Node.js app (`touch tmp/restart.txt`) |

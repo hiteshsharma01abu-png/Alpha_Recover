@@ -1,0 +1,67 @@
+.adm .adm-email-intro {
+  max-width: 75ch;
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+}
+
+.adm .adm-email-stalled {
+  margin: 0 0 1rem;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--adm-danger) 45%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--adm-danger) 10%, transparent);
+  color: var(--adm-text);
+}
+
+.adm-email-to {
+  overflow-wrap: anywhere;
+}
+
+/* Drawer */
+.adm-email {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.adm-email header {
+  padding-right: 3rem;
+}
+
+.adm-email h2 {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  overflow-wrap: anywhere;
+}
+
+.adm-email h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--adm-text-2);
+}
+
+.adm-email-error {
+  margin: 0;
+  padding: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--adm-danger) 40%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--adm-danger) 8%, transparent);
+  color: var(--adm-text);
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.adm .adm-email > p {
+  margin: 0;
+}
+
+.adm .adm-email-blocked {
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--adm-warning) 14%, transparent);
+  color: var(--adm-text);
+  font-size: 0.9rem;
+}

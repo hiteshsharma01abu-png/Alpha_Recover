@@ -14,6 +14,7 @@ import { EnrollmentsPage } from './modules/enrollments/EnrollmentsPage';
 import { LeadsPage } from './modules/leads/LeadsPage';
 import { PlanEditorPage } from './modules/plans/PlanEditorPage';
 import { PlansPage } from './modules/plans/PlansPage';
+import { EmailLogPage } from './modules/notifications/EmailLogPage';
 import { SettingsPage } from './modules/settings/SettingsPage';
 import { StudentDetailPage } from './modules/students/StudentDetailPage';
 import { StudentsPage } from './modules/students/StudentsPage';
@@ -32,6 +33,7 @@ const GUARDED: [path: string, perm: Permission, Page: ComponentType][] = [
   ['demo-videos', 'demos.view', DemoVideosPage],
   ['activity', 'audit.view', ActivityPage],
   ['team', 'team.view', TeamPage],
+  ['notifications', 'notifications.view', EmailLogPage],
   ['settings', 'settings.view', SettingsPage],
   ['settings/:tab', 'settings.view', SettingsPage],
   ['team/roles', 'team.view', RolesPage],

@@ -398,8 +398,8 @@ All read-only aggregates over existing tables (no separate analytics store at th
 
 | Method | Endpoint | Auth | Purpose |
 |---|---|---|---|
-| GET | `/admin/notifications` | `notifications.read` | Outbox log `?status&template&channel` |
-| POST | `/admin/notifications/:id/retry` | `notifications.write` | Retry a failed/dead job |
+| GET | `/admin/notifications` | `notifications.view` | **Implemented.** Outbox, newest first. Filters `state` (`queued` \| `retrying` \| `sent` \| `failed`), `template`, `q` (recipient), `from`/`to` (IST days); `page`, `pageSize` ≤ 100 (default 50). Rows: recipient, template, rendered **subject only**, state, attempts, last error, timestamps, `retryBlockedReason`. The payload is **never** returned (verify/reset/invite payloads hold live sign-in links). `meta.counts` per state; `meta.stalledSince` is set when a due email has waited over 30 minutes (the sending cron has probably stopped) |
+| POST | `/admin/notifications/:id/retry` | `notifications.edit` | **Implemented.** Failed or retrying jobs only: back to pending with fresh attempts, sent by the next cron run. Refused (422) for sent/queued jobs and for link emails past their link's life (verify 24 h, reset 1 h, invite 3 days); 409 if the cron is sending it right now. Audit `notifications.retry` |
 | POST | `/internal/cron/notifications` (**implemented**) | `Authorization: Bearer $CRON_SECRET` (called by host cron via `curl`) | Drain the outbox (batch of 50, backoff) |
 | POST | `/internal/cron/maintenance` (**implemented**) | `Authorization: Bearer $CRON_SECRET` (host cron) | Expire orders, delete expired sessions and verifications, end promotions |
 | POST | `/webhooks/postmark` | Postmark basic-auth | Bounce/spam complaints → mark email undeliverable |

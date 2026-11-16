@@ -108,6 +108,8 @@ const ROUTES: [method: string, path: string, permission: Permission | null][] = 
   ['GET', '/admin/settings', 'settings.view'],
   ['PUT', '/admin/settings/company', 'settings.edit'],
   ['PUT', '/admin/settings/max_student_sessions', 'settings.edit_policies'],
+  ['GET', '/admin/notifications', 'notifications.view'],
+  ['POST', `/admin/notifications/${SOME_ID}/retry`, 'notifications.edit'],
   ['GET', '/admin/team', 'team.view'],
   ['POST', '/admin/team', 'team.add'],
   ['POST', `/admin/team/${SOME_ID}/resend-invite`, 'team.add'],

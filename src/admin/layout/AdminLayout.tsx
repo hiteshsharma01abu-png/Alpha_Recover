@@ -49,6 +49,7 @@ const ICONS: Record<AdminNavItem['icon'], ReactNode> = {
     </svg>
   ),
   settings: <AdmIcon name="settings" size={20} />,
+  email: <AdmIcon name="mail" size={20} />,
   team: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
       <circle cx="9" cy="8" r="3" />

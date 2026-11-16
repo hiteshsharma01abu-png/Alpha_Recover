@@ -7,6 +7,7 @@ import { adminDemoVideoRoutes } from './demoVideos';
 import { adminEnrollmentRoutes } from './enrollments';
 import { adminLeadRoutes } from './leads';
 import { adminMeRoutes } from './me';
+import { adminNotificationRoutes } from './notifications';
 import { adminPlanRoutes } from './plans';
 import { adminSettingsRoutes } from './settings';
 import { adminStudentRoutes } from './students';
@@ -27,5 +28,6 @@ export const adminRoutes = new Hono<AppEnv>()
   .route('/', adminPlanRoutes)
   .route('/', adminDemoVideoRoutes)
   .route('/', adminSettingsRoutes)
+  .route('/', adminNotificationRoutes)
   .route('/', adminTeamRoutes)
   .route('/', adminActivityRoutes);

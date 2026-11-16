@@ -1,6 +1,6 @@
 # Alpha Recover — Admin Panel Navigation & Modules
 
-**Last reviewed:** 2026-11-16 · **Status:** Proposal · built so far: Dashboard, Leads & Inquiries, Students, Enrollments, Plans & Offers, Demo Videos, Activity Log, Team & Access, Settings
+**Last reviewed:** 2026-11-16 · **Status:** Proposal · built so far: Dashboard, Leads & Inquiries, Students, Enrollments, Plans & Offers, Demo Videos, Activity Log, Team & Access, Email Log, Settings
 **Related:** [ARCHITECTURE.md](ARCHITECTURE.md) · [AUTH_AND_RBAC.md](AUTH_AND_RBAC.md) (permission strings) · [UI_UX.md](UI_UX.md) (sidebar behaviour) · [../API.md](../API.md) §10–14
 
 ## 1. How the proposed list was finalized against the real project
@@ -49,7 +49,7 @@ INSIGHTS
   ▸ Activity Log                    /admin/activity
 SYSTEM
   ▸ Team & Access                   /admin/team
-  ▸ Email Log                  (P2) /admin/notifications
+  ▸ Email Log                       /admin/notifications
   ▸ Settings                        /admin/settings
 ```
 Footer of the sidebar: the signed-in user, their role badge, and **View website ↗**.
@@ -72,7 +72,7 @@ Footer of the sidebar: the signed-in user, their role badge, and **View website 
 | `/admin/reports` · `/admin/reports/:tab` | Revenue, leads, students, learning, demo videos | `reports.view` |
 | `/admin/activity` · `?entry=:id` (drawer) | Audit log (**built**) | `audit.view` |
 | `/admin/team` · `/admin/team/roles` | Staff users · role matrix (read-only) (**built**) | `team.view` |
-| `/admin/notifications` | Email outbox log | `notifications.view` |
+| `/admin/notifications` · `?email=:id` (drawer) | Email log (**built**: states, filters, retry, stalled-cron warning) | `notifications.view` |
 | `/admin/settings` · `/admin/settings/notifications` · `/admin/settings/policies` | Site & contact · Notifications · Policies (**built**; no separate General tab: nothing to put there yet) | `settings.view` |
 | `/admin/account` | My profile, 2FA, sessions | any staff |
 | `/admin/*` (unknown) | Not found inside the shell | any staff |

@@ -88,7 +88,7 @@ Implementation:
 | Data | Handling |
 |---|---|
 | Passwords | scrypt hash only |
-| Tokens (session, verify, reset) | Random, hashed at rest where supported, expiring |
+| Tokens (session, verify, reset) | Random, hashed at rest where supported, expiring. Emails carrying them sit in `notification_jobs.payload`, which no API returns (the admin email log shows the subject only) |
 | Email / phone | Stored for account and leads; never exposed in public APIs (certificate verify shows only name/program/date/status) |
 | IP addresses | Leads/audit: salted SHA-256 hash; sessions: raw IP for security display, deleted with the session |
 | Consent | `leads.whatsapp_consent`, `users.whatsapp_opt_in_at`, `users.terms_accepted_at` recorded with timestamps |
