@@ -19,4 +19,8 @@ export function ago(iso: string, now = Date.now()) {
   return formatDate(iso);
 }
 
+const rupees = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2, minimumFractionDigits: 0 });
+/** Paise → "₹5,999" (paise shown only when there are any). */
+export const formatInr = (paise: number) => rupees.format(paise / 100);
+
 export const countryName = (code: string) => REGISTER_COUNTRIES.find((c) => c.code === code)?.label ?? code;

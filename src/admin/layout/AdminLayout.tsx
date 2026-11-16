@@ -36,6 +36,12 @@ const ICONS: Record<AdminNavItem['icon'], ReactNode> = {
       <path d="M8 9h8M8 13h4M13.5 16l1.8 1.8L19 14" />
     </svg>
   ),
+  plans: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+      <path d="M3.5 12.6V4.5a1 1 0 0 1 1-1h8.1l7.9 7.9a1.4 1.4 0 0 1 0 2l-6.1 6.1a1.4 1.4 0 0 1-2 0z" />
+      <circle cx="8.5" cy="8.5" r="1.5" />
+    </svg>
+  ),
   team: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
       <circle cx="9" cy="8" r="3" />

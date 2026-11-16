@@ -324,6 +324,15 @@ The featured video is excluded from the list and from `counts` (matching current
 | POST | `/admin/enrollments` | `enrollments.add` | Strict `{ userId, planId, source: manual\|complimentary, expiresOn?, reason (3–500) }` → 201. `expiresOn` omitted = the plan's `accessDays` (null = lifetime); `null` = lifetime; `YYYY-MM-DD` = until the end of that IST day (must be in the future). Students only (staff id → 404). An active grant for the same plan → 409; an active row already past its end is closed as expired first. Audit `enrollments.grant` with the reason |
 | PATCH | `/admin/enrollments/:id` | `enrollments.edit` | `{ expiresOn: YYYY-MM-DD \| null }`: extend, shorten or make lifetime. Active enrollments only (else 422). Audit `enrollments.update` with before/after |
 | POST | `/admin/enrollments/:id/revoke` | `enrollments.revoke` | `{ reason (3–500) }`. Ends access immediately; does not refund. Already revoked/expired → 422. Audit `enrollments.revoke` |
+| GET | `/admin/plans` | `plans.view` | **Implemented.** Non-deleted plans (any status) with the live price from `priceFor()` (same as the public API), `compareAtPaise`, the next scheduled promotion and the count of live enrollments |
+| GET | `/admin/plans/courses` | `plans.view` | Courses for the "unlocks these courses" picker |
+| GET | `/admin/plans/:id` | `plans.view` | Editable fields, `courseIds`, live `price`, all non-deleted promotions with `state` (`running` \| `scheduled` \| `paused` \| `ended`), total enrollments |
+| POST | `/admin/plans` | `plans.add` | Strict `{ slug, name, pricePaise, features[], grantsAllCourses, status, description?, compareAtPaise?, mobileFeatureOrder?, courseIds?, accessDays?, sortOrder? }` → 201. Slug `a-z0-9-`, unique forever (deleted plans keep theirs) → 409. Rules: amounts ≥ ₹1 in paise; `compareAtPaise` > price; `mobileFeatureOrder` indexes listed features once each (null = all); `courseIds` required when not granting all courses. Audit `plans.create` |
+| PATCH | `/admin/plans/:id` | `plans.edit` | Any editable field except `slug` (the website looks plans up by slug; sending it → 400). Same rules on the merged result; returns `changed[]`; no-op writes nothing. The price can't drop to or below a live (running or scheduled, active) sale price → 422. Audit `plans.update` with before/after |
+| DELETE | `/admin/plans/:id` | `plans.delete` | Soft delete (also archives). 422 if anyone was ever enrolled: archive instead. Audit `plans.delete` |
+| POST | `/admin/plans/:id/promotions` | `plans.edit` | Strict `{ label, salePricePaise, startsAt, endsAt }`; times are `YYYY-MM-DDTHH:mm` **IST**. Must end after it starts and in the future, be cheaper than the plan (400), and not overlap another active sale of the plan (422) → 201. Audit `plans.promotion_create` |
+| PATCH | `/admin/promotions/:id` | `plans.edit` | Any of the above plus `isActive` (pause/resume, the kill switch). Same rules; resuming re-checks overlaps; ended sales → 422. Audit `plans.promotion_update` / `_pause` / `_resume` with before/after |
+| DELETE | `/admin/promotions/:id` | `plans.delete` | Soft delete (stops applying). Audit `plans.promotion_delete` |
 | GET | `/admin/team` | `team.view` | **Implemented.** Staff accounts with `roleLabel`, `status`, `invitePending` (never signed in), live `sessions` count |
 | POST | `/admin/team` | `team.add` | Strict `{ email, firstName, role (staff role) }`. New email → account created (verified, unusable random password) and a `staff_invite` email with a set-password link valid **3 days**; existing student → promoted (signed out); existing staff → 409. Audit `team.invite` / `team.role_change` |
 | POST | `/admin/team/:id/resend-invite` | `team.add` | New link (old one invalidated); 422 once the person has signed in. Audit |
@@ -348,10 +357,6 @@ Every admin mutation writes `activity_logs`. Lists support `page`, `pageSize`, `
 | PATCH/DELETE | `/admin/lessons/:id` | `courses.write` | Title, description, isPreview, status, videoId |
 | PUT | `/admin/courses/:id/order` | `courses.write` | Reorder modules/lessons `{ modules: [{ id, lessonIds: [] }] }` |
 | POST | `/admin/videos/upload-url` | `courses.write` / `demos.write` | Create a Bunny video + direct-upload (TUS) credentials; returns `videoId` |
-| GET/POST | `/admin/plans` | `plans.*` | |
-| PATCH | `/admin/plans/:id` | `plans.write` | Price, features, mobileFeatureOrder, status |
-| GET/POST | `/admin/plans/:id/promotions` | `plans.*` | Create a promotion (overlap → 422) |
-| PATCH/DELETE | `/admin/promotions/:id` | `plans.write` | Edit / end now / soft delete |
 | GET/POST | `/admin/demo-videos` | `demos.*` | |
 | PATCH/DELETE | `/admin/demo-videos/:id` | `demos.write` | Includes setting `isFeatured` (unsets the previous one) |
 | GET | `/admin/orders` | `orders.read` | `?status&from&to&q(orderNumber/email)` |

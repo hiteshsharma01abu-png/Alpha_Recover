@@ -6,10 +6,9 @@ import { timeAgo } from '../../../lib/demoVideos';
 import { useAdminSession } from '../../auth/adminSessionContext';
 import { EmptyState, ErrorState, Skeleton } from '../../components/States';
 import { adminApi, type DashboardData } from '../../lib/adminApi';
+import { formatInr } from '../../lib/format';
 import './DashboardPage.css';
 
-const inr = (paise: number) =>
-  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(paise / 100);
 const num = (n: number) => n.toLocaleString('en-IN');
 
 function endsIn(iso: string) {
@@ -85,7 +84,7 @@ export function DashboardPage() {
             {data.pricing ? (
               <Kpi
                 label={data.pricing.plan}
-                value={inr(data.pricing.effectivePricePaise)}
+                value={formatInr(data.pricing.effectivePricePaise)}
                 hint={data.pricing.promotion ? `${data.pricing.promotion.label} · ${endsIn(data.pricing.promotion.endsAt)}` : 'No sale running'}
               />
             ) : null}

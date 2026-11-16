@@ -11,6 +11,8 @@ import { DashboardPage } from './modules/dashboard/DashboardPage';
 import { ActivityPage } from './modules/activity/ActivityPage';
 import { EnrollmentsPage } from './modules/enrollments/EnrollmentsPage';
 import { LeadsPage } from './modules/leads/LeadsPage';
+import { PlanEditorPage } from './modules/plans/PlanEditorPage';
+import { PlansPage } from './modules/plans/PlansPage';
 import { StudentDetailPage } from './modules/students/StudentDetailPage';
 import { StudentsPage } from './modules/students/StudentsPage';
 import { RolesPage } from './modules/team/RolesPage';
@@ -22,6 +24,9 @@ const GUARDED: [path: string, perm: Permission, Page: ComponentType][] = [
   ['students', 'students.view', StudentsPage],
   ['students/:id', 'students.view', StudentDetailPage],
   ['enrollments', 'enrollments.view', EnrollmentsPage],
+  ['plans', 'plans.view', PlansPage],
+  ['plans/new', 'plans.add', PlanEditorPage],
+  ['plans/:id', 'plans.view', PlanEditorPage],
   ['activity', 'audit.view', ActivityPage],
   ['team', 'team.view', TeamPage],
   ['team/roles', 'team.view', RolesPage],

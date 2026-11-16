@@ -124,6 +124,62 @@ export type EnrollmentPlan = { id: string; name: string; status: string; accessD
 /** `expiresOn` omitted = the plan's default period; null = lifetime; YYYY-MM-DD = until the end of that day (IST). */
 export type EnrollmentGrant = { userId: string; planId: string; source: 'manual' | 'complimentary'; expiresOn?: string | null; reason: string };
 
+export type PublishStatus = 'draft' | 'published' | 'archived';
+export type PromotionState = 'running' | 'scheduled' | 'ended' | 'paused';
+
+export type Promotion = { id: string; label: string; salePricePaise: number; startsAt: string; endsAt: string; isActive: boolean; state: PromotionState };
+
+/** Server-computed price, the same numbers the public site shows. */
+export type PlanPrice = {
+  pricePaise: number;
+  effectivePricePaise: number;
+  comparePricePaise: number | null;
+  discountPct: number;
+  promotion: { label: string; startsAt: string; endsAt: string } | null;
+};
+
+export type PlanRow = PlanPrice & {
+  id: string;
+  slug: string;
+  name: string;
+  status: PublishStatus;
+  accessDays: number | null;
+  grantsAllCourses: boolean;
+  compareAtPaise: number | null;
+  nextPromotion: Promotion | null;
+  activeEnrollments: number;
+  updatedAt: string;
+};
+
+/** Editable fields (amounts in paise). */
+export type PlanInput = {
+  name: string;
+  description: string | null;
+  pricePaise: number;
+  compareAtPaise: number | null;
+  features: string[];
+  mobileFeatureOrder: number[] | null;
+  grantsAllCourses: boolean;
+  courseIds: string[];
+  accessDays: number | null;
+  status: PublishStatus;
+  sortOrder: number;
+};
+
+export type PlanDetail = PlanInput & {
+  id: string;
+  slug: string;
+  currency: string;
+  price: PlanPrice;
+  promotions: Promotion[];
+  enrollments: number;
+  createdAt: string;
+  updatedAt: string | null;
+};
+
+/** Start and end as "YYYY-MM-DDTHH:mm" in IST. */
+export type PromotionInput = { label: string; salePricePaise: number; startsAt: string; endsAt: string };
+
 export type TeamMember = {
   id: string;
   firstName: string;
@@ -191,6 +247,17 @@ export const adminApi = {
     setEnd: (id: string, expiresOn: string | null) => api.patch<{ id: string; expiresAt: string | null }>(`/admin/enrollments/${id}`, { expiresOn }).then((r) => r.data),
     revoke: (id: string, reason: string) => api.post<{ id: string }>(`/admin/enrollments/${id}/revoke`, { reason }).then((r) => r.data),
     exportUrl: (params: Record<string, string | undefined>) => `/api/v1/admin/enrollments/export.csv${qs(params)}`,
+  },
+  plans: {
+    list: () => api.get<PlanRow[]>('/admin/plans').then((r) => r.data),
+    courses: () => api.get<{ id: string; title: string; status: PublishStatus }[]>('/admin/plans/courses').then((r) => r.data),
+    get: (id: string) => api.get<PlanDetail>(`/admin/plans/${id}`).then((r) => r.data),
+    create: (body: PlanInput & { slug: string }) => api.post<{ id: string }>('/admin/plans', body).then((r) => r.data),
+    update: (id: string, body: Partial<PlanInput>) => api.patch<{ ok: true; changed: string[] }>(`/admin/plans/${id}`, body).then((r) => r.data),
+    remove: (id: string) => api.delete<{ ok: true }>(`/admin/plans/${id}`).then((r) => r.data),
+    addPromotion: (planId: string, body: PromotionInput) => api.post<{ id: string }>(`/admin/plans/${planId}/promotions`, body).then((r) => r.data),
+    updatePromotion: (id: string, body: Partial<PromotionInput> & { isActive?: boolean }) => api.patch<Promotion>(`/admin/promotions/${id}`, body).then((r) => r.data),
+    removePromotion: (id: string) => api.delete<{ ok: true }>(`/admin/promotions/${id}`).then((r) => r.data),
   },
   team: {
     list: () => api.get<TeamMember[]>('/admin/team').then((r) => r.data),
