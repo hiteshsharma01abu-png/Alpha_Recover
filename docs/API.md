@@ -333,6 +333,11 @@ The featured video is excluded from the list and from `counts` (matching current
 | POST | `/admin/plans/:id/promotions` | `plans.edit` | Strict `{ label, salePricePaise, startsAt, endsAt }`; times are `YYYY-MM-DDTHH:mm` **IST**. Must end after it starts and in the future, be cheaper than the plan (400), and not overlap another active sale of the plan (422) → 201. Audit `plans.promotion_create` |
 | PATCH | `/admin/promotions/:id` | `plans.edit` | Any of the above plus `isActive` (pause/resume, the kill switch). Same rules; resuming re-checks overlaps; ended sales → 422. Audit `plans.promotion_update` / `_pause` / `_resume` with before/after |
 | DELETE | `/admin/promotions/:id` | `plans.delete` | Soft delete (stops applying). Audit `plans.promotion_delete` |
+| GET | `/admin/demo-videos` | `demos.view` | **Implemented.** Every non-deleted video (any status, not paginated: the catalogue is small), featured first. Filters `status`, `category`, `q` (title, label, slug, tags). `meta.counts` per status. Includes `viewCount` and `hasVideo` (the video id is never returned) |
+| GET | `/admin/demo-videos/:id` | `demos.view` | One video, same shape |
+| POST | `/admin/demo-videos` | `demos.add` | Strict `{ slug, title, tag, category, level, description, durationSeconds, status, tags?, thumbnailUrl?, sortOrder?, isFeatured? }` → 201. Slug unique forever (409). `thumbnailUrl` must be a `/assets/…` path or an `https://` URL. Publishing stamps `publishedAt`. Audit `demos.create` |
+| PATCH | `/admin/demo-videos/:id` | `demos.edit` | Any field except `slug` (400). `isFeatured: true` needs a published video (400) and unfeatures the previous one in the same transaction; unpublishing clears it. First publish stamps `publishedAt`. Returns `changed[]`. Audit `demos.update` with before/after |
+| DELETE | `/admin/demo-videos/:id` | `demos.delete` | Soft delete (archived, unfeatured, off the site; slug stays reserved). Audit `demos.delete` |
 | GET | `/admin/team` | `team.view` | **Implemented.** Staff accounts with `roleLabel`, `status`, `invitePending` (never signed in), live `sessions` count |
 | POST | `/admin/team` | `team.add` | Strict `{ email, firstName, role (staff role) }`. New email → account created (verified, unusable random password) and a `staff_invite` email with a set-password link valid **3 days**; existing student → promoted (signed out); existing staff → 409. Audit `team.invite` / `team.role_change` |
 | POST | `/admin/team/:id/resend-invite` | `team.add` | New link (old one invalidated); 422 once the person has signed in. Audit |
@@ -357,8 +362,6 @@ Every admin mutation writes `activity_logs`. Lists support `page`, `pageSize`, `
 | PATCH/DELETE | `/admin/lessons/:id` | `courses.write` | Title, description, isPreview, status, videoId |
 | PUT | `/admin/courses/:id/order` | `courses.write` | Reorder modules/lessons `{ modules: [{ id, lessonIds: [] }] }` |
 | POST | `/admin/videos/upload-url` | `courses.write` / `demos.write` | Create a Bunny video + direct-upload (TUS) credentials; returns `videoId` |
-| GET/POST | `/admin/demo-videos` | `demos.*` | |
-| PATCH/DELETE | `/admin/demo-videos/:id` | `demos.write` | Includes setting `isFeatured` (unsets the previous one) |
 | GET | `/admin/orders` | `orders.read` | `?status&from&to&q(orderNumber/email)` |
 | GET | `/admin/orders/:id` | `orders.read` | Order + payments + webhook events |
 | POST | `/admin/orders/:id/refund` | `orders.refund` | `{ amountPaise?, reason }` → Razorpay refund API |

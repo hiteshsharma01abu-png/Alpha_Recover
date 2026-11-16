@@ -9,6 +9,7 @@ import { RequireStaff } from './auth/RequireStaff';
 import { AdminLayout } from './layout/AdminLayout';
 import { DashboardPage } from './modules/dashboard/DashboardPage';
 import { ActivityPage } from './modules/activity/ActivityPage';
+import { DemoVideosPage } from './modules/demos/DemoVideosPage';
 import { EnrollmentsPage } from './modules/enrollments/EnrollmentsPage';
 import { LeadsPage } from './modules/leads/LeadsPage';
 import { PlanEditorPage } from './modules/plans/PlanEditorPage';
@@ -27,6 +28,7 @@ const GUARDED: [path: string, perm: Permission, Page: ComponentType][] = [
   ['plans', 'plans.view', PlansPage],
   ['plans/new', 'plans.add', PlanEditorPage],
   ['plans/:id', 'plans.view', PlanEditorPage],
+  ['demo-videos', 'demos.view', DemoVideosPage],
   ['activity', 'audit.view', ActivityPage],
   ['team', 'team.view', TeamPage],
   ['team/roles', 'team.view', RolesPage],

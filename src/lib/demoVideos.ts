@@ -69,9 +69,13 @@ function toDemoVideo(v: ApiDemoVideo): DemoVideo {
   };
 }
 
-/** Thumbnail: uploaded image → bundled image for the id → generic fallback. */
+/** Thumbnail: uploaded image → bundled image for the slug → generic fallback. */
+export function demoThumbFor(slug: string, thumbnailUrl?: string | null): string {
+  return thumbnailUrl || demoVideoImages[slug] || fallbackSectionImage;
+}
+
 export function demoThumb(v: DemoVideo): string {
-  return v.thumbnail || demoVideoImages[v.id] || fallbackSectionImage;
+  return demoThumbFor(v.id, v.thumbnail);
 }
 
 let request: Promise<DemoVideo[] | null> | null = null;

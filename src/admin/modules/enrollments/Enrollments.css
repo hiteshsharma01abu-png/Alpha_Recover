@@ -11,6 +11,11 @@
   min-width: 0;
 }
 
+/* Matches the tabs' bottom margin when the button wraps under them on phones. */
+.adm-enr-bar > .adm-btn {
+  margin-bottom: 1rem;
+}
+
 .adm-enr-student {
   color: inherit;
   font-weight: 600;

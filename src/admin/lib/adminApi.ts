@@ -180,6 +180,26 @@ export type PlanDetail = PlanInput & {
 /** Start and end as "YYYY-MM-DDTHH:mm" in IST. */
 export type PromotionInput = { label: string; salePricePaise: number; startsAt: string; endsAt: string };
 
+export type DemoCategory = 'logical' | 'electrical' | 'mechanical' | 'firmware';
+export type SkillLevel = 'beginner' | 'intermediate' | 'advanced';
+
+/** Editable fields. `thumbnailUrl` is a /assets/… path or an https URL; null = the site's bundled image. */
+export type DemoVideoInput = {
+  title: string;
+  tag: string;
+  category: DemoCategory;
+  level: SkillLevel;
+  description: string;
+  tags: string[];
+  durationSeconds: number;
+  thumbnailUrl: string | null;
+  status: PublishStatus;
+  sortOrder: number;
+  isFeatured: boolean;
+};
+
+export type AdminDemoVideo = DemoVideoInput & { id: string; slug: string; hasVideo: boolean; viewCount: number; publishedAt: string | null; updatedAt: string };
+
 export type TeamMember = {
   id: string;
   firstName: string;
@@ -258,6 +278,14 @@ export const adminApi = {
     addPromotion: (planId: string, body: PromotionInput) => api.post<{ id: string }>(`/admin/plans/${planId}/promotions`, body).then((r) => r.data),
     updatePromotion: (id: string, body: Partial<PromotionInput> & { isActive?: boolean }) => api.patch<Promotion>(`/admin/promotions/${id}`, body).then((r) => r.data),
     removePromotion: (id: string) => api.delete<{ ok: true }>(`/admin/promotions/${id}`).then((r) => r.data),
+  },
+  demoVideos: {
+    list: (params: Record<string, string | undefined>) =>
+      api.get<AdminDemoVideo[]>(`/admin/demo-videos${qs(params)}`).then((r) => ({ rows: r.data, meta: r.meta as { counts: Record<PublishStatus, number> } })),
+    get: (id: string) => api.get<AdminDemoVideo>(`/admin/demo-videos/${id}`).then((r) => r.data),
+    create: (body: DemoVideoInput & { slug: string }) => api.post<{ id: string }>('/admin/demo-videos', body).then((r) => r.data),
+    update: (id: string, body: Partial<DemoVideoInput>) => api.patch<{ ok: true; changed: string[] }>(`/admin/demo-videos/${id}`, body).then((r) => r.data),
+    remove: (id: string) => api.delete<{ ok: true }>(`/admin/demo-videos/${id}`).then((r) => r.data),
   },
   team: {
     list: () => api.get<TeamMember[]>('/admin/team').then((r) => r.data),
