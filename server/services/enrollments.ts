@@ -5,7 +5,7 @@ import { courses, enrollments, planCourses, plans } from '../db/schema';
 export type EnrollmentSource = 'purchase' | 'manual' | 'complimentary';
 
 /** Active and not past its end date (null = lifetime). */
-const live = (now: Date) => and(eq(enrollments.status, 'active'), or(isNull(enrollments.expiresAt), gt(enrollments.expiresAt, now)));
+export const liveEnrollment = (now: Date) => and(eq(enrollments.status, 'active'), or(isNull(enrollments.expiresAt), gt(enrollments.expiresAt, now)));
 
 /**
  * Grants a plan to a user. Idempotent: an order activates at most once (unique order_id), and a user
@@ -69,7 +69,7 @@ export async function accessibleCourseIds(db: Database, userId: string, now = ne
     .select({ planId: enrollments.planId, grantsAll: plans.grantsAllCourses })
     .from(enrollments)
     .innerJoin(plans, eq(plans.id, enrollments.planId))
-    .where(and(eq(enrollments.userId, userId), live(now)));
+    .where(and(eq(enrollments.userId, userId), liveEnrollment(now)));
   if (!rows.length) return new Set();
   if (rows.some((r) => r.grantsAll)) {
     const all = await db.select({ id: courses.id }).from(courses).where(isNull(courses.deletedAt));

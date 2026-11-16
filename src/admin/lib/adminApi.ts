@@ -90,12 +90,39 @@ export type StudentRow = {
 export type StudentDetail = Omit<StudentRow, 'enrolled'> & {
   certificateName: string | null;
   whatsappOptIn: boolean;
-  enrollments: { id: string; plan: string; source: string; status: string; startsAt: string; expiresAt: string | null; revokedReason: string | null }[];
+  enrollments: { id: string; plan: string; source: EnrollmentSource; status: EnrollmentStatus; startsAt: string; expiresAt: string | null; revokedReason: string | null }[];
   certificates: { id: string; code: string; programTitle: string; status: string; issuedAt: string }[];
   sessions: { id: string; device: string; signedInAt: string; lastActiveAt: string }[];
 };
 
 export type StudentUpdate = Partial<{ firstName: string; lastName: string | null; certificateName: string | null; phone: string | null; country: string }>;
+
+export type EnrollmentStatus = 'active' | 'expired' | 'revoked';
+export type EnrollmentSource = 'purchase' | 'manual' | 'complimentary';
+
+/** List rows: the student's email arrives masked. Status is computed (active past its end date = expired). */
+export type EnrollmentRow = {
+  id: string;
+  userId: string;
+  planId: string;
+  plan: string;
+  source: EnrollmentSource;
+  status: EnrollmentStatus;
+  orderId: string | null;
+  startsAt: string;
+  expiresAt: string | null;
+  revokedAt: string | null;
+  revokedReason: string | null;
+  student: { id: string; firstName: string; lastName: string | null; email: string };
+  grantedBy: StaffRef | null;
+};
+
+export type EnrollmentListMeta = PageMeta & { counts: Record<EnrollmentStatus, number> };
+
+export type EnrollmentPlan = { id: string; name: string; status: string; accessDays: number | null };
+
+/** `expiresOn` omitted = the plan's default period; null = lifetime; YYYY-MM-DD = until the end of that day (IST). */
+export type EnrollmentGrant = { userId: string; planId: string; source: 'manual' | 'complimentary'; expiresOn?: string | null; reason: string };
 
 export type TeamMember = {
   id: string;
@@ -155,6 +182,15 @@ export const adminApi = {
     unsuspend: (id: string) => api.post<{ ok: true }>(`/admin/students/${id}/unsuspend`).then((r) => r.data),
     revokeSessions: (id: string) => api.post<{ ok: true; revoked: number }>(`/admin/students/${id}/sessions/revoke`).then((r) => r.data),
     passwordReset: (id: string) => api.post<{ ok: true }>(`/admin/students/${id}/password-reset`).then((r) => r.data),
+  },
+  enrollments: {
+    list: (params: Record<string, string | undefined>) =>
+      api.get<EnrollmentRow[]>(`/admin/enrollments${qs(params)}`).then((r) => ({ rows: r.data, meta: r.meta as EnrollmentListMeta })),
+    plans: () => api.get<EnrollmentPlan[]>('/admin/enrollments/plans').then((r) => r.data),
+    grant: (body: EnrollmentGrant) => api.post<{ id: string; expiresAt: string | null }>('/admin/enrollments', body).then((r) => r.data),
+    setEnd: (id: string, expiresOn: string | null) => api.patch<{ id: string; expiresAt: string | null }>(`/admin/enrollments/${id}`, { expiresOn }).then((r) => r.data),
+    revoke: (id: string, reason: string) => api.post<{ id: string }>(`/admin/enrollments/${id}/revoke`, { reason }).then((r) => r.data),
+    exportUrl: (params: Record<string, string | undefined>) => `/api/v1/admin/enrollments/export.csv${qs(params)}`,
   },
   team: {
     list: () => api.get<TeamMember[]>('/admin/team').then((r) => r.data),

@@ -11,6 +11,7 @@ import { maskEmail, maskPhone } from '../../lib/mask';
 import { describeDevice } from '../../lib/userAgent';
 import { validate } from '../../lib/validate';
 import type { AppEnv } from '../../types';
+import { liveEnrollment } from '../../services/enrollments';
 import { profileUpdate } from '../me';
 
 const countryCodes = REGISTER_COUNTRIES.map((c) => c.code) as [string, ...string[]];
@@ -46,7 +47,7 @@ export const adminStudentRoutes = new Hono<AppEnv>()
     const enrolledSub = db
       .select({ one: enrollments.id })
       .from(enrollments)
-      .where(and(eq(enrollments.userId, users.id), eq(enrollments.status, 'active')));
+      .where(and(eq(enrollments.userId, users.id), liveEnrollment(new Date())));
 
     const where: SQL[] = [eq(users.role, 'student'), isNull(users.deletedAt)];
     if (q.status) where.push(eq(users.status, q.status));
@@ -146,7 +147,13 @@ export const adminStudentRoutes = new Hono<AppEnv>()
         whatsappOptIn: s.whatsappOptInAt !== null,
         lastLoginAt: iso(s.lastLoginAt),
         createdAt: s.createdAt.toISOString(),
-        enrollments: enrollmentRows.map((e) => ({ ...e, startsAt: e.startsAt.toISOString(), expiresAt: iso(e.expiresAt) })),
+        enrollments: enrollmentRows.map((e) => ({
+          ...e,
+          // Past its end date but not yet flipped by the maintenance cron.
+          status: e.status === 'active' && e.expiresAt && e.expiresAt <= new Date() ? 'expired' : e.status,
+          startsAt: e.startsAt.toISOString(),
+          expiresAt: iso(e.expiresAt),
+        })),
         certificates: certificateRows.map((x) => ({ ...x, issuedAt: x.issuedAt.toISOString() })),
         // Device only: the raw IP stays out of the admin UI.
         sessions: sessionRows.map((x) => ({ id: x.id, device: describeDevice(x.userAgent), signedInAt: x.createdAt.toISOString(), lastActiveAt: x.updatedAt.toISOString() })),

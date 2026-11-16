@@ -30,6 +30,12 @@ const ICONS: Record<AdminNavItem['icon'], ReactNode> = {
       <path d="M7 11v4c3 2 7 2 10 0v-4" />
     </svg>
   ),
+  enrollments: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+      <rect x="4" y="3.5" width="16" height="17" rx="2" />
+      <path d="M8 9h8M8 13h4M13.5 16l1.8 1.8L19 14" />
+    </svg>
+  ),
   team: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
       <circle cx="9" cy="8" r="3" />

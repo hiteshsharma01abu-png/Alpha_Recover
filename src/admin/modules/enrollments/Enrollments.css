@@ -1,0 +1,103 @@
+.adm-enr-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.adm-enr-bar .adm-tabs {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.adm-enr-student {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.adm-enr-student:hover {
+  text-decoration: underline;
+}
+
+.adm-enr-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* Grant dialog: student search + picked student */
+.adm-enr-search {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.adm-enr-results {
+  display: grid;
+  gap: 0.25rem;
+  max-height: 220px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.adm-enr-results button {
+  display: grid;
+  width: 100%;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--adm-line);
+  border-radius: 8px;
+  background: var(--adm-bg);
+  color: var(--adm-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.adm-enr-results button:hover,
+.adm-enr-results button:focus-visible {
+  border-color: var(--adm-accent);
+}
+
+.adm-enr-results span {
+  font-size: 0.82rem;
+  color: var(--adm-text-2);
+}
+
+.adm-enr-picked {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--adm-line);
+  border-radius: 8px;
+  background: var(--adm-surface-2);
+  color: var(--adm-text);
+}
+
+.adm-enr-picked .adm-sub {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--adm-text-2);
+}
+
+.adm-dialog-body label.adm-enr-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.adm-dialog-body .adm-enr-check input {
+  width: auto;
+  min-height: 0;
+}
+
+.adm .adm-enr-warn {
+  padding: 0.55rem 0.75rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--adm-warning) 14%, transparent);
+  color: var(--adm-text);
+}

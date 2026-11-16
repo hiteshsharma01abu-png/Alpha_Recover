@@ -11,12 +11,12 @@ import { adminApi } from '../../lib/adminApi';
 import type { StudentDetail } from '../../lib/adminApi';
 import { ago, countryName, formatDate, formatIst } from '../../lib/format';
 import { useResource } from '../../lib/useResource';
+import { EndDateDialog, GrantDialog, RevokeDialog } from '../enrollments/EnrollmentDialogs';
+import { SOURCE_LABEL, STATUS_LABEL, STATUS_TONE } from '../enrollments/enrollmentDisplay';
 import './Students.css';
 
 type Action = 'suspend' | 'unsuspend' | 'signout' | 'reset' | null;
-
-const ENROLLMENT_TONE: Record<string, 'success' | 'muted' | 'danger'> = { active: 'success', expired: 'muted', revoked: 'danger' };
-const SOURCE_LABEL: Record<string, string> = { purchase: 'Purchase', manual: 'Granted by staff', complimentary: 'Complimentary' };
+type EnrollmentAction = { kind: 'grant' } | { kind: 'end' | 'revoke'; enrollment: StudentDetail['enrollments'][number] } | null;
 
 const message = (err: unknown, fallback: string) => (err instanceof ApiError ? err.message : fallback);
 
@@ -54,6 +54,12 @@ function StudentView({ s, reload }: { s: StudentDetail; reload: () => void }) {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [editing, setEditing] = useState(false);
+  const [access, setAccess] = useState<EnrollmentAction>(null);
+  const accessDone = (text: string) => {
+    setAccess(null);
+    setNotice(text);
+    reload();
+  };
 
   const run = (task: () => Promise<unknown>, done: string) => {
     setBusy(true);
@@ -189,24 +195,45 @@ function StudentView({ s, reload }: { s: StudentDetail; reload: () => void }) {
         </section>
 
         <section className="adm-panel adm-panel-wide">
-          <h3>Course access</h3>
+          <div className="adm-panel-head">
+            <h3>Course access</h3>
+            {can('enrollments.add') ? (
+              <button type="button" className="adm-btn" onClick={() => setAccess({ kind: 'grant' })}>
+                + Grant access
+              </button>
+            ) : null}
+          </div>
           {s.enrollments.length ? (
             <ul className="adm-list">
               {s.enrollments.map((e) => (
                 <li key={e.id}>
                   <span className="adm-list-row">
                     <strong>{e.plan}</strong>
-                    <StatusBadge tone={ENROLLMENT_TONE[e.status] ?? 'muted'}>{e.status[0].toUpperCase() + e.status.slice(1)}</StatusBadge>
+                    <StatusBadge tone={STATUS_TONE[e.status]}>{STATUS_LABEL[e.status]}</StatusBadge>
+                    {e.status === 'active' && (can('enrollments.edit') || can('enrollments.revoke')) ? (
+                      <span className="adm-list-actions">
+                        {can('enrollments.edit') ? (
+                          <button type="button" className="adm-btn" onClick={() => setAccess({ kind: 'end', enrollment: e })}>
+                            Change end
+                          </button>
+                        ) : null}
+                        {can('enrollments.revoke') ? (
+                          <button type="button" className="adm-btn adm-btn-danger-outline" onClick={() => setAccess({ kind: 'revoke', enrollment: e })}>
+                            Revoke
+                          </button>
+                        ) : null}
+                      </span>
+                    ) : null}
                   </span>
                   <span className="adm-sub">
-                    {SOURCE_LABEL[e.source] ?? e.source} · from {formatDate(e.startsAt)} · {e.expiresAt ? `until ${formatDate(e.expiresAt)}` : 'lifetime access'}
+                    {SOURCE_LABEL[e.source]} · from {formatDate(e.startsAt)} · {e.expiresAt ? `until ${formatDate(e.expiresAt)}` : 'lifetime access'}
                     {e.revokedReason ? ` · revoked: ${e.revokedReason}` : ''}
                   </span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="adm-muted">No course access yet. Purchases (and staff grants) will appear here.</p>
+            <p className="adm-muted">No course access yet. Purchases and staff grants appear here.</p>
           )}
         </section>
 
@@ -232,6 +259,11 @@ function StudentView({ s, reload }: { s: StudentDetail; reload: () => void }) {
         </section>
       </div>
 
+      {access?.kind === 'grant' ? <GrantDialog student={{ id: s.id, name: fullName, email: s.email }} onClose={() => setAccess(null)} onDone={accessDone} /> : null}
+      {access?.kind === 'end' ? <EndDateDialog enrollment={access.enrollment} onClose={() => setAccess(null)} onDone={accessDone} /> : null}
+      {access?.kind === 'revoke' ? (
+        <RevokeDialog enrollment={{ ...access.enrollment, studentName: fullName }} onClose={() => setAccess(null)} onDone={accessDone} />
+      ) : null}
       <Dialog
         open={action === 'suspend'}
         title={`Suspend ${s.firstName}?`}

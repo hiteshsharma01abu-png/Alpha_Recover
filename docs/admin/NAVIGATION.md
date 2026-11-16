@@ -1,6 +1,6 @@
 # Alpha Recover — Admin Panel Navigation & Modules
 
-**Last reviewed:** 2026-11-14 · **Status:** Proposal · built so far: Dashboard, Leads & Inquiries, Students, Activity Log, Team & Access
+**Last reviewed:** 2026-11-16 · **Status:** Proposal · built so far: Dashboard, Leads & Inquiries, Students, Enrollments, Activity Log, Team & Access
 **Related:** [ARCHITECTURE.md](ARCHITECTURE.md) · [AUTH_AND_RBAC.md](AUTH_AND_RBAC.md) (permission strings) · [UI_UX.md](UI_UX.md) (sidebar behaviour) · [../API.md](../API.md) §10–14
 
 ## 1. How the proposed list was finalized against the real project
@@ -37,7 +37,7 @@ SALES
   ▸ Orders & Payments          (P1) /admin/orders
 LEARNERS
   ▸ Students                        /admin/students
-  ▸ Enrollments                (P1) /admin/enrollments
+  ▸ Enrollments                     /admin/enrollments
   ▸ Certificates                    /admin/certificates
 CONTENT
   ▸ Courses & Training              /admin/courses
@@ -63,7 +63,7 @@ Footer of the sidebar: the signed-in user, their role badge, and **View website 
 | `/admin/leads` · `/admin/leads?lead=:id` (drawer) | Leads list · detail (**built**; filters, page and the open lead live in the query string) | `leads.view` |
 | `/admin/orders` · `/admin/orders/:id` | Orders list · detail (payments, webhook events, refund) | `orders.view` |
 | `/admin/students` · `/admin/students/:id` | Students · detail (**built** as one page: profile, course access, certificates, devices; orders arrive with Phase 5) | `students.view` |
-| `/admin/enrollments` | Enrollments | `enrollments.view` |
+| `/admin/enrollments` | Enrollments (**built**: status tabs, filters in the query string, grant / change end / revoke dialogs, also used on the student page) | `enrollments.view` |
 | `/admin/certificates` | Certificates | `certificates.view` |
 | `/admin/courses` · `/admin/courses/:id` | Tracks · editor (modules, lessons, reorder) | `courses.view` |
 | `/admin/plans` · `/admin/plans/:id` · `/admin/plans/:id/promotions` | Plans · editor · promotions | `plans.view` |

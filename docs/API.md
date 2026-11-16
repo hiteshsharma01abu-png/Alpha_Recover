@@ -2,7 +2,7 @@
 
 **Base URL:** `/api/v1` (same origin as the SPA; Node.js + Hono, host-portable: cPanel Node.js App, VPS, or Vercel during development)
 **Format:** JSON (UTF-8). Request bodies are validated with Zod schemas shared from `shared/schemas/`.
-**Last reviewed:** 2026-11-13 · **Status:** Proposal · Related: [DATABASE.md](DATABASE.md) · [SECURITY.md](SECURITY.md)
+**Last reviewed:** 2026-11-16 · **Status:** Proposal · Related: [DATABASE.md](DATABASE.md) · [SECURITY.md](SECURITY.md)
 
 ---
 
@@ -311,13 +311,19 @@ The featured video is excluded from the list and from `counts` (matching current
 | PATCH | `/admin/leads/:id` | `leads.edit` | Strict `{ status?, assignedTo?: id \| null }`. Writes `status_change` / `assignment` notes in the same transaction; the assignee must be active staff with `leads.view` (else 400 on `assignedTo`); no-op updates write nothing. Audit `leads.update` |
 | POST | `/admin/leads/:id/notes` | `leads.edit` | `{ type: note\|call\|email\|whatsapp, body (1–5000) }` → 201. Audit `leads.note` |
 | GET | `/admin/leads/export.csv` | `leads.export` | Same filters as the list, full contact data, UTF-8 BOM (Excel), max 50,000 rows, cells starting with `= + - @` are prefixed with `'` (formula injection). Audit `leads.export` with the row count. Step-up confirmation comes with staff 2FA |
-| GET | `/admin/students` | `students.view` | **Implemented.** Students only (`role = student`). Filters `q` (name/email; phone digits when ≥ 4), `status`, `country`, `enrolled` (`yes`/`no`: has an active enrollment), `verified`; `page`, `pageSize` ≤ 100, `sort` (`-createdAt`, `createdAt`, `name`, `-lastLoginAt`). Email and phone masked |
-| GET | `/admin/students/:id` | `students.view` | Full profile, enrollments (with plan), certificates, live sessions (device name only, no IP). Staff ids → 404 |
+| GET | `/admin/students` | `students.view` | **Implemented.** Students only (`role = student`). Filters `q` (name/email; phone digits when ≥ 4), `status`, `country`, `enrolled` (`yes`/`no`: has an active, unexpired enrollment), `verified`; `page`, `pageSize` ≤ 100, `sort` (`-createdAt`, `createdAt`, `name`, `-lastLoginAt`). Email and phone masked |
+| GET | `/admin/students/:id` | `students.view` | Full profile, enrollments (with plan; an active one past its end date is reported `expired`), certificates, live sessions (device name only, no IP). Staff ids → 404 |
 | PATCH | `/admin/students/:id` | `students.edit` | Strict `{ firstName?, lastName?, certificateName?, phone?, country? }` (same rules as `PATCH /me`); returns `changed[]`. Audit `students.update` with before/after |
 | POST | `/admin/students/:id/suspend` | `students.edit` | `{ reason (3–500) }`. Sets `suspended` and deletes all sessions. Audit `students.suspend` |
 | POST | `/admin/students/:id/unsuspend` | `students.edit` | Audit `students.unsuspend` |
 | POST | `/admin/students/:id/sessions/revoke` | `students.edit` | Signs out every device; returns `revoked`. Audit |
 | POST | `/admin/students/:id/password-reset` | `students.edit` | Queues the normal reset email (1-hour link). 422 while suspended. Audit |
+| GET | `/admin/enrollments` | `enrollments.view` | **Implemented.** Newest first. Filters `status` (`active` \| `expired` \| `revoked`, computed: an active row past `expires_at` counts as expired before the cron flips it), `source`, `planId`, `userId`, `q` (student name/email); `page`, `pageSize` ≤ 100. Student email masked. `meta.counts` gives per-status totals for the tabs |
+| GET | `/admin/enrollments/plans` | `enrollments.view` | Non-deleted plans (drafts included) with `accessDays`, for the filter and the grant dialog |
+| GET | `/admin/enrollments/export.csv` | `enrollments.export` | Same filters; full email, BOM, formula escaping, max 50,000 rows. Audit `enrollments.export` |
+| POST | `/admin/enrollments` | `enrollments.add` | Strict `{ userId, planId, source: manual\|complimentary, expiresOn?, reason (3–500) }` → 201. `expiresOn` omitted = the plan's `accessDays` (null = lifetime); `null` = lifetime; `YYYY-MM-DD` = until the end of that IST day (must be in the future). Students only (staff id → 404). An active grant for the same plan → 409; an active row already past its end is closed as expired first. Audit `enrollments.grant` with the reason |
+| PATCH | `/admin/enrollments/:id` | `enrollments.edit` | `{ expiresOn: YYYY-MM-DD \| null }`: extend, shorten or make lifetime. Active enrollments only (else 422). Audit `enrollments.update` with before/after |
+| POST | `/admin/enrollments/:id/revoke` | `enrollments.revoke` | `{ reason (3–500) }`. Ends access immediately; does not refund. Already revoked/expired → 422. Audit `enrollments.revoke` |
 | GET | `/admin/team` | `team.view` | **Implemented.** Staff accounts with `roleLabel`, `status`, `invitePending` (never signed in), live `sessions` count |
 | POST | `/admin/team` | `team.add` | Strict `{ email, firstName, role (staff role) }`. New email → account created (verified, unusable random password) and a `staff_invite` email with a set-password link valid **3 days**; existing student → promoted (signed out); existing staff → 409. Audit `team.invite` / `team.role_change` |
 | POST | `/admin/team/:id/resend-invite` | `team.add` | New link (old one invalidated); 422 once the person has signed in. Audit |
@@ -348,9 +354,6 @@ Every admin mutation writes `activity_logs`. Lists support `page`, `pageSize`, `
 | PATCH/DELETE | `/admin/promotions/:id` | `plans.write` | Edit / end now / soft delete |
 | GET/POST | `/admin/demo-videos` | `demos.*` | |
 | PATCH/DELETE | `/admin/demo-videos/:id` | `demos.write` | Includes setting `isFeatured` (unsets the previous one) |
-| GET | `/admin/enrollments` | `enrollments.read` | `?status&source&planId` |
-| POST | `/admin/enrollments` | `enrollments.write` | Manual / complimentary grant `{ userId, planId, source, expiresAt?, reason }` |
-| POST | `/admin/enrollments/:id/revoke` | `enrollments.write` | `{ reason }` |
 | GET | `/admin/orders` | `orders.read` | `?status&from&to&q(orderNumber/email)` |
 | GET | `/admin/orders/:id` | `orders.read` | Order + payments + webhook events |
 | POST | `/admin/orders/:id/refund` | `orders.refund` | `{ amountPaise?, reason }` → Razorpay refund API |

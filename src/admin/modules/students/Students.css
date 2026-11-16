@@ -142,6 +142,26 @@
   gap: 0.5rem;
 }
 
+.adm-list-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-left: auto;
+}
+
+.adm-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
+}
+
+.adm-panel .adm-panel-head h3 {
+  margin: 0;
+}
+
 .adm-profile-form {
   display: grid;
   gap: 0.9rem;
