@@ -232,6 +232,38 @@ export type EmailJob = {
   retryBlockedReason: string | null;
 };
 
+export type BlogState = 'draft' | 'scheduled' | 'published';
+
+export type BlogInput = {
+  title: string;
+  slug: string;
+  excerpt: string;
+  bodyMarkdown: string;
+  coverImageUrl: string | null;
+  seoTitle: string | null;
+  seoDescription: string | null;
+};
+
+export type BlogRow = Pick<BlogInput, 'title' | 'slug' | 'excerpt' | 'coverImageUrl'> & {
+  id: string;
+  state: BlogState;
+  words: number;
+  author: StaffRef | null;
+  publishedAt: string | null;
+  updatedAt: string;
+};
+
+export type BlogDetail = BlogInput & {
+  id: string;
+  state: BlogState;
+  /** Once published, the slug (web address) can't change. */
+  slugLocked: boolean;
+  author: StaffRef | null;
+  publishedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type TeamMember = {
   id: string;
   firstName: string;
@@ -328,6 +360,17 @@ export const adminApi = {
     list: (params: Record<string, string | undefined>) =>
       api.get<EmailJob[]>(`/admin/notifications${qs(params)}`).then((r) => ({ rows: r.data, meta: r.meta as PageMeta & { counts: Record<EmailState, number>; stalledSince: string | null } })),
     retry: (id: string) => api.post<{ ok: true }>(`/admin/notifications/${id}/retry`).then((r) => r.data),
+  },
+  blog: {
+    list: (params: Record<string, string | undefined>) =>
+      api.get<BlogRow[]>(`/admin/blog${qs(params)}`).then((r) => ({ rows: r.data, meta: r.meta as PageMeta & { counts: Record<BlogState, number> } })),
+    get: (id: string) => api.get<BlogDetail>(`/admin/blog/${id}`).then((r) => r.data),
+    create: (body: BlogInput) => api.post<{ id: string }>('/admin/blog', body).then((r) => r.data),
+    update: (id: string, body: Partial<BlogInput>) => api.patch<{ ok: true; changed: string[] }>(`/admin/blog/${id}`, body).then((r) => r.data),
+    /** `publishAt` "YYYY-MM-DDTHH:mm" in IST schedules; omitted = now. */
+    publish: (id: string, publishAt?: string) => api.post<{ state: BlogState; publishedAt: string }>(`/admin/blog/${id}/publish`, publishAt ? { publishAt } : {}).then((r) => r.data),
+    unpublish: (id: string) => api.post<{ state: BlogState }>(`/admin/blog/${id}/unpublish`).then((r) => r.data),
+    remove: (id: string) => api.delete<{ ok: true }>(`/admin/blog/${id}`).then((r) => r.data),
   },
   team: {
     list: () => api.get<TeamMember[]>('/admin/team').then((r) => r.data),

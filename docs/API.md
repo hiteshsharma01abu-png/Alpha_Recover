@@ -338,6 +338,13 @@ The featured video is excluded from the list and from `counts` (matching current
 | POST | `/admin/demo-videos` | `demos.add` | Strict `{ slug, title, tag, category, level, description, durationSeconds, status, tags?, thumbnailUrl?, sortOrder?, isFeatured? }` → 201. Slug unique forever (409). `thumbnailUrl` must be a `/assets/…` path or an `https://` URL. Publishing stamps `publishedAt`. Audit `demos.create` |
 | PATCH | `/admin/demo-videos/:id` | `demos.edit` | Any field except `slug` (400). `isFeatured: true` needs a published video (400) and unfeatures the previous one in the same transaction; unpublishing clears it. First publish stamps `publishedAt`. Returns `changed[]`. Audit `demos.update` with before/after |
 | DELETE | `/admin/demo-videos/:id` | `demos.delete` | Soft delete (archived, unfeatured, off the site; slug stays reserved). Audit `demos.delete` |
+| GET | `/admin/blog` | `blog.view` | **Implemented.** Non-deleted posts, last edited first. `state` (`draft` \| `scheduled` \| `published`, computed from status + `publishedAt`), `q` (title/slug), `page`, `pageSize` ≤ 100. Rows include `words` and the author. `meta.counts` per state |
+| GET | `/admin/blog/:id` | `blog.view` | Full post incl. `bodyMarkdown`, SEO fields, `slugLocked` (true once ever published) |
+| POST | `/admin/blog` | `blog.add` | Strict `{ title, slug, excerpt (20–400), bodyMarkdown? (≤ 60,000), coverImageUrl? (/assets/… or https), seoTitle? (≤ 70), seoDescription? (≤ 160) }` → 201, always a **draft**; author = you. Slug unique forever (409). Audit `blog.create` |
+| PATCH | `/admin/blog/:id` | `blog.edit` | Same fields, partial; never changes status. Slug changes only while never published (422 after). Audit `blog.update` (body diff recorded as word counts) |
+| POST | `/admin/blog/:id/publish` | `blog.publish` | `{ publishAt? }` (`YYYY-MM-DDTHH:mm` IST): future = scheduled (hidden until then), omitted = now, or the original date for a post that was live before. Empty body → 422. Audit `blog.publish` / `blog.schedule` |
+| POST | `/admin/blog/:id/unpublish` | `blog.publish` | Back to draft; `publishedAt` kept (slug stays locked). Audit `blog.unpublish` |
+| DELETE | `/admin/blog/:id` | `blog.delete` | Soft delete (off the site; slug reserved). Audit `blog.delete` |
 | GET | `/admin/team` | `team.view` | **Implemented.** Staff accounts with `roleLabel`, `status`, `invitePending` (never signed in), live `sessions` count |
 | POST | `/admin/team` | `team.add` | Strict `{ email, firstName, role (staff role) }`. New email → account created (verified, unusable random password) and a `staff_invite` email with a set-password link valid **3 days**; existing student → promoted (signed out); existing staff → 409. Audit `team.invite` / `team.role_change` |
 | POST | `/admin/team/:id/resend-invite` | `team.add` | New link (old one invalidated); 422 once the person has signed in. Audit |
@@ -374,9 +381,6 @@ Every admin mutation writes `activity_logs`. Lists support `page`, `pageSize`, `
 
 | Method | Endpoint | Permission | Purpose |
 |---|---|---|---|
-| GET/POST | `/admin/blog` | `blog.*` | List / create post |
-| GET/PATCH/DELETE | `/admin/blog/:id` | `blog.write` | Edit / soft delete |
-| POST | `/admin/blog/:id/publish` · `/unpublish` | `blog.publish` | Sets `published_at` |
 | POST | `/admin/media/upload-url` | `blog.write` / `demos.write` | Signed upload for images (thumbnails, covers) to Bunny Storage; returns a public CDN URL |
 
 Validation: unique slug (`^[a-z0-9-]{3,120}$`), title ≤ 200, excerpt ≤ 400, SEO lengths. Markdown is sanitized on render (no raw HTML).

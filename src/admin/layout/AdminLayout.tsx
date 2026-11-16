@@ -48,6 +48,7 @@ const ICONS: Record<AdminNavItem['icon'], ReactNode> = {
       <path d="M10 9.2v5.6l4.6-2.8z" />
     </svg>
   ),
+  blog: <AdmIcon name="book" size={20} />,
   settings: <AdmIcon name="settings" size={20} />,
   email: <AdmIcon name="mail" size={20} />,
   team: (

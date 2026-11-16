@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { requireStaffAny } from '../../auth/middleware';
 import type { AppEnv } from '../../types';
 import { adminActivityRoutes } from './activity';
+import { adminBlogRoutes } from './blog';
 import { adminDashboardRoutes } from './dashboard';
 import { adminDemoVideoRoutes } from './demoVideos';
 import { adminEnrollmentRoutes } from './enrollments';
@@ -27,6 +28,7 @@ export const adminRoutes = new Hono<AppEnv>()
   .route('/', adminEnrollmentRoutes)
   .route('/', adminPlanRoutes)
   .route('/', adminDemoVideoRoutes)
+  .route('/', adminBlogRoutes)
   .route('/', adminSettingsRoutes)
   .route('/', adminNotificationRoutes)
   .route('/', adminTeamRoutes)

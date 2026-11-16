@@ -6,6 +6,7 @@ import { requireStaff } from '../../auth/middleware';
 import type { Database } from '../../db';
 import { PUBLISH_STATUSES, courses, enrollments, planCourses, plans, promotions } from '../../db/schema';
 import { AppError } from '../../lib/errors';
+import { istDateTime } from '../../lib/inputs';
 import { validate } from '../../lib/validate';
 import { liveEnrollment } from '../../services/enrollments';
 import { priceFor } from '../../services/pricing';
@@ -40,19 +41,6 @@ function checkPlan(p: { pricePaise: number; compareAtPaise: number | null; featu
   if (!p.grantsAllCourses && !p.courseIds.length) details.push({ path: 'courseIds', message: 'Pick at least one course, or grant all courses' });
   if (details.length) throw new AppError('VALIDATION_ERROR', details[0].message, { details });
 }
-
-/** "2026-11-30T23:59" in India time. The admin UI always works in IST (docs/admin/UI_UX.md). */
-const istDateTime = z
-  .string()
-  .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, 'Use YYYY-MM-DDTHH:mm (IST)')
-  .transform((s, ctx) => {
-    const d = new Date(`${s}:00+05:30`);
-    if (Number.isNaN(d.getTime())) {
-      ctx.addIssue({ code: 'custom', message: 'Not a valid date' });
-      return z.NEVER;
-    }
-    return d;
-  });
 
 const promotionFields = z.object({
   label: z.string().trim().min(2, 'Enter a label').max(120),

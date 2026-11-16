@@ -9,6 +9,8 @@ import { RequireStaff } from './auth/RequireStaff';
 import { AdminLayout } from './layout/AdminLayout';
 import { DashboardPage } from './modules/dashboard/DashboardPage';
 import { ActivityPage } from './modules/activity/ActivityPage';
+import { BlogEditorPage } from './modules/blog/BlogEditorPage';
+import { BlogListPage } from './modules/blog/BlogListPage';
 import { DemoVideosPage } from './modules/demos/DemoVideosPage';
 import { EnrollmentsPage } from './modules/enrollments/EnrollmentsPage';
 import { LeadsPage } from './modules/leads/LeadsPage';
@@ -31,6 +33,9 @@ const GUARDED: [path: string, perm: Permission, Page: ComponentType][] = [
   ['plans/new', 'plans.add', PlanEditorPage],
   ['plans/:id', 'plans.view', PlanEditorPage],
   ['demo-videos', 'demos.view', DemoVideosPage],
+  ['blog', 'blog.view', BlogListPage],
+  ['blog/new', 'blog.add', BlogEditorPage],
+  ['blog/:id', 'blog.view', BlogEditorPage],
   ['activity', 'audit.view', ActivityPage],
   ['team', 'team.view', TeamPage],
   ['notifications', 'notifications.view', EmailLogPage],

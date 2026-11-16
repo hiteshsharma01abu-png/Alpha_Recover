@@ -6,17 +6,11 @@ import { requireStaff } from '../../auth/middleware';
 import type { Database } from '../../db';
 import { DEMO_CATEGORIES, PUBLISH_STATUSES, SKILL_LEVELS, demoVideos } from '../../db/schema';
 import { AppError } from '../../lib/errors';
+import { siteImageUrl } from '../../lib/inputs';
 import { validate } from '../../lib/validate';
 import type { AppEnv } from '../../types';
 
 const idParam = z.object({ id: z.uuid() });
-
-/** A bundled site image ("/assets/…") or an https URL (Bunny CDN once uploads exist). */
-const imageUrl = z
-  .string()
-  .trim()
-  .max(500)
-  .regex(/^(\/assets\/[\w./-]+|https:\/\/[^\s"'<>]+)$/, 'Use a /assets/… path or an https:// URL');
 
 const fields = z.object({
   title: z.string().trim().min(3, 'Enter a title').max(200),
@@ -26,7 +20,7 @@ const fields = z.object({
   description: z.string().trim().min(10, 'Write a short description').max(2000),
   tags: z.array(z.string().trim().min(1).max(40)).max(12),
   durationSeconds: z.number().int().min(1, 'Enter the length').max(6 * 3600),
-  thumbnailUrl: imageUrl.nullable(),
+  thumbnailUrl: siteImageUrl.nullable(),
   status: z.enum(PUBLISH_STATUSES),
   sortOrder: z.number().int().min(0).max(1000),
   /** Only one video is featured; featuring this one unfeatures the other. Published videos only. */
