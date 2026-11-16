@@ -345,6 +345,12 @@ The featured video is excluded from the list and from `counts` (matching current
 | POST | `/admin/blog/:id/publish` | `blog.publish` | `{ publishAt? }` (`YYYY-MM-DDTHH:mm` IST): future = scheduled (hidden until then), omitted = now, or the original date for a post that was live before. Empty body → 422. Audit `blog.publish` / `blog.schedule` |
 | POST | `/admin/blog/:id/unpublish` | `blog.publish` | Back to draft; `publishedAt` kept (slug stays locked). Audit `blog.unpublish` |
 | DELETE | `/admin/blog/:id` | `blog.delete` | Soft delete (off the site; slug reserved). Audit `blog.delete` |
+| GET | `/admin/certificates` | `certificates.view` | **Implemented.** Newest issue first. Filters `status` (`valid` \| `revoked`), `q` (code, recipient name or student email), `userId`, `from`/`to` (IST days); `page`, `pageSize` ≤ 100. Student email masked. `meta.counts` per status |
+| GET | `/admin/certificates/programs` | `certificates.view` | Plans and courses for the program picker |
+| GET | `/admin/certificates/export.csv` | `certificates.export` | Same filters; full email, BOM, formula escaping, max 50,000 rows. Audit `certificates.export` |
+| POST | `/admin/certificates` | `certificates.add` | Manual issue. Strict `{ userId, programTitle, planId?, courseId?, recipientName?, issuedOn? }` → 201 `{ id, code, recipientName }`. Students only (404). `recipientName` defaults to the student's certificate name, else first + last. `issuedOn` (IST day, not future; 400) records an earlier batch, and the code's year follows it. Code from the gap-free per-year sequence. A valid certificate for the same student + program → 409. Audit `certificates.issue`. No PDF or email yet (Phase 4) |
+| PATCH | `/admin/certificates/:id` | `certificates.edit` | `{ recipientName }`: correct a misspelling; same code. Revoked → 422. Audit `certificates.update` with before/after |
+| POST | `/admin/certificates/:id/revoke` | `certificates.revoke` | `{ reason (3–500) }`. Public verify then shows `revoked` (never the reason). Already revoked → 422. Audit `certificates.revoke` |
 | GET | `/admin/team` | `team.view` | **Implemented.** Staff accounts with `roleLabel`, `status`, `invitePending` (never signed in), live `sessions` count |
 | POST | `/admin/team` | `team.add` | Strict `{ email, firstName, role (staff role) }`. New email → account created (verified, unusable random password) and a `staff_invite` email with a set-password link valid **3 days**; existing student → promoted (signed out); existing staff → 409. Audit `team.invite` / `team.role_change` |
 | POST | `/admin/team/:id/resend-invite` | `team.add` | New link (old one invalidated); 422 once the person has signed in. Audit |
@@ -373,9 +379,7 @@ Every admin mutation writes `activity_logs`. Lists support `page`, `pageSize`, `
 | GET | `/admin/orders/:id` | `orders.read` | Order + payments + webhook events |
 | POST | `/admin/orders/:id/refund` | `orders.refund` | `{ amountPaise?, reason }` → Razorpay refund API |
 | POST | `/admin/orders/:id/reconcile` | `orders.refund` | Re-fetch from Razorpay and re-run `activateOrder` (for missed webhooks) |
-| GET/POST | `/admin/certificates` | `certificates.*` | List / manual issue `{ userId, planId|courseId, recipientName? }` |
-| POST | `/admin/certificates/:id/revoke` | `certificates.write` | `{ reason }` |
-| POST | `/admin/certificates/:id/regenerate-pdf` | `certificates.write` | After a name correction |
+| POST | `/admin/certificates/:id/regenerate-pdf` | `certificates.edit` | After a name correction (Phase 4, with PDFs) |
 
 ## 11. CMS APIs
 

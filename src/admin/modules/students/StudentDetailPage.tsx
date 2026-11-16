@@ -11,12 +11,18 @@ import { adminApi } from '../../lib/adminApi';
 import type { StudentDetail } from '../../lib/adminApi';
 import { ago, countryName, formatDate, formatIst } from '../../lib/format';
 import { useResource } from '../../lib/useResource';
+import { IssueCertificateDialog, RenameCertificateDialog, RevokeCertificateDialog } from '../certificates/CertificateDialogs';
 import { EndDateDialog, GrantDialog, RevokeDialog } from '../enrollments/EnrollmentDialogs';
 import { SOURCE_LABEL, STATUS_LABEL, STATUS_TONE } from '../enrollments/enrollmentDisplay';
 import './Students.css';
 
 type Action = 'suspend' | 'unsuspend' | 'signout' | 'reset' | null;
-type EnrollmentAction = { kind: 'grant' } | { kind: 'end' | 'revoke'; enrollment: StudentDetail['enrollments'][number] } | null;
+type EnrollmentAction =
+  | { kind: 'grant' }
+  | { kind: 'end' | 'revoke'; enrollment: StudentDetail['enrollments'][number] }
+  | { kind: 'issue-cert' }
+  | { kind: 'rename-cert' | 'revoke-cert'; cert: StudentDetail['certificates'][number] }
+  | null;
 
 const message = (err: unknown, fallback: string) => (err instanceof ApiError ? err.message : fallback);
 
@@ -238,7 +244,14 @@ function StudentView({ s, reload }: { s: StudentDetail; reload: () => void }) {
         </section>
 
         <section className="adm-panel adm-panel-wide">
-          <h3>Certificates</h3>
+          <div className="adm-panel-head">
+            <h3>Certificates</h3>
+            {can('certificates.add') ? (
+              <button type="button" className="adm-btn" onClick={() => setAccess({ kind: 'issue-cert' })}>
+                + Issue certificate
+              </button>
+            ) : null}
+          </div>
           {s.certificates.length ? (
             <ul className="adm-list">
               {s.certificates.map((x) => (
@@ -246,9 +259,23 @@ function StudentView({ s, reload }: { s: StudentDetail; reload: () => void }) {
                   <span className="adm-list-row">
                     <strong>{x.programTitle}</strong>
                     <StatusBadge tone={x.status === 'valid' ? 'success' : 'danger'}>{x.status === 'valid' ? 'Valid' : 'Revoked'}</StatusBadge>
+                    {x.status === 'valid' && (can('certificates.edit') || can('certificates.revoke')) ? (
+                      <span className="adm-list-actions">
+                        {can('certificates.edit') ? (
+                          <button type="button" className="adm-btn" onClick={() => setAccess({ kind: 'rename-cert', cert: x })}>
+                            Correct name
+                          </button>
+                        ) : null}
+                        {can('certificates.revoke') ? (
+                          <button type="button" className="adm-btn adm-btn-danger-outline" onClick={() => setAccess({ kind: 'revoke-cert', cert: x })}>
+                            Revoke
+                          </button>
+                        ) : null}
+                      </span>
+                    ) : null}
                   </span>
                   <span className="adm-sub">
-                    {x.code} · issued {formatDate(x.issuedAt)}
+                    {x.code} · {x.recipientName} · issued {formatDate(x.issuedAt)}
                   </span>
                 </li>
               ))}
@@ -259,6 +286,9 @@ function StudentView({ s, reload }: { s: StudentDetail; reload: () => void }) {
         </section>
       </div>
 
+      {access?.kind === 'issue-cert' ? <IssueCertificateDialog student={{ id: s.id, name: fullName, email: s.email }} onClose={() => setAccess(null)} onDone={accessDone} /> : null}
+      {access?.kind === 'rename-cert' ? <RenameCertificateDialog cert={access.cert} onClose={() => setAccess(null)} onDone={accessDone} /> : null}
+      {access?.kind === 'revoke-cert' ? <RevokeCertificateDialog cert={access.cert} onClose={() => setAccess(null)} onDone={accessDone} /> : null}
       {access?.kind === 'grant' ? <GrantDialog student={{ id: s.id, name: fullName, email: s.email }} onClose={() => setAccess(null)} onDone={accessDone} /> : null}
       {access?.kind === 'end' ? <EndDateDialog enrollment={access.enrollment} onClose={() => setAccess(null)} onDone={accessDone} /> : null}
       {access?.kind === 'revoke' ? (

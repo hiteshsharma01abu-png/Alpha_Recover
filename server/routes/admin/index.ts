@@ -3,6 +3,7 @@ import { requireStaffAny } from '../../auth/middleware';
 import type { AppEnv } from '../../types';
 import { adminActivityRoutes } from './activity';
 import { adminBlogRoutes } from './blog';
+import { adminCertificateRoutes } from './certificates';
 import { adminDashboardRoutes } from './dashboard';
 import { adminDemoVideoRoutes } from './demoVideos';
 import { adminEnrollmentRoutes } from './enrollments';
@@ -29,6 +30,7 @@ export const adminRoutes = new Hono<AppEnv>()
   .route('/', adminPlanRoutes)
   .route('/', adminDemoVideoRoutes)
   .route('/', adminBlogRoutes)
+  .route('/', adminCertificateRoutes)
   .route('/', adminSettingsRoutes)
   .route('/', adminNotificationRoutes)
   .route('/', adminTeamRoutes)

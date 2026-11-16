@@ -386,7 +386,7 @@
 
 ## 19. `certificates`
 
-> **Implemented (Phase 2)** with `certificate_sequences`: public verification works; issuing (eligibility, PDF, numbering via `allocateCertificateCode()` in `server/services/certificates.ts`) arrives in Phase 4. "plan_id and course_id not both null" is enforced by the issuing service rather than a CHECK constraint.
+> **Implemented (Phase 2)** with `certificate_sequences`: public verification works. **Manual issuing** by staff exists (`/admin/certificates`, numbering via `allocateCertificateCode()` in `server/services/certificates.ts`); automatic issuing on completion and PDFs arrive in Phase 4. `plan_id` / `course_id` link a certificate to the catalogue when it was picked from it; a manual certificate for a program outside the catalogue (e.g. an offline batch) leaves both null.
 
 | Column | Type | Notes |
 |---|---|---|
@@ -395,7 +395,7 @@
 | user_id | char(36) | FK → users.id, restrict |
 | plan_id | char(36) | FK → plans.id, null |
 | course_id | char(36) | FK → courses.id, null (per-course certificates, if chosen) |
-| recipient_name | varchar(160) | snapshot at issue (immutable) |
+| recipient_name | varchar(160) | snapshot at issue (doesn't follow profile changes); staff can correct a misspelling (`certificates.edit`, audited, same code) |
 | program_title | varchar(200) | snapshot ("Professional Data Recovery Training") |
 | issued_at | datetime(3) | not null |
 | status | enum `certificate_status` | `valid`, `revoked` |

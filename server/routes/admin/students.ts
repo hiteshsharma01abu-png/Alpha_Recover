@@ -122,7 +122,7 @@ export const adminStudentRoutes = new Hono<AppEnv>()
         .where(eq(enrollments.userId, s.id))
         .orderBy(desc(enrollments.startsAt)),
       db
-        .select({ id: certificates.id, code: certificates.code, programTitle: certificates.programTitle, status: certificates.status, issuedAt: certificates.issuedAt })
+        .select({ id: certificates.id, code: certificates.code, recipientName: certificates.recipientName, programTitle: certificates.programTitle, status: certificates.status, issuedAt: certificates.issuedAt })
         .from(certificates)
         .where(eq(certificates.userId, s.id))
         .orderBy(desc(certificates.issuedAt)),

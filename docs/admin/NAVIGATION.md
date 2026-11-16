@@ -1,6 +1,6 @@
 # Alpha Recover — Admin Panel Navigation & Modules
 
-**Last reviewed:** 2026-11-16 · **Status:** Proposal · built so far: Dashboard, Leads & Inquiries, Students, Enrollments, Plans & Offers, Demo Videos, Blog, Activity Log, Team & Access, Email Log, Settings
+**Last reviewed:** 2026-11-16 · **Status:** Proposal · built so far: Dashboard, Leads & Inquiries, Students, Enrollments, Certificates, Plans & Offers, Demo Videos, Blog, Activity Log, Team & Access, Email Log, Settings
 **Related:** [ARCHITECTURE.md](ARCHITECTURE.md) · [AUTH_AND_RBAC.md](AUTH_AND_RBAC.md) (permission strings) · [UI_UX.md](UI_UX.md) (sidebar behaviour) · [../API.md](../API.md) §10–14
 
 ## 1. How the proposed list was finalized against the real project
@@ -64,7 +64,7 @@ Footer of the sidebar: the signed-in user, their role badge, and **View website 
 | `/admin/orders` · `/admin/orders/:id` | Orders list · detail (payments, webhook events, refund) | `orders.view` |
 | `/admin/students` · `/admin/students/:id` | Students · detail (**built** as one page: profile, course access, certificates, devices; orders arrive with Phase 5) | `students.view` |
 | `/admin/enrollments` | Enrollments (**built**: status tabs, filters in the query string, grant / change end / revoke dialogs, also used on the student page) | `enrollments.view` |
-| `/admin/certificates` | Certificates | `certificates.view` |
+| `/admin/certificates` | Certificates (**built**: look up, manual issue, correct name, revoke, export; PDFs in Phase 4) | `certificates.view` |
 | `/admin/courses` · `/admin/courses/:id` | Tracks · editor (modules, lessons, reorder) | `courses.view` |
 | `/admin/plans` · `/admin/plans/new` · `/admin/plans/:id` | Plans · editor (**built**; promotions are a panel on the editor page, not a separate route) | `plans.view` (`plans.add` for new) |
 | `/admin/demo-videos` · `?video=:id` / `?video=new` (drawer) | Demo videos (**built**; uploads wait for Bunny) | `demos.view` |

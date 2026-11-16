@@ -7,7 +7,7 @@ import { formatDate } from '../../lib/format';
 import { useResource } from '../../lib/useResource';
 import { istDay, todayIst } from './enrollmentDisplay';
 
-type StudentPick = { id: string; name: string; email: string };
+export type StudentPick = { id: string; name: string; email: string };
 
 const errText = (err: unknown) => (err instanceof ApiError ? err.message : 'That didn’t work. Please try again.');
 const fullName = (s: { firstName: string; lastName: string | null }) => [s.firstName, s.lastName].filter(Boolean).join(' ');
@@ -31,7 +31,7 @@ function useSubmit(onDone: (text: string) => void) {
 }
 
 /** Finds a student by name, email or phone digits (needs students.view, which every granting role has). */
-function StudentSearch({ onPick }: { onPick: (s: StudentPick) => void }) {
+export function StudentSearch({ onPick }: { onPick: (s: StudentPick) => void }) {
   const [term, setTerm] = useState('');
   const [q, setQ] = useState('');
   useEffect(() => {

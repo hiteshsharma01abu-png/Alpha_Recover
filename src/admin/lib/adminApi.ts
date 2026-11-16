@@ -93,7 +93,7 @@ export type StudentDetail = Omit<StudentRow, 'enrolled'> & {
   certificateName: string | null;
   whatsappOptIn: boolean;
   enrollments: { id: string; plan: string; source: EnrollmentSource; status: EnrollmentStatus; startsAt: string; expiresAt: string | null; revokedReason: string | null }[];
-  certificates: { id: string; code: string; programTitle: string; status: string; issuedAt: string }[];
+  certificates: { id: string; code: string; recipientName: string; programTitle: string; status: 'valid' | 'revoked'; issuedAt: string }[];
   sessions: { id: string; device: string; signedInAt: string; lastActiveAt: string }[];
 };
 
@@ -264,6 +264,25 @@ export type BlogDetail = BlogInput & {
   updatedAt: string;
 };
 
+export type CertificateRow = {
+  id: string;
+  code: string;
+  userId: string;
+  recipientName: string;
+  programTitle: string;
+  planId: string | null;
+  courseId: string | null;
+  issuedAt: string;
+  status: 'valid' | 'revoked';
+  revokedAt: string | null;
+  revokedReason: string | null;
+  /** Email arrives masked. */
+  student: { id: string; firstName: string; lastName: string | null; email: string };
+  issuedBy: StaffRef | null;
+};
+
+export type CertificateIssue = { userId: string; programTitle: string; planId?: string | null; courseId?: string | null; recipientName?: string; issuedOn?: string };
+
 export type TeamMember = {
   id: string;
   firstName: string;
@@ -371,6 +390,15 @@ export const adminApi = {
     publish: (id: string, publishAt?: string) => api.post<{ state: BlogState; publishedAt: string }>(`/admin/blog/${id}/publish`, publishAt ? { publishAt } : {}).then((r) => r.data),
     unpublish: (id: string) => api.post<{ state: BlogState }>(`/admin/blog/${id}/unpublish`).then((r) => r.data),
     remove: (id: string) => api.delete<{ ok: true }>(`/admin/blog/${id}`).then((r) => r.data),
+  },
+  certificates: {
+    list: (params: Record<string, string | undefined>) =>
+      api.get<CertificateRow[]>(`/admin/certificates${qs(params)}`).then((r) => ({ rows: r.data, meta: r.meta as PageMeta & { counts: { valid: number; revoked: number } } })),
+    programs: () => api.get<{ plans: { id: string; title: string }[]; courses: { id: string; title: string }[] }>('/admin/certificates/programs').then((r) => r.data),
+    issue: (body: CertificateIssue) => api.post<{ id: string; code: string; recipientName: string }>('/admin/certificates', body).then((r) => r.data),
+    rename: (id: string, recipientName: string) => api.patch<{ ok: true; changed: boolean }>(`/admin/certificates/${id}`, { recipientName }).then((r) => r.data),
+    revoke: (id: string, reason: string) => api.post<{ ok: true }>(`/admin/certificates/${id}/revoke`, { reason }).then((r) => r.data),
+    exportUrl: (params: Record<string, string | undefined>) => `/api/v1/admin/certificates/export.csv${qs(params)}`,
   },
   team: {
     list: () => api.get<TeamMember[]>('/admin/team').then((r) => r.data),

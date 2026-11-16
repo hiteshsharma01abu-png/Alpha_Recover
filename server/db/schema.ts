@@ -421,7 +421,7 @@ export const certificates = mysqlTable(
       .references(() => users.id, { onDelete: 'restrict' }),
     planId: char('plan_id', { length: 36 }).references(() => plans.id),
     courseId: char('course_id', { length: 36 }).references(() => courses.id),
-    /** Snapshots taken at issue time; never change afterwards. */
+    /** Snapshots taken at issue time: they don't follow later profile or plan changes. Staff may correct a misspelt name (audited). */
     recipientName: varchar('recipient_name', { length: 160 }).notNull(),
     programTitle: varchar('program_title', { length: 200 }).notNull(),
     issuedAt: ts('issued_at').notNull(),
