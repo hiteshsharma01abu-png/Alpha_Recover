@@ -127,6 +127,13 @@ export function ProfessionalPlanSection({
   const { company } = useSiteSettings();
   const narrow = useIsNarrow(980);
   const [featuresOpen, setFeaturesOpen] = useState(false);
+  // Widening past the breakpoint collapses the list again, so narrowing later starts from the preview.
+  // Adjusted during render (React's pattern for reacting to a changed value) rather than in an effect.
+  const [wasNarrow, setWasNarrow] = useState(narrow);
+  if (narrow !== wasNarrow) {
+    setWasNarrow(narrow);
+    if (!narrow) setFeaturesOpen(false);
+  }
   const livePlan = usePlan('professional');
   // When the countdown hits zero the sale ends immediately, without waiting for a reload.
   const [saleOver, setSaleOver] = useState(false);
@@ -141,10 +148,6 @@ export function ProfessionalPlanSection({
       ? allFeatureIndexes.slice(0, MOBILE_FEATURES_PREVIEW)
       : allFeatureIndexes;
   const canToggleFeatures = narrow && allFeatureIndexes.length > MOBILE_FEATURES_PREVIEW;
-
-  useEffect(() => {
-    if (!narrow) setFeaturesOpen(false);
-  }, [narrow]);
 
   function onBuy() {
     alert('Checkout will connect once you pick payments (Razorpay / Stripe / etc.).');
@@ -285,7 +288,9 @@ export function ProfessionalPlanSection({
             <ul className="pp-features">
               {featureIndexes.map((i) => (
                 <li key={features[i]}>
-                  <span className="pp-feat-icon">{pricingFeatureIcons[i] ?? pricingFeatureIcons[0]}</span>
+                  <span className="pp-feat-icon">
+                    <img src={pricingFeatureIcons[i] ?? pricingFeatureIcons[0]} alt="" width={16} height={16} decoding="async" />
+                  </span>
                   <span>{features[i]}</span>
                 </li>
               ))}

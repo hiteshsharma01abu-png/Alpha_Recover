@@ -1,32 +1,27 @@
-import type { ReactNode } from 'react';
 import { icons, whiteIcon } from '../../lib/icons';
 
 const U = (id: string, w = 1200, h = 360) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&h=${h}&q=80`;
 
-function featImg(src: string, key: string) {
-  return <img key={key} src={src} alt="" width={16} height={16} decoding="async" />;
-}
-
-/** Icons aligned 1:1 with `pricing.features` order in content.ts */
-export const pricingFeatureIcons: ReactNode[] = [
-  featImg(icons.video, 'video'),
-  featImg(icons.layers, 'solutions'),
-  featImg(icons.portal, 'portal'),
-  featImg(icons.award, 'cert'),
-  featImg(icons.binary, 'firmware'),
-  featImg(icons.headphones, 'support'),
-  featImg(icons.refresh, 'updates'),
-  featImg(icons.bookOpen, 'courses'),
-  featImg(icons.settings, 'tracks'),
-  featImg(icons.fileText, 'logic'),
-  featImg(icons.hardDrive, 'seagate'),
-  featImg(icons.circuitBoard, 'electronics'),
-  featImg(icons.share, 'cases'),
-  featImg(icons.photo, 'photo'),
-  featImg(icons.lock, 'lock'),
-  featImg(icons.cpu, 'mrt'),
-  featImg(icons.infinity, 'anytime'),
+/** Icon image paths aligned 1:1 with `pricing.features` order in content.ts */
+export const pricingFeatureIcons: string[] = [
+  icons.video,
+  icons.layers,
+  icons.portal,
+  icons.award,
+  icons.binary,
+  icons.headphones,
+  icons.refresh,
+  icons.bookOpen,
+  icons.settings,
+  icons.fileText,
+  icons.hardDrive,
+  icons.circuitBoard,
+  icons.share,
+  icons.photo,
+  icons.lock,
+  icons.cpu,
+  icons.infinity,
 ];
 
 /** Open HDD actuator/platter — public Unsplash CDN (wide crop for pp-hero-visual). */

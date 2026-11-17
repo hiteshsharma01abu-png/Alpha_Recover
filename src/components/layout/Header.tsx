@@ -274,12 +274,10 @@ function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void })
 }
 
 export function Header() {
-  const [open, setOpen] = useState(false);
   const location = useLocation();
-
-  useEffect(() => {
-    setOpen(false);
-  }, [location.pathname]);
+  // The page the menu was opened on: navigating anywhere else closes it, with no extra render.
+  const [openOn, setOpenOn] = useState<string | null>(null);
+  const open = openOn === location.pathname;
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
@@ -288,7 +286,7 @@ export function Header() {
     };
   }, [open]);
 
-  const close = () => setOpen(false);
+  const close = () => setOpenOn(null);
 
   return (
     <header className={`site-header ${open ? 'is-nav-open' : ''}`}>
@@ -313,7 +311,7 @@ export function Header() {
             aria-expanded={open}
             aria-controls="mobile-nav"
             aria-label={open ? 'Close menu' : 'Open menu'}
-            onClick={() => setOpen((v) => !v)}
+            onClick={() => setOpenOn(open ? null : location.pathname)}
           >
             <span />
             <span />

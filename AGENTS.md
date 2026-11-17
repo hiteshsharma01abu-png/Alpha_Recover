@@ -65,9 +65,9 @@ Verify with `npm run build` + `npm run lint` + `npm test`; for visual changes, r
 - Schema changes: edit `server/db/schema.ts`, run `npm run db:generate`, commit the SQL. Expand/contract only (docs/DEPLOYMENT.md §5). Keep it MySQL 8 **and** MariaDB 10.6 compatible (CI tests both).
 - Every new route gets integration tests in `server/**/*.test.ts` against real MySQL.
 
-### Known lint warnings (pre-existing)
+### Lint
 
-`react(only-export-components)` in `demoVisuals.tsx` / `pricingVisuals.tsx`; `set-state-in-effect` in `Header.tsx`, `ProfessionalPlanSection.tsx` (9 warnings total). Don't introduce new ones.
+`npm run lint` is warning-free: keep it that way. Plain data goes in `.ts` files (a `.tsx` that exports non-components breaks fast refresh), and derive values during render instead of calling `setState` inside an effect.
 
 ## Documentation update rule
 
