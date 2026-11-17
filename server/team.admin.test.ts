@@ -68,15 +68,40 @@ describe.skipIf(!dbAvailable)('admin team API (MySQL)', () => {
     expect((await readJson(await getJson(ctx.app, '/admin/activity?action=team.invite', owner.jar))).data).toHaveLength(1);
   });
 
+  it('an unverified pre-registered account loses its password and gets the invite instead (no hijack)', async () => {
+    // Attacker registers the future staff member's email with a password they chose (no inbox access needed).
+    const squatter = await loginAs(ctx, 'student', 'Neha');
+    const res = await readJson(await invite(owner.jar, { email: squatter.email, firstName: 'Neha', role: 'admin' }));
+    expect(res.data).toEqual({ id: squatter.id, action: 'invited' });
+
+    expect((await getJson(ctx.app, '/me', squatter.jar)).status).toBe(401);
+    // The attacker's password no longer works, so the staff account can't be entered with it.
+    expect((await postJson(ctx.app, '/auth/login', { email: squatter.email, password: 'correct-horse-battery' }, new CookieJar())).status).toBe(401);
+
+    // Only the inbox owner, via the invite link, can set a password and sign in as admin.
+    const jobs = await ctx.db.select().from(notificationJobs).where(eq(notificationJobs.toAddress, squatter.email));
+    expect(jobs.map((j) => j.template)).toEqual(['staff_invite']);
+    const token = decodeURIComponent((jobs[0].payload as { url: string }).url.split('token=')[1]);
+    expect((await postJson(ctx.app, '/auth/password/reset', { token, password: 'Real-Neha-Pass-1', confirmPassword: 'Real-Neha-Pass-1' })).status).toBe(200);
+    const jar = new CookieJar();
+    expect((await postJson(ctx.app, '/auth/login', { email: squatter.email, password: 'Real-Neha-Pass-1' }, jar)).status).toBe(200);
+    expect((await readJson(await getJson(ctx.app, '/admin/me', jar))).data.role).toBe('admin');
+    const [log] = await ctx.db.select().from(activityLogs).where(eq(activityLogs.action, 'team.invite'));
+    expect(log.metadata).toMatchObject({ unverifiedAccountReset: true, from: 'student', role: 'admin' });
+  });
+
   it('refuses duplicates, promotes an existing student, and resends pending invites only', async () => {
     const member = await loginAs(ctx, 'content_manager', 'Kiran');
     const dup = await invite(owner.jar, { email: member.email, firstName: 'Kiran', role: 'admin' });
     expect(dup.status).toBe(409);
 
+    // A verified student is promoted in place and keeps their password.
     const student = await loginAs(ctx, 'student', 'Ravi');
+    await ctx.db.update(users).set({ emailVerified: true }).where(eq(users.id, student.id));
     const promoted = await readJson(await invite(owner.jar, { email: student.email, firstName: 'Ravi', role: 'content_manager' }));
     expect(promoted.data).toEqual({ id: student.id, action: 'promoted' });
     expect((await getJson(ctx.app, '/me', student.jar)).status).toBe(401); // signed out by the role change
+    expect((await postJson(ctx.app, '/auth/login', { email: student.email, password: 'correct-horse-battery' }, new CookieJar())).status).toBe(200);
 
     const fresh = (await readJson(await invite(owner.jar, { email: 'new@example.com', firstName: 'New', role: 'finance_manager' }))).data;
     expect((await postJson(ctx.app, `/admin/team/${fresh.id}/resend-invite`, {}, owner.jar)).status).toBe(200);

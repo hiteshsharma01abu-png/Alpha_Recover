@@ -1,4 +1,5 @@
 import { randomBytes } from 'node:crypto';
+import { hashPassword } from 'better-auth/crypto';
 import { and, asc, count, eq, gt, isNull, ne, sql } from 'drizzle-orm';
 import { Hono } from 'hono';
 import type { Context } from 'hono';
@@ -8,7 +9,7 @@ import type { StaffRole, UserRole } from '../../../shared/permissions';
 import { logActivity } from '../../audit';
 import { getUser, requireStaff } from '../../auth/middleware';
 import type { Database } from '../../db';
-import { notificationJobs, sessions, users, verifications } from '../../db/schema';
+import { accounts, notificationJobs, sessions, users, verifications } from '../../db/schema';
 import { AppError } from '../../lib/errors';
 import { validate } from '../../lib/validate';
 import { enqueueEmail } from '../../notifications/outbox';
@@ -121,13 +122,30 @@ export const adminTeamRoutes = new Hono<AppEnv>()
         if (isStaff(existing.role)) {
           throw new AppError('CONFLICT', 'This person is already on the team', { details: [{ path: 'email', message: 'Already a team member' }] });
         }
-        // A student account becomes staff: same login, new role, signed out everywhere.
+        if (existing.emailVerified) {
+          // Verified: the account holder proved they own this inbox. Same login, new role, signed out everywhere.
+          await db.transaction(async (tx) => {
+            await tx.update(users).set({ role: input.role }).where(eq(users.id, existing.id));
+            await tx.delete(sessions).where(eq(sessions.userId, existing.id));
+          });
+          await logActivity(c, { action: 'team.role_change', entityType: 'user', entityId: existing.id, metadata: { from: existing.role, to: input.role, via: 'invite' } });
+          return c.json({ data: { id: existing.id, action: 'promoted' } }, 201);
+        }
+        // Unverified: anyone can register any email, so whoever chose this password may not own the
+        // inbox (pre-registration to hijack a future invite). Replace the password with an unusable one
+        // and send the invite link, so only the inbox owner can set a password.
         await db.transaction(async (tx) => {
-          await tx.update(users).set({ role: input.role }).where(eq(users.id, existing.id));
+          await tx.update(users).set({ role: input.role, emailVerified: true }).where(eq(users.id, existing.id));
+          await tx
+            .update(accounts)
+            .set({ password: await hashPassword(randomBytes(24).toString('base64url')) })
+            .where(and(eq(accounts.userId, existing.id), eq(accounts.providerId, 'credential')));
           await tx.delete(sessions).where(eq(sessions.userId, existing.id));
+          await tx.delete(notificationJobs).where(and(eq(notificationJobs.toAddress, existing.email), eq(notificationJobs.template, 'verify_email'), eq(notificationJobs.status, 'pending')));
         });
-        await logActivity(c, { action: 'team.role_change', entityType: 'user', entityId: existing.id, metadata: { from: existing.role, to: input.role, via: 'invite' } });
-        return c.json({ data: { id: existing.id, action: 'promoted' } }, 201);
+        await sendInvite(c, { id: existing.id, email: existing.email, firstName: existing.firstName, role: input.role });
+        await logActivity(c, { action: 'team.invite', entityType: 'user', entityId: existing.id, metadata: { email: existing.email, role: input.role, from: existing.role, unverifiedAccountReset: true } });
+        return c.json({ data: { id: existing.id, action: 'invited' } }, 201);
       }
       if (existing) throw new AppError('CONFLICT', 'This email belonged to a deleted account. Restore it from the database first.');
 

@@ -1,6 +1,6 @@
 # Alpha Recover — Admin Authentication & RBAC
 
-**Last reviewed:** 2026-11-14 · **Status:** **Roles and matrix approved and implemented (2026-11-13):** `users.role` migrated (`finance_manager` added, `support` → `support_manager`), matrix in `shared/permissions.ts`, `GET /admin/me`. **2FA: optional for now (owner's decision)**, built in a later admin piece. Staff session limits (8h / 30 min idle) also come later.
+**Last reviewed:** 2026-11-17 · **Status:** **Roles and matrix approved and implemented (2026-11-13):** `users.role` migrated (`finance_manager` added, `support` → `support_manager`), matrix in `shared/permissions.ts`, `GET /admin/me`. **2FA: optional for now (owner's decision)**, built in a later admin piece. Staff session limits (8h / 30 min idle) also come later.
 **Related:** [ARCHITECTURE.md](ARCHITECTURE.md) · [NAVIGATION.md](NAVIGATION.md) · [SECURITY.md](SECURITY.md) · [../SECURITY.md](../SECURITY.md)
 
 ## 1. Current system (verified in code, 2026-11-13)
@@ -135,7 +135,7 @@ sequenceDiagram
   - **Required** for `super_admin`, `admin` and `finance_manager`.
   - **Strongly recommended** for the other staff roles, and enforceable later via a policy setting.
   - First login forces enrolment (QR code plus 10 backup codes).
-- **Invites (implemented, without 2FA yet):** a `super_admin` enters an email, first name and role; the invitee receives a single-use link (**3 days**) to set a password. An existing student account is promoted instead. There's no public staff sign-up.
+- **Invites (implemented, without 2FA yet):** a `super_admin` enters an email, first name and role; the invitee receives a single-use link (**3 days**) to set a password. An existing student account with a **verified** email is promoted in place (same password). An **unverified** one gets its password replaced with an unusable one and receives the invite link instead: anyone can register any email, so this stops someone pre-registering a future staff member's address to take over the invite. There's no public staff sign-up.
 
 ## 6. Session handling
 

@@ -63,6 +63,7 @@ Implementation:
 | Rate limiting | MySQL-backed fixed-window counters (`rate_limit_buckets`, limits in API spec §0); 429 + `Retry-After`. Client IP taken only from the trusted proxy header configured for the host |
 | Bot protection | Turnstile on register, forgot password, leads; honeypot field on leads |
 | Mass assignment | Admin update schemas whitelist fields; `role` changes only via a dedicated endpoint |
+| Staff invites | Inviting an email that belongs to an unverified student account resets its password and sends the invite link (only the inbox owner can then sign in); only verified accounts are promoted in place (`server/routes/admin/team.ts`, tested in `team.admin.test.ts`) |
 | File uploads | Direct-to-Bunny signed uploads; MIME and size whitelist (images ≤ 5 MB; video via Bunny TUS); random keys; never served from our origin |
 | Errors | Generic messages to clients; full details only in logs/Sentry; `requestId` correlation |
 | Dependencies | `npm audit` / Dependabot in CI; lockfile committed |
