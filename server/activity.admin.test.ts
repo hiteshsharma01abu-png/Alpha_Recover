@@ -69,7 +69,8 @@ describe.skipIf(!dbAvailable)('admin activity log API (MySQL)', () => {
  * Every admin route × every role, compared with shared/permissions.ts (docs/admin/AUTH_AND_RBAC.md §4).
  * Add new admin routes here: a route missing its permission check fails this test.
  */
-const ROUTES: [method: string, path: string, permission: Permission | null][] = [
+/** `permission`: one permission, several that are all required (e.g. a report = reports.view + the module), or null for any staff. */
+const ROUTES: [method: string, path: string, permission: Permission | Permission[] | null][] = [
   ['GET', '/admin/me', null],
   ['GET', '/admin/dashboard', null],
   ['GET', '/admin/leads', 'leads.view'],
@@ -136,6 +137,13 @@ const ROUTES: [method: string, path: string, permission: Permission | null][] = 
   ['POST', `/admin/modules/${SOME_ID}/lessons`, 'courses.add'],
   ['PATCH', `/admin/lessons/${SOME_ID}`, 'courses.edit'],
   ['DELETE', `/admin/lessons/${SOME_ID}`, 'courses.delete'],
+  ['GET', '/admin/reports/leads', ['reports.view', 'leads.view']],
+  ['GET', '/admin/reports/students', ['reports.view', 'students.view']],
+  ['GET', '/admin/reports/enrollments', ['reports.view', 'enrollments.view']],
+  // content: courses.view or demos.view; every role holds both or neither.
+  ['GET', '/admin/reports/content', ['reports.view', 'courses.view']],
+  ['GET', '/admin/reports/leads/export.csv', ['reports.export', 'leads.view']],
+  ['GET', '/admin/reports/content/export.csv', ['reports.export', 'courses.view']],
   ['GET', '/admin/team', 'team.view'],
   ['POST', '/admin/team', 'team.add'],
   ['POST', `/admin/team/${SOME_ID}/resend-invite`, 'team.add'],
@@ -162,7 +170,7 @@ describe.skipIf(!dbAvailable)('admin route × role permission matrix (MySQL)', (
     const wrong: string[] = [];
     for (const [method, path, perm] of ROUTES) {
       const res = method === 'GET' ? await getJson(ctx.app, path, jar) : method === 'POST' ? await postJson(ctx.app, path, {}, jar) : await sendJson(ctx, method, path, {}, jar);
-      const allowed = role !== 'student' && (perm === null || can(role, perm));
+      const allowed = role !== 'student' && (perm === null || (Array.isArray(perm) ? perm.every((p) => can(role, p)) : can(role, perm)));
       if ((res.status === 403) === allowed) wrong.push(`${method} ${path} → ${res.status}`);
     }
     expect(wrong).toEqual([]);

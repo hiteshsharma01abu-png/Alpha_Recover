@@ -1,0 +1,238 @@
+.adm-report {
+  display: grid;
+  gap: 1rem;
+  transition: opacity 0.15s;
+}
+
+.adm-report.is-loading {
+  opacity: 0.6;
+}
+
+.adm .adm-report-controls + p {
+  margin: -0.5rem 0 1rem;
+}
+
+.adm-report-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 1rem;
+}
+
+.adm-report-tile {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.adm-report-tile strong {
+  font-size: 1.6rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.adm-report-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+/* Column chart */
+.adm-chart {
+  margin: 0;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-radius);
+  background: var(--adm-surface);
+}
+
+.adm-chart-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.adm-chart-plot {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.5rem;
+}
+
+.adm-chart-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 220px;
+  color: var(--adm-text-2);
+  font-size: 0.75rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.adm-chart-axis span {
+  line-height: 1;
+  transform: translateY(-50%);
+}
+
+.adm-chart-axis span:last-child {
+  transform: translateY(50%);
+}
+
+.adm-chart-area {
+  position: relative;
+  min-width: 0;
+}
+
+.adm-chart-grid {
+  position: absolute;
+  inset: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 220px;
+  pointer-events: none;
+}
+
+.adm-chart-grid span {
+  height: 1px;
+  background: var(--adm-line);
+}
+
+.adm-chart-cols {
+  position: relative;
+  display: grid;
+  column-gap: 2px;
+  height: 220px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.adm-chart-cols li {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 100%;
+  border-radius: 4px 4px 0 0;
+  outline-offset: -2px;
+  cursor: default;
+}
+
+.adm-chart-cols li.is-active {
+  background: color-mix(in srgb, var(--adm-text) 5%, transparent);
+}
+
+.adm-chart-bar {
+  display: block;
+  width: min(24px, 100%);
+  border-radius: 4px 4px 0 0;
+  background: var(--adm-teal);
+}
+
+.adm-chart-tip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  z-index: 2;
+  display: grid;
+  gap: 0.1rem;
+  min-width: 110px;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--adm-line);
+  border-radius: 8px;
+  background: var(--adm-surface);
+  box-shadow: var(--adm-shadow);
+  color: var(--adm-text);
+  font-size: 0.82rem;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.adm-chart-tip.is-left {
+  right: 0;
+  left: auto;
+  transform: none;
+}
+
+.adm-chart-cols li:first-child .adm-chart-tip,
+.adm-chart-cols li:nth-child(2) .adm-chart-tip {
+  left: 0;
+  transform: none;
+}
+
+.adm-chart-tip > span:last-child {
+  color: var(--adm-text-2);
+}
+
+.adm-chart-tip-value {
+  color: var(--adm-text);
+}
+
+.adm-chart-x {
+  display: grid;
+  column-gap: 2px;
+  margin-top: 0.4rem;
+  color: var(--adm-text-2);
+  font-size: 0.72rem;
+}
+
+.adm-chart-x span {
+  overflow: visible;
+  white-space: nowrap;
+}
+
+.adm-chart-table {
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+/* Breakdown bars */
+.adm-breakdown ul {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.adm-breakdown li {
+  display: grid;
+  grid-template-columns: minmax(0, 11rem) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.88rem;
+}
+
+.adm-breakdown-label {
+  overflow-wrap: anywhere;
+}
+
+.adm-breakdown-track {
+  height: 10px;
+}
+
+.adm-breakdown-bar {
+  display: block;
+  height: 100%;
+  border-radius: 0 4px 4px 0;
+  background: var(--adm-teal);
+}
+
+.adm-breakdown-value {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+@media (max-width: 560px) {
+  .adm-breakdown li {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .adm-breakdown-track {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}

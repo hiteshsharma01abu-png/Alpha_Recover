@@ -4,7 +4,7 @@ export type AdminNavItem = {
   /** Path under /admin ('' = dashboard). */
   path: string;
   label: string;
-  icon: 'dashboard' | 'leads' | 'students' | 'enrollments' | 'certificates' | 'courses' | 'plans' | 'demos' | 'blog' | 'team' | 'activity' | 'settings' | 'email';
+  icon: 'dashboard' | 'leads' | 'students' | 'enrollments' | 'certificates' | 'courses' | 'plans' | 'demos' | 'blog' | 'team' | 'activity' | 'settings' | 'email' | 'reports';
   permission: Permission;
   group: 'Overview' | 'Sales' | 'Learners' | 'Content' | 'Insights' | 'System';
 };
@@ -23,6 +23,7 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { path: 'plans', label: 'Plans & Offers', icon: 'plans', permission: 'plans.view', group: 'Content' },
   { path: 'demo-videos', label: 'Demo Videos', icon: 'demos', permission: 'demos.view', group: 'Content' },
   { path: 'blog', label: 'Blog', icon: 'blog', permission: 'blog.view', group: 'Content' },
+  { path: 'reports', label: 'Reports', icon: 'reports', permission: 'reports.view', group: 'Insights' },
   { path: 'activity', label: 'Activity Log', icon: 'activity', permission: 'audit.view', group: 'Insights' },
   { path: 'team', label: 'Team & Access', icon: 'team', permission: 'team.view', group: 'System' },
   { path: 'notifications', label: 'Email Log', icon: 'email', permission: 'notifications.view', group: 'System' },

@@ -1,6 +1,6 @@
 # Alpha Recover — Admin Panel Navigation & Modules
 
-**Last reviewed:** 2026-11-16 · **Status:** Proposal · built so far: Dashboard, Leads & Inquiries, Students, Enrollments, Certificates, Courses, Plans & Offers, Demo Videos, Blog, Activity Log, Team & Access, Email Log, Settings
+**Last reviewed:** 2026-11-16 · **Status:** Proposal · built so far: Dashboard, Leads & Inquiries, Students, Enrollments, Certificates, Courses, Plans & Offers, Demo Videos, Blog, Reports, Activity Log, Team & Access, Email Log, Settings
 **Related:** [ARCHITECTURE.md](ARCHITECTURE.md) · [AUTH_AND_RBAC.md](AUTH_AND_RBAC.md) (permission strings) · [UI_UX.md](UI_UX.md) (sidebar behaviour) · [../API.md](../API.md) §10–14
 
 ## 1. How the proposed list was finalized against the real project
@@ -45,7 +45,7 @@ CONTENT
   ▸ Demo Videos                     /admin/demo-videos
   ▸ Blog                            /admin/blog
 INSIGHTS
-  ▸ Reports                    (P2) /admin/reports
+  ▸ Reports                         /admin/reports
   ▸ Activity Log                    /admin/activity
 SYSTEM
   ▸ Team & Access                   /admin/team
@@ -69,7 +69,7 @@ Footer of the sidebar: the signed-in user, their role badge, and **View website 
 | `/admin/plans` · `/admin/plans/new` · `/admin/plans/:id` | Plans · editor (**built**; promotions are a panel on the editor page, not a separate route) | `plans.view` (`plans.add` for new) |
 | `/admin/demo-videos` · `?video=:id` / `?video=new` (drawer) | Demo videos (**built**; uploads wait for Bunny) | `demos.view` |
 | `/admin/blog` · `/admin/blog/new` · `/admin/blog/:id` | Posts · editor (**built**; cover uploads wait for Bunny) | `blog.view` (`blog.add` for new) |
-| `/admin/reports` · `/admin/reports/:tab` | Revenue, leads, students, learning, demo videos | `reports.view` |
+| `/admin/reports` · `/admin/reports/:tab` | Leads, Students, Enrollments, Content (**built**; range in the query string). Revenue and learning (completion) arrive with payments and lesson progress | `reports.view` + the module (`shared/reports.ts`) |
 | `/admin/activity` · `?entry=:id` (drawer) | Audit log (**built**) | `audit.view` |
 | `/admin/team` · `/admin/team/roles` | Staff users · role matrix (read-only) (**built**) | `team.view` |
 | `/admin/notifications` · `?email=:id` (drawer) | Email log (**built**: states, filters, retry, stalled-cron warning) | `notifications.view` |
@@ -93,7 +93,7 @@ Footer of the sidebar: the signed-in user, their role badge, and **View website 
 | Plans & Offers | ✅ | ✅ | — | ✅ | — |
 | Demo Videos | ✅ | ✅ | ✅ | — | — |
 | Blog | ✅ | ✅ | ✅ | — | — |
-| Reports | ✅ | ✅ | ✅ (content tabs) | ✅ (revenue tabs) | ✅ (leads tab) |
+| Reports | ✅ | ✅ | ✅ (Content tab) | ✅ (Students, Enrollments; Revenue later) | ✅ (Leads, Students, Enrollments) |
 | Activity Log | ✅ | ✅ | — | — | — |
 | Team & Access | ✅ | ✅ (view) | — | — | — |
 | Email Log | ✅ | ✅ | — | — | ✅ |

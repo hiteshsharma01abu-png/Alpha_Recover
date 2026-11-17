@@ -362,6 +362,8 @@ The featured video is excluded from the list and from `counts` (matching current
 | PATCH / DELETE | `/admin/modules/:id` | `courses.edit` / `courses.delete` | Rename; delete only when empty (422). Audit |
 | POST | `/admin/modules/:id/lessons` | `courses.add` | `{ title, status, description?, durationSeconds?, isPreview? }` → 201 `{ id, slug }`; slug generated (unique within the module), appended last. Audit |
 | PATCH / DELETE | `/admin/lessons/:id` | `courses.edit` / `courses.delete` | Edit title, description, duration, free preview, status (slug and video fixed here; videos attach in Phase 4); soft delete. Audit |
+| GET | `/admin/reports/:type` | `reports.view` + the module | **Implemented.** `type` = `leads` (`leads.view`), `students` (`students.view`), `enrollments` (`enrollments.view`), `content` (`courses.view` or `demos.view`); else 403. `?from&to` (IST days, default last 30, max 2 years) `&interval=day\|week\|month` (weeks start Monday). Returns `{ range, totals, series: { label, points: [{ bucket, count }] }, breakdowns: { <name>: [{ key, count, of? }] } }` with empty buckets filled. Leads: series excludes spam; totals leads/converted/conversionPct/spam; by source, reason, status. Students: sign-ups, verified %, top 8 countries + other. Enrollments: grants by source, revoked in range, active now. Content (no range: running totals): top demo videos by views, views by category, lessons with video per published track. Grouping uses India days (UTC + 5:30 in SQL) |
+| GET | `/admin/reports/:type/export.csv` | `reports.export` + the module | Same data as CSV: totals, the series, then each breakdown as `section,key,count`. Audit `reports.export` |
 | GET | `/admin/team` | `team.view` | **Implemented.** Staff accounts with `roleLabel`, `status`, `invitePending` (never signed in), live `sessions` count |
 | POST | `/admin/team` | `team.add` | Strict `{ email, firstName, role (staff role) }`. New email → account created (verified, unusable random password) and a `staff_invite` email with a set-password link valid **3 days**; existing student with a verified email → promoted in place (signed out, keeps their password); existing **unverified** student → password replaced with an unusable one, verify emails dropped, invite link sent (`action: 'invited'`), so a pre-registered address can't hijack the invite; existing staff → 409. Audit `team.invite` / `team.role_change` |
 | POST | `/admin/team/:id/resend-invite` | `team.add` | New link (old one invalidated); 422 once the person has signed in. Audit |
@@ -398,11 +400,7 @@ Validation: unique slug (`^[a-z0-9-]{3,120}$`), title ≤ 200, excerpt ≤ 400, 
 | Method | Endpoint | Permission | Purpose |
 |---|---|---|---|
 | GET | `/admin/reports/revenue` | `reports.view` | `?from&to&groupBy=day|week|month`: gross, refunds, net, order count |
-| GET | `/admin/reports/leads` | `reports.view` | Leads by source/reason/status over time; conversion rate |
-| GET | `/admin/reports/students` | `reports.view` | Signups, buyers, country split |
-| GET | `/admin/reports/learning` | `reports.view` | Course completion rates, most-watched lessons, drop-off |
-| GET | `/admin/reports/demo-videos` | `reports.view` | Views per video |
-| GET | `/admin/reports/:type/export.csv` | `reports.export` | CSV |
+| GET | `/admin/reports/learning` | `reports.view` | Course completion rates, most-watched lessons, drop-off (needs lesson progress, Phase 4) |
 
 All read-only aggregates over existing tables (no separate analytics store at this scale).
 

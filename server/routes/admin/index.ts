@@ -12,6 +12,7 @@ import { adminLeadRoutes } from './leads';
 import { adminMeRoutes } from './me';
 import { adminNotificationRoutes } from './notifications';
 import { adminPlanRoutes } from './plans';
+import { adminReportRoutes } from './reports';
 import { adminSettingsRoutes } from './settings';
 import { adminStudentRoutes } from './students';
 import { adminTeamRoutes } from './team';
@@ -35,5 +36,6 @@ export const adminRoutes = new Hono<AppEnv>()
   .route('/', adminCertificateRoutes)
   .route('/', adminSettingsRoutes)
   .route('/', adminNotificationRoutes)
+  .route('/', adminReportRoutes)
   .route('/', adminTeamRoutes)
   .route('/', adminActivityRoutes);

@@ -1,5 +1,6 @@
 import type { LeadReason, LeadStatus } from '../../../shared/leads';
 import type { Permission, UserRole } from '../../../shared/permissions';
+import type { ReportInterval, ReportType } from '../../../shared/reports';
 import { api } from '../../lib/api';
 import type { SocialPlatform } from '../../data/content';
 import type { Company } from '../../lib/settings';
@@ -300,6 +301,17 @@ export type AdminModule = { id: string; slug: string; title: string; lessons: Ad
 export type CourseInput = { title: string; summary: string; imageUrl: string | null; status: PublishStatus };
 export type CourseDetail = CourseInput & { id: string; slug: string; updatedAt: string; modules: AdminModule[] };
 
+export type ReportBreakdown = { key: string; count: number; of?: number }[];
+
+/** Read-only aggregates. `range`/`series` are absent for the content report (running totals). */
+export type ReportData = {
+  range?: { from: string; to: string; interval: ReportInterval };
+  totals: Record<string, number>;
+  series?: { label: string; points: { bucket: string; count: number }[] };
+  breakdowns: Record<string, ReportBreakdown>;
+  note?: string;
+};
+
 export type TeamMember = {
   id: string;
   firstName: string;
@@ -433,6 +445,10 @@ export const adminApi = {
       api.post<{ id: string; slug: string }>(`/admin/modules/${moduleId}/lessons`, body).then((r) => r.data),
     updateLesson: (id: string, body: Partial<LessonInput>) => api.patch<{ ok: true; changed: string[] }>(`/admin/lessons/${id}`, body).then((r) => r.data),
     removeLesson: (id: string) => api.delete<{ ok: true }>(`/admin/lessons/${id}`).then((r) => r.data),
+  },
+  reports: {
+    get: (type: ReportType, params: Record<string, string | undefined>) => api.get<ReportData>(`/admin/reports/${type}${qs(params)}`).then((r) => r.data),
+    exportUrl: (type: ReportType, params: Record<string, string | undefined>) => `/api/v1/admin/reports/${type}/export.csv${qs(params)}`,
   },
   team: {
     list: () => api.get<TeamMember[]>('/admin/team').then((r) => r.data),

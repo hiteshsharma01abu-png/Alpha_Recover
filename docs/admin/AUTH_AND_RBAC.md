@@ -75,6 +75,8 @@ Permission strings are `module.action`.
 
 V view · A add · E edit · D delete · X export · I import · ★ special action · — none
 
+Report tabs (implemented, `shared/reports.ts`): a tab shows only if the role also has view access to the module it summarises: Leads → `leads.view`, Students → `students.view`, Enrollments → `enrollments.view`, Content → `courses.view` or `demos.view`. So today finance sees Students and Enrollments (Revenue arrives with payments), content managers see Content, support sees Leads, Students and Enrollments.
+
 | Module | super_admin | admin | finance_manager | content_manager | support_manager |
 |---|---|---|---|---|---|
 | dashboard | V | V | V (revenue widgets) | V (content widgets) | V (lead widgets) |
@@ -87,7 +89,7 @@ V view · A add · E edit · D delete · X export · I import · ★ special act
 | demos | V A E D | V A E D | — | V A E D | — |
 | blog | V A E D ★publish | V A E D ★publish | — | V A E D ★publish | — |
 | certificates | V A E X ★revoke | V A E X ★revoke | — | — | V |
-| reports | V X (all tabs) | V X (all tabs) | V X (revenue) | V (content, learning) | V X (leads) |
+| reports | V X (all tabs) | V X (all tabs) | V X | V (content) | V X |
 | audit (activity log) | V X | V X | — | — | — |
 | team | V A E D ★manage_roles | V | — | — | — |
 | notifications (email log) | V E (retry) | V E | — | — | V E |

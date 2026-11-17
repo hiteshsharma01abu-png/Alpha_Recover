@@ -23,6 +23,7 @@ import { EmailLogPage } from './modules/notifications/EmailLogPage';
 import { SettingsPage } from './modules/settings/SettingsPage';
 import { StudentDetailPage } from './modules/students/StudentDetailPage';
 import { StudentsPage } from './modules/students/StudentsPage';
+import { ReportsPage } from './modules/reports/ReportsPage';
 import { RolesPage } from './modules/team/RolesPage';
 import { TeamPage } from './modules/team/TeamPage';
 
@@ -42,6 +43,8 @@ const GUARDED: [path: string, perm: Permission, Page: ComponentType][] = [
   ['blog', 'blog.view', BlogListPage],
   ['blog/new', 'blog.add', BlogEditorPage],
   ['blog/:id', 'blog.view', BlogEditorPage],
+  ['reports', 'reports.view', ReportsPage],
+  ['reports/:type', 'reports.view', ReportsPage],
   ['activity', 'audit.view', ActivityPage],
   ['team', 'team.view', TeamPage],
   ['notifications', 'notifications.view', EmailLogPage],
