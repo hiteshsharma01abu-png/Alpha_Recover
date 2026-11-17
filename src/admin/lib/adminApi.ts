@@ -283,6 +283,23 @@ export type CertificateRow = {
 
 export type CertificateIssue = { userId: string; programTitle: string; planId?: string | null; courseId?: string | null; recipientName?: string; issuedOn?: string };
 
+export type CourseRow = {
+  id: string;
+  slug: string;
+  title: string;
+  status: PublishStatus;
+  sortOrder: number;
+  modules: number;
+  lessons: { total: number; published: number; withVideo: number; preview: number };
+  updatedAt: string;
+};
+
+export type LessonInput = { title: string; description: string | null; durationSeconds: number | null; isPreview: boolean; status: PublishStatus };
+export type AdminLesson = LessonInput & { id: string; slug: string; hasVideo: boolean };
+export type AdminModule = { id: string; slug: string; title: string; lessons: AdminLesson[] };
+export type CourseInput = { title: string; summary: string; imageUrl: string | null; status: PublishStatus };
+export type CourseDetail = CourseInput & { id: string; slug: string; updatedAt: string; modules: AdminModule[] };
+
 export type TeamMember = {
   id: string;
   firstName: string;
@@ -399,6 +416,23 @@ export const adminApi = {
     rename: (id: string, recipientName: string) => api.patch<{ ok: true; changed: boolean }>(`/admin/certificates/${id}`, { recipientName }).then((r) => r.data),
     revoke: (id: string, reason: string) => api.post<{ ok: true }>(`/admin/certificates/${id}/revoke`, { reason }).then((r) => r.data),
     exportUrl: (params: Record<string, string | undefined>) => `/api/v1/admin/certificates/export.csv${qs(params)}`,
+  },
+  courses: {
+    list: () => api.get<CourseRow[]>('/admin/courses').then((r) => r.data),
+    reorder: (ids: string[]) => api.put<{ ok: true }>('/admin/courses/order', { ids }).then((r) => r.data),
+    get: (id: string) => api.get<CourseDetail>(`/admin/courses/${id}`).then((r) => r.data),
+    create: (body: CourseInput & { slug: string }) => api.post<{ id: string }>('/admin/courses', body).then((r) => r.data),
+    update: (id: string, body: Partial<CourseInput>) => api.patch<{ ok: true; changed: string[] }>(`/admin/courses/${id}`, body).then((r) => r.data),
+    remove: (id: string) => api.delete<{ ok: true }>(`/admin/courses/${id}`).then((r) => r.data),
+    /** Every module and lesson of the course, in the new order. */
+    saveOrder: (id: string, modules: { id: string; lessonIds: string[] }[]) => api.put<{ ok: true }>(`/admin/courses/${id}/order`, { modules }).then((r) => r.data),
+    addModule: (courseId: string, title: string) => api.post<{ id: string; slug: string }>(`/admin/courses/${courseId}/modules`, { title }).then((r) => r.data),
+    renameModule: (id: string, title: string) => api.patch<{ ok: true }>(`/admin/modules/${id}`, { title }).then((r) => r.data),
+    removeModule: (id: string) => api.delete<{ ok: true }>(`/admin/modules/${id}`).then((r) => r.data),
+    addLesson: (moduleId: string, body: Partial<LessonInput> & { title: string; status: PublishStatus }) =>
+      api.post<{ id: string; slug: string }>(`/admin/modules/${moduleId}/lessons`, body).then((r) => r.data),
+    updateLesson: (id: string, body: Partial<LessonInput>) => api.patch<{ ok: true; changed: string[] }>(`/admin/lessons/${id}`, body).then((r) => r.data),
+    removeLesson: (id: string) => api.delete<{ ok: true }>(`/admin/lessons/${id}`).then((r) => r.data),
   },
   team: {
     list: () => api.get<TeamMember[]>('/admin/team').then((r) => r.data),

@@ -351,6 +351,17 @@ The featured video is excluded from the list and from `counts` (matching current
 | POST | `/admin/certificates` | `certificates.add` | Manual issue. Strict `{ userId, programTitle, planId?, courseId?, recipientName?, issuedOn? }` → 201 `{ id, code, recipientName }`. Students only (404). `recipientName` defaults to the student's certificate name, else first + last. `issuedOn` (IST day, not future; 400) records an earlier batch, and the code's year follows it. Code from the gap-free per-year sequence. A valid certificate for the same student + program → 409. Audit `certificates.issue`. No PDF or email yet (Phase 4) |
 | PATCH | `/admin/certificates/:id` | `certificates.edit` | `{ recipientName }`: correct a misspelling; same code. Revoked → 422. Audit `certificates.update` with before/after |
 | POST | `/admin/certificates/:id/revoke` | `certificates.revoke` | `{ reason (3–500) }`. Public verify then shows `revoked` (never the reason). Already revoked → 422. Audit `certificates.revoke` |
+| GET | `/admin/courses` | `courses.view` | **Implemented.** Non-deleted tracks in site order with module count and lesson totals (`total`, `published`, `withVideo`, `preview`) |
+| PUT | `/admin/courses/order` | `courses.edit` | `{ ids }`: every track exactly once, first to last (400 otherwise). Audit `courses.reorder` |
+| GET | `/admin/courses/:id` | `courses.view` | Track + modules + lessons (all statuses, not deleted) in order. Lessons carry `hasVideo`, never the video id |
+| POST | `/admin/courses` | `courses.add` | Strict `{ slug, title, summary, status, imageUrl? }` → 201, appended last. Slug unique forever (409). Audit `courses.create` |
+| PATCH | `/admin/courses/:id` | `courses.edit` | `{ title?, summary?, imageUrl?, status? }`; the slug is fixed (400). Audit `courses.update` with before/after |
+| DELETE | `/admin/courses/:id` | `courses.delete` | Soft delete, only when the track has no modules (422: archive it instead). Audit |
+| PUT | `/admin/courses/:id/order` | `courses.edit` | `{ modules: [{ id, lessonIds }] }` listing every module and lesson of the track exactly once (409 if stale): sets order and moves lessons between modules. A moved lesson keeps its slug unless the target module already uses it (deleted lessons included), then it gets `-2`, `-3`… Audit `courses.reorder` |
+| POST | `/admin/courses/:id/modules` | `courses.add` | `{ title }` → 201 `{ id, slug }`; slug generated from the title (unique within the track), appended last. Audit |
+| PATCH / DELETE | `/admin/modules/:id` | `courses.edit` / `courses.delete` | Rename; delete only when empty (422). Audit |
+| POST | `/admin/modules/:id/lessons` | `courses.add` | `{ title, status, description?, durationSeconds?, isPreview? }` → 201 `{ id, slug }`; slug generated (unique within the module), appended last. Audit |
+| PATCH / DELETE | `/admin/lessons/:id` | `courses.edit` / `courses.delete` | Edit title, description, duration, free preview, status (slug and video fixed here; videos attach in Phase 4); soft delete. Audit |
 | GET | `/admin/team` | `team.view` | **Implemented.** Staff accounts with `roleLabel`, `status`, `invitePending` (never signed in), live `sessions` count |
 | POST | `/admin/team` | `team.add` | Strict `{ email, firstName, role (staff role) }`. New email → account created (verified, unusable random password) and a `staff_invite` email with a set-password link valid **3 days**; existing student with a verified email → promoted in place (signed out, keeps their password); existing **unverified** student → password replaced with an unusable one, verify emails dropped, invite link sent (`action: 'invited'`), so a pre-registered address can't hijack the invite; existing staff → 409. Audit `team.invite` / `team.role_change` |
 | POST | `/admin/team/:id/resend-invite` | `team.add` | New link (old one invalidated); 422 once the person has signed in. Audit |
@@ -367,13 +378,6 @@ Every admin mutation writes `activity_logs`. Lists support `page`, `pageSize`, `
 | Method | Endpoint | Permission | Purpose / filters |
 |---|---|---|---|
 | GET | `/admin/dashboard` | `dashboard.view` | KPIs: revenue (today/7d/30d), orders, new students, new leads by status, conversion, top demo videos |
-| GET/POST | `/admin/courses` | `courses.read` / `courses.write` | List / create track |
-| GET/PATCH/DELETE | `/admin/courses/:id` | `courses.*` | Detail / update / soft delete (blocked if it has enrollments' progress, otherwise archived) |
-| POST | `/admin/courses/:id/modules` | `courses.write` | Create module |
-| PATCH/DELETE | `/admin/modules/:id` | `courses.write` | |
-| POST | `/admin/modules/:id/lessons` | `courses.write` | Create lesson |
-| PATCH/DELETE | `/admin/lessons/:id` | `courses.write` | Title, description, isPreview, status, videoId |
-| PUT | `/admin/courses/:id/order` | `courses.write` | Reorder modules/lessons `{ modules: [{ id, lessonIds: [] }] }` |
 | POST | `/admin/videos/upload-url` | `courses.write` / `demos.write` | Create a Bunny video + direct-upload (TUS) credentials; returns `videoId` |
 | GET | `/admin/orders` | `orders.read` | `?status&from&to&q(orderNumber/email)` |
 | GET | `/admin/orders/:id` | `orders.read` | Order + payments + webhook events |

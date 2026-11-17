@@ -4,6 +4,7 @@ import type { AppEnv } from '../../types';
 import { adminActivityRoutes } from './activity';
 import { adminBlogRoutes } from './blog';
 import { adminCertificateRoutes } from './certificates';
+import { adminCourseRoutes } from './courses';
 import { adminDashboardRoutes } from './dashboard';
 import { adminDemoVideoRoutes } from './demoVideos';
 import { adminEnrollmentRoutes } from './enrollments';
@@ -30,6 +31,7 @@ export const adminRoutes = new Hono<AppEnv>()
   .route('/', adminPlanRoutes)
   .route('/', adminDemoVideoRoutes)
   .route('/', adminBlogRoutes)
+  .route('/', adminCourseRoutes)
   .route('/', adminCertificateRoutes)
   .route('/', adminSettingsRoutes)
   .route('/', adminNotificationRoutes)

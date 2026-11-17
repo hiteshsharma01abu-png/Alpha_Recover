@@ -1,0 +1,129 @@
+.adm-course-arrows,
+.adm-course-row-actions,
+.adm-course-head-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.adm .adm-course .adm-plan-head p a {
+  color: var(--adm-text);
+}
+
+.adm-course-details {
+  margin-bottom: 1rem;
+}
+
+.adm-course-details fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.adm-course-image {
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--adm-radius);
+  background: var(--adm-surface-2);
+  object-fit: cover;
+}
+
+/* Outline */
+.adm-course-modules,
+.adm-course-lessons {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.adm-course-modules {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.adm-course-module {
+  border: 1px solid var(--adm-line);
+  border-radius: 10px;
+  background: var(--adm-bg);
+}
+
+.adm-course-module-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.55rem 0.7rem;
+}
+
+.adm-course-toggle {
+  display: inline-flex;
+  flex: 1 1 240px;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 38px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--adm-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.adm-course-lessons {
+  border-top: 1px solid var(--adm-line);
+}
+
+.adm-course-lessons li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.45rem 0.7rem 0.45rem 2rem;
+  border-bottom: 1px solid var(--adm-line);
+}
+
+.adm-course-lessons li:last-child {
+  border-bottom: 0;
+}
+
+.adm-course-lesson {
+  display: flex;
+  flex: 1 1 260px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.adm-course-lesson-title {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.adm-course-row-actions .adm-select {
+  max-width: 150px;
+}
+
+.adm-course-add-lesson {
+  margin: 0.5rem 0.7rem 0.7rem 2rem;
+}
+
+@media (max-width: 640px) {
+  .adm-course-lessons li {
+    padding-left: 0.7rem;
+  }
+
+  .adm-course-add-lesson {
+    margin-left: 0.7rem;
+  }
+}

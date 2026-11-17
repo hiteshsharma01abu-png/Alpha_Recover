@@ -49,6 +49,13 @@ const ICONS: Record<AdminNavItem['icon'], ReactNode> = {
     </svg>
   ),
   blog: <AdmIcon name="book" size={20} />,
+  courses: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+      <rect x="3.5" y="4" width="17" height="4" rx="1" />
+      <rect x="3.5" y="10" width="17" height="4" rx="1" />
+      <rect x="3.5" y="16" width="17" height="4" rx="1" />
+    </svg>
+  ),
   certificates: <AdmIcon name="shieldCheck" size={20} />,
   settings: <AdmIcon name="settings" size={20} />,
   email: <AdmIcon name="mail" size={20} />,
