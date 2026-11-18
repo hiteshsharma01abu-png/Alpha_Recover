@@ -309,9 +309,13 @@
 }
 
 .adm-topbar h1 {
+  min-width: 0;
   margin: 0;
+  overflow: hidden;
   font-family: var(--font-display);
   font-size: 1.15rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .adm-topbar-actions {
@@ -446,5 +450,33 @@
 
   .adm-btn.adm-logout {
     padding-inline: 0.7rem;
+  }
+
+  .adm-topbar {
+    gap: 0.5rem;
+  }
+
+  .adm-topbar h1 {
+    font-size: 1rem;
+  }
+
+  /* Theme picker shrinks to its icon; the native picker still lists the names. */
+  .adm-theme select {
+    width: 40px;
+    padding: 0;
+    color: transparent;
+  }
+
+  .adm-theme select option {
+    color: var(--adm-text);
+  }
+
+  .adm-theme > svg:first-child {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .adm-theme > svg:last-child {
+    display: none;
   }
 }

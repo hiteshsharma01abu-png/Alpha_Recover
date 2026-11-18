@@ -39,8 +39,9 @@ A dark, technical "lab" aesthetic: deep pine-green backgrounds, ivory text, bras
 
 | Token | Font | Use |
 |---|---|---|
-| `--font-display` | **Syne** (600–800) | `h1`–`h4`, brand wordmark, big numbers |
+| `--font-display` | **Syne** (600–800) | `h1`–`h4`, big numbers |
 | `--font-body` | **Manrope** (400–700) | Everything else |
+| `--font-logo` | Arial / Helvetica (bold, uppercase) | Text that reproduces the logo wordmark (the home hero "ALPHA RECOVERY") |
 
 Fonts load from Google Fonts at the top of `global.css`. Base body size is 16px, line-height 1.6. Headings often use an `<em>` for a highlighted second phrase ("Get in *Touch*", "Demo *Videos*"). Keep that pattern for new page titles.
 

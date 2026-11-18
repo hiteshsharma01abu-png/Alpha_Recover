@@ -146,7 +146,11 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  font-style: italic;
+  font-family: var(--font-logo);
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
   white-space: nowrap;
   gap: 0.05em;
   line-height: 0.95;
