@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { services, type SocialPlatform } from '../../data/content';
+import { brandLogo, services, type SocialPlatform } from '../../data/content';
 import { useSiteSettings } from '../../lib/settings';
 import { icons } from '../../lib/icons';
 import './Footer.css';
@@ -67,17 +67,14 @@ export function Footer() {
         <div className="footer-shell">
           <div className="footer-grid">
             <div className="footer-brand-col">
-              <div className="footer-logo">
-                <span className="brand-mark" aria-hidden>
-                  <span className="brand-ring" />
-                  <span className="brand-hub" />
-                </span>
-                <strong className="footer-brand-name">
-                  <span className="footer-brand-alpha">Alpha</span>{' '}
-                  <span className="footer-brand-recover">Recover</span>
-                </strong>
-              </div>
-              <p className="footer-brand-tag">Data Recovery Training</p>
+              <img
+                className="footer-logo"
+                src={brandLogo.footer}
+                alt={`${company.name}: Professional Data Recovery Training`}
+                width={660}
+                height={240}
+                loading="lazy"
+              />
 
               <p className="footer-lead">
                 Online data recovery training and professional recovery services from Ahmedabad —

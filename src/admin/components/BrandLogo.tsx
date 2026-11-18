@@ -1,13 +1,11 @@
+import { brandLogo } from '../../data/content';
 import './BrandLogo.css';
 
-/** The site's logo (spinning platter mark + "Alpha Recover"), as in the public header and footer. */
+/** The brand hexagon mark (on its deep-green tile, legible in both themes) + "Alpha Recover". */
 export function BrandLogo({ tagline, size = 'md' }: { tagline?: string; size?: 'md' | 'lg' }) {
   return (
     <span className={`adm-logo adm-logo-${size}`}>
-      <span className="adm-logo-mark" aria-hidden>
-        <span className="adm-logo-ring" />
-        <span className="adm-logo-hub" />
-      </span>
+      <img className="adm-logo-mark" src={brandLogo.tile} alt="" width={200} height={200} />
       <span className="adm-logo-text">
         <strong>
           <span className="adm-logo-alpha">Alpha</span> <span className="adm-logo-recover">Recover</span>

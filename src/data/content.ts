@@ -16,6 +16,14 @@ export const company = {
   gst: 'Pending',
 };
 
+/** Logo files from public/alpha-recovery-branding/ (see its README.txt). */
+export const brandLogo = {
+  header: '/alpha-recovery-branding/alpha-logo-header.svg',
+  footer: '/alpha-recovery-branding/alpha-logo-footer.svg',
+  /** Hexagon mark on its deep-green tile: legible on light and dark surfaces. */
+  tile: '/alpha-recovery-branding/favicon.svg',
+};
+
 export type SocialPlatform = 'youtube' | 'linkedin' | 'facebook' | 'instagram';
 
 /**

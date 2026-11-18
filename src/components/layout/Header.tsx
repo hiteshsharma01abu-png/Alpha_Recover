@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { company } from '../../data/content';
+import { brandLogo, company } from '../../data/content';
 import { useAuth } from '../../lib/auth';
 import { useTrainingTracks } from '../../lib/catalog';
 import './Header.css';
@@ -223,11 +223,7 @@ function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void })
     >
       <div className="drawer-head">
         <Link to="/" className="drawer-brand" onClick={onClose} aria-label={`${company.name} home`}>
-          <span className="brand-mark" aria-hidden>
-            <span className="brand-ring" />
-            <span className="brand-hub" />
-          </span>
-          <strong>{company.name}</strong>
+          <img className="drawer-logo" src={brandLogo.header} alt="" width={660} height={180} />
         </Link>
         <button type="button" className="drawer-close" aria-label="Close menu" onClick={onClose}>
           <MenuIcon name="close" />
@@ -293,16 +289,7 @@ export function Header() {
       <div className="container header-inner">
         <div className="header-bar">
           <Link to="/" className="brand" aria-label={`${company.name} home`}>
-            <span className="brand-mark" aria-hidden>
-              <span className="brand-ring" />
-              <span className="brand-hub" />
-            </span>
-            <span className="brand-text">
-              <strong>
-                <span className="brand-alpha">Alpha</span>{' '}
-                <span className="brand-recover">Recover</span>
-              </strong>
-            </span>
+            <img className="brand-logo" src={brandLogo.header} alt="" width={660} height={180} />
           </Link>
 
           <button

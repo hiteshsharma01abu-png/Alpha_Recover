@@ -1,6 +1,6 @@
 # Alpha Recover — Design System
 
-**Last reviewed:** 2026-11-12
+**Last reviewed:** 2026-11-18
 **Scope:** how the UI looks and how to build new screens that match it (student dashboard, lesson player, checkout pages, admin). How the code is organized lives in [ARCHITECTURE.md](ARCHITECTURE.md).
 
 > **Source of truth:** token values live in [`src/styles/global.css`](../src/styles/global.css) (`:root`). This doc explains *what to use when*. It deliberately doesn't copy values, so it can't drift from the CSS.
@@ -85,6 +85,7 @@ Fonts load from Google Fonts at the top of `global.css`. Base body size is 16px,
 - Photos are optimized **WebP** in `public/assets/`, referenced by absolute path (`/assets/pcb.webp`); section → image maps live in [`src/data/sectionMedia.ts`](../src/data/sectionMedia.ts).
 - Above-the-fold images are preloaded in `index.html`.
 - Use `loading="lazy"` / `fetchPriority="low"` for below-the-fold images; always set `width`/`height` to avoid layout shift.
+- **Logo and favicons** live in `public/alpha-recovery-branding/` (usage in its `README.txt`); paths are in `brandLogo` in `src/data/content.ts`. Public header/drawer use `alpha-logo-header.svg`, the footer `alpha-logo-footer.svg` (tagline included), and the admin `BrandLogo` the tiled mark (`favicon.svg`) plus theme-aware text, since the wordmark's white text vanishes on the light admin theme.
 - Don't hot-link third-party images. (Demo thumbnails currently hot-link Unsplash; these should move to own storage with the backend.)
 
 ## 8. Motion
