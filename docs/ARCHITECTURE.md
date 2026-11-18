@@ -16,7 +16,7 @@
 | Data | All copy and data in `src/data/content.ts` (no API yet) |
 | Build | `tsc -b && vite build` → static `dist/` (one JS + one CSS bundle) |
 | Lint | `oxlint` (`.oxlintrc.json`) |
-| Hosting (temporary) | Vercel static SPA, catch-all rewrite to `/index.html` in `vercel.json`. Production host undecided (see §3) |
+| Hosting (temporary) | Vercel, deployed from `Dev`: static SPA plus a staging API function built by `npm run build:vercel` ([DEPLOYMENT.md](DEPLOYMENT.md) §9). Production host undecided (see §3) |
 
 ### Source layout
 
@@ -142,7 +142,7 @@ src/admin/            ✓ admin panel (lazy chunk): AdminApp, auth (login, sessi
 shared/permissions.ts ✓ roles + permission matrix (API and admin UI)
 ```
 
-**No Vercel adapter yet.** Vercel deploys any top-level `api/` folder as functions automatically; with no database configured there, they'd deploy broken. Add it only if a Vercel staging environment with a managed MySQL is set up.
+**Vercel staging adapter:** `server/vercel.ts` wraps the same app (`server/bootstrap.ts`, shared with `server/index.ts`) as one Node function; `scripts/build-vercel.mjs` emits it with the static site in Build Output API format. There's no top-level `api/` folder, so Vercel's own per-file function builder isn't involved. It needs a managed MySQL and env vars ([DEPLOYMENT.md](DEPLOYMENT.md) §9) and doesn't replace the cPanel/VPS target.
 
 **API data with static fallback:** every page with API-backed content renders the bundled data from `content.ts` immediately and switches to the API response when it arrives: `useTrainingTracks()` (`src/lib/catalog.ts`), `usePlan()` (`plans.ts`), `useDemoVideos()` (`demoVideos.ts`), `useBlogPosts()` / `useBlogPost()` (`blog.ts`), `useSiteSettings()` (`settings.ts`). The site therefore works unchanged on static hosting with no API, and reflects admin edits once the API is live. Pages that only make sense live (forms, certificate lookup) show a clear error when the API is unreachable.
 

@@ -52,6 +52,7 @@ Without a `POSTMARK_SERVER_TOKEN`, emails are printed to the API log instead of 
 | `npm run dev:api` | API server with reload (`server/`) |
 | `npm run dev:all` | `dev` + `dev:api` in one terminal; refuses to start if port 5173 or 8787 is already taken (MySQL must be up) |
 | `npm run build:api` | Production API bundle → `dist-server/` |
+| `npm run build:vercel` | Vercel staging build: site + API function → `.vercel/output/` (run by Vercel; [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) §9) |
 | `npm test` | Unit + MySQL integration tests (DB tests skip if MySQL isn't running) |
 | `npm run db:up` / `db:down` | Start / stop local MySQL (Docker) |
 | `npm run db:generate` | SQL migration from schema changes |

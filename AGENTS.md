@@ -18,6 +18,7 @@ npm run dev:api    # API server (needs .env + MySQL: npm run db:up && npm run db
 npm run dev:all    # both of the above in one terminal (Ctrl+C stops both)
 npm run build      # tsc -b (app + server) && vite build — use this to verify changes
 npm run build:api  # API bundle → dist-server/
+npm run build:vercel  # Vercel staging: site + API function → .vercel/output/ (Vercel runs it; docs/DEPLOYMENT.md §9)
 npm run lint       # oxlint (.oxlintrc.json), covers src/ and server/
 npm test           # Vitest: unit + MySQL integration tests
 npm run db:generate  # after editing server/db/schema.ts → commit the new migration

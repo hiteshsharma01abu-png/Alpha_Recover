@@ -2,7 +2,7 @@
 
 **Last reviewed:** 2026-11-18 · Related: [ARCHITECTURE.md](ARCHITECTURE.md) (§3 hosting checklist) · [SECURITY.md](SECURITY.md) · [TESTING.md](TESTING.md) §8 (release validation)
 
-> **Status:** the production host isn't chosen yet. The frontend is temporarily on Vercel; the API has never been deployed. This guide covers both targets the backend is built for: **cPanel with "Setup Node.js App"** and a **VPS**. The automated deploy job is added to CI once the host is known.
+> **Status:** the production host isn't chosen yet. The frontend is temporarily on Vercel (deployed from the `Dev` branch). A Vercel staging setup for the API is prepared ([§9](#9-vercel-staging-temporary)) but needs a managed MySQL and Vercel env vars before it works. This guide covers both targets the backend is built for: **cPanel with "Setup Node.js App"** and a **VPS**. The automated deploy job is added to CI once the host is known.
 
 ---
 
@@ -109,3 +109,25 @@ Then watch Sentry and the app log for 30 minutes.
 | Jobs stuck in `dead` | Read `notification_jobs.last_error`; fix the cause, then reset `status = 'pending', attempts = 0` |
 | All users appear to share one IP (rate limits trip for everyone) | Set `TRUSTED_PROXY_HEADER` to the header your host's proxy adds |
 | Changes not visible after upload (cPanel) | Restart the Node.js app (`touch tmp/restart.txt`) |
+
+## 9. Vercel staging (temporary)
+
+For testing logins and the admin panel online before the real host is chosen. Not for production: no host cron (queued emails don't drain), and the database is a free-tier managed MySQL.
+
+**How it works:** Vercel runs `npm run build:vercel` (set in `vercel.json`). After the normal build, [`scripts/build-vercel.mjs`](../scripts/build-vercel.mjs) writes `.vercel/output/` in Vercel's [Build Output API](https://vercel.com/docs/build-output-api/v3) format: `dist/` as static files, the whole API bundled into one Node function ([`server/vercel.ts`](../server/vercel.ts)), and routing (real files first, `/api/*` → the function, everything else → `index.html`). Vercel uses that folder instead of `dist/`. `TRUSTED_PROXY_HEADER` defaults to `x-real-ip` there.
+
+**One-time setup:**
+
+1. **Database:** create a managed MySQL 8 (e.g. Aiven's free plan). Build `DATABASE_URL` from its connection details and add TLS: `mysql://USER:PASS@HOST:PORT/DBNAME?ssl={"rejectUnauthorized":false}` (encrypted; the certificate isn't verified, acceptable for staging only).
+2. **Vercel → Project → Settings → Environment Variables** (Production): `APP_URL` = `https://recova-sand.vercel.app`, `DATABASE_URL`, and fresh `BETTER_AUTH_SECRET` / `CRON_SECRET` / `IP_HASH_SALT` (`openssl rand -base64 32` each). Vercel runs with `NODE_ENV=production`, so the app also requires `POSTMARK_SERVER_TOKEN` (use `POSTMARK_API_TEST`: accepted, nothing is sent) and `TURNSTILE_SECRET_KEY` (Cloudflare's always-pass test secret `1x0000000000000000000000000000000AA`), plus the build-time `VITE_TURNSTILE_SITE_KEY` = `1x00000000000000000000AA`.
+3. **Schema, catalog and a staff account**, from your machine against the managed database (same values as step 2 in the shell):
+   ```bash
+   DATABASE_URL='…' npm run db:migrate
+   DATABASE_URL='…' npm run db:seed
+   DATABASE_URL='…' APP_URL='https://recova-sand.vercel.app' BETTER_AUTH_SECRET='…' CRON_SECRET='…' IP_HASH_SALT='…' \
+     npm run admin:create -- --email you@example.com --name You
+   ```
+4. Push to `Dev` (or redeploy), then check `https://recova-sand.vercel.app/api/v1/health` returns `"db":"ok"` and sign in at `/admin/login`.
+
+If `/api/v1/health` still returns the website's HTML, Vercel didn't pick up `.vercel/output`: check the build log for the `.vercel/output/ ready` line.
+
