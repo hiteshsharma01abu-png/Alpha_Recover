@@ -61,7 +61,7 @@ function useAdminDocument() {
     meta.content = 'noindex, nofollow';
     document.head.appendChild(meta);
     const previousTitle = document.title;
-    document.title = 'Admin · Alpha Recover';
+    document.title = 'Admin · Alpha Recovery';
     return () => {
       meta.remove();
       document.title = previousTitle;

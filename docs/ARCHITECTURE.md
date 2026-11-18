@@ -1,6 +1,6 @@
-# Alpha Recover — Architecture
+# Alpha Recovery — Architecture
 
-**Last reviewed:** 2026-11-13
+**Last reviewed:** 2026-11-18
 **Scope:** how the system is built: the current frontend, the planned backend, hosting and repository layout. Product scope and requirements live in [PRD.md](PRD.md); the visual system lives in [DESIGN.md](DESIGN.md).
 
 ---

@@ -1,5 +1,5 @@
 /**
- * Typed client for the Alpha Recover API (docs/API.md). Same origin, cookie session.
+ * Typed client for the Alpha Recovery API (docs/API.md). Same origin, cookie session.
  * Not used by any page yet — forms switch over to it phase by phase.
  */
 

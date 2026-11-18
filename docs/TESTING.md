@@ -1,6 +1,6 @@
-# Alpha Recover — QA & Testing
+# Alpha Recovery — QA & Testing
 
-**Last reviewed:** 2026-11-12 · **Status:** Phase 1 suite in place (unit + MySQL integration); later phases add their own.
+**Last reviewed:** 2026-11-18 · **Status:** Phase 1 suite in place (unit + MySQL integration); later phases add their own.
 
 ## Running the tests
 

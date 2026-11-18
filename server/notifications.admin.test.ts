@@ -44,9 +44,9 @@ describe.skipIf(!dbAvailable)('admin email log API (MySQL)', () => {
     const text = await res.clone().text();
     const { data, meta } = await readJson(res);
     expect(meta.counts).toEqual({ queued: 1, retrying: 1, sent: 1, failed: 1 });
-    expect(byTo(data, 'sent@example.com')).toMatchObject({ state: 'sent', subject: 'We received your message — Alpha Recover', retryBlockedReason: 'Already sent.' });
+    expect(byTo(data, 'sent@example.com')).toMatchObject({ state: 'sent', subject: 'We received your message — Alpha Recovery', retryBlockedReason: 'Already sent.' });
     expect(byTo(data, 'dead@example.com')).toMatchObject({ state: 'failed', attempts: 5, lastError: 'Postmark: inactive recipient', retryBlockedReason: null });
-    expect(byTo(data, 'retry@example.com')).toMatchObject({ state: 'retrying', attempts: 1, subject: 'Reset your Alpha Recover password' });
+    expect(byTo(data, 'retry@example.com')).toMatchObject({ state: 'retrying', attempts: 1, subject: 'Reset your Alpha Recovery password' });
     expect(byTo(data, 'queued@example.com')).toMatchObject({ state: 'queued' });
     expect(text).not.toContain('super-secret-token');
     expect(Object.keys(data[0])).not.toContain('payload');

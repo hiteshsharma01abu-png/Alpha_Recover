@@ -17,7 +17,7 @@ const envSchema = z.object({
   IP_HASH_SALT: secret,
   TRUSTED_PROXY_HEADER: optional,
   POSTMARK_SERVER_TOKEN: optional,
-  EMAIL_FROM: z.string().default('Alpha Recover <info@alpharecover.com>'),
+  EMAIL_FROM: z.string().default('Alpha Recovery <info@alpharecover.com>'),
   SENTRY_DSN: optional,
   /** Cloudflare Turnstile (bot protection on public forms). Optional in development. */
   TURNSTILE_SECRET_KEY: optional,

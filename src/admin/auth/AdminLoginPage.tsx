@@ -63,7 +63,7 @@ export function AdminLoginPage() {
                 <AdmIcon name="shield" size={16} /> Admin Panel
               </span>
               <h1>
-                Welcome to <span>Alpha Recover</span> Admin Panel
+                Welcome to <span>Alpha Recovery</span> Admin Panel
               </h1>
               <p>Manage students, courses, leads, and the website from one secure dashboard.</p>
               <ul className="adm-login-features">
@@ -96,7 +96,7 @@ export function AdminLoginPage() {
             ) : (
               <form onSubmit={onSubmit}>
                 <h2>Staff Sign In</h2>
-                <p className="adm-login-sub">Access the Alpha Recover admin panel</p>
+                <p className="adm-login-sub">Access the Alpha Recovery admin panel</p>
                 <div className="adm-field">
                   <label htmlFor="adm-email">Email</label>
                   <div className="adm-input-icon">

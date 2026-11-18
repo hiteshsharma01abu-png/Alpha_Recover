@@ -77,7 +77,7 @@ export function Home() {
               <h1 className="hero-brand">
                 <span className="hero-brand-name">
                   <span className="hero-brand-alpha">Alpha</span>
-                  <span className="hero-brand-recover">Recover</span>
+                  <span className="hero-brand-recover">Recovery</span>
                 </span>
                 <span className="hero-brand-sub">Data Recovery Training Solutions</span>
               </h1>

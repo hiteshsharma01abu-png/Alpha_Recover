@@ -1,6 +1,6 @@
 export const company = {
-  name: 'Alpha Recover',
-  shortName: 'Alpha Recover',
+  name: 'Alpha Recovery',
+  shortName: 'Alpha Recovery',
   tagline: 'Data recovery training that pays for itself',
   email: 'info@alpharecover.com',
   phone: '6355197917',

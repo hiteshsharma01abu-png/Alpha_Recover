@@ -1,13 +1,13 @@
-# Alpha Recover — Product Requirements (PRD)
+# Alpha Recovery — Product Requirements (PRD)
 
-**Last reviewed:** 2026-11-12 · **Status:** Draft for approval
+**Last reviewed:** 2026-11-18 · **Status:** Draft for approval
 **Related:** [ARCHITECTURE.md](ARCHITECTURE.md) · [DATABASE.md](DATABASE.md) · [API.md](API.md) · [SECURITY.md](SECURITY.md) · [TESTING.md](TESTING.md) · [PLAN.md](PLAN.md) · audit snapshot: [archive/2026-11-12-backend-audit.md](archive/2026-11-12-backend-audit.md)
 
 ---
 
 ## 1. Product summary
 
-Alpha Recover sells **online data recovery training** (one-time purchase, lifetime access) and generates **leads for data recovery services, technical support and software/hardware sales**. It's based in Ahmedabad, India, priced in INR, and serves international learners too: the register form offers India, US, UK and UAE, and the marketing copy mentions 4 languages.
+Alpha Recovery sells **online data recovery training** (one-time purchase, lifetime access) and generates **leads for data recovery services, technical support and software/hardware sales**. It's based in Ahmedabad, India, priced in INR, and serves international learners too: the register form offers India, US, UK and UAE, and the marketing copy mentions 4 languages.
 
 ### Business flows inferred from the UI
 

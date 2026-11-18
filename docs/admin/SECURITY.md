@@ -1,6 +1,6 @@
-# Alpha Recover — Admin Panel Security Plan
+# Alpha Recovery — Admin Panel Security Plan
 
-**Last reviewed:** 2026-11-13 · **Status:** Proposal
+**Last reviewed:** 2026-11-18 · **Status:** Proposal
 **Related:** system-wide controls in [../SECURITY.md](../SECURITY.md) (not repeated here) · [AUTH_AND_RBAC.md](AUTH_AND_RBAC.md) · [ARCHITECTURE.md](ARCHITECTURE.md)
 
 This document lists **what the admin panel adds or tightens**. Everything in `docs/SECURITY.md` (scrypt, DB sessions, CSRF guard, Zod, rate limits, CSP, backups…) applies as well.

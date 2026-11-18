@@ -14,7 +14,7 @@ import { enqueueEmail } from '../notifications/outbox';
 export function createAuth(env: Env, db: Database) {
   const secure = env.APP_URL.startsWith('https://');
   return betterAuth({
-    appName: 'Alpha Recover',
+    appName: 'Alpha Recovery',
     baseURL: env.APP_URL,
     basePath: '/api/v1/auth',
     secret: env.BETTER_AUTH_SECRET,

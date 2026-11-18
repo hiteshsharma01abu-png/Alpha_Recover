@@ -1,6 +1,6 @@
-# Alpha Recover — Implementation Plan
+# Alpha Recovery — Implementation Plan
 
-**Last reviewed:** 2026-11-16 · **Status:** For approval. Nothing is implemented yet.
+**Last reviewed:** 2026-11-18 · **Status:** For approval. Nothing is implemented yet.
 **Sizing:** S ≈ 1–2 dev-days, M ≈ 3–5, L ≈ 6–10, for one full-stack developer. Ranges assume decisions in [PRD.md](PRD.md) §6 are answered promptly.
 
 ---

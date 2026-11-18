@@ -1,8 +1,8 @@
-# Alpha Recover — API Specification
+# Alpha Recovery — API Specification
 
 **Base URL:** `/api/v1` (same origin as the SPA; Node.js + Hono, host-portable: cPanel Node.js App, VPS, or Vercel during development)
 **Format:** JSON (UTF-8). Request bodies are validated with Zod schemas shared from `shared/schemas/`.
-**Last reviewed:** 2026-11-16 · **Status:** Proposal · Related: [DATABASE.md](DATABASE.md) · [SECURITY.md](SECURITY.md)
+**Last reviewed:** 2026-11-18 · **Status:** Proposal · Related: [DATABASE.md](DATABASE.md) · [SECURITY.md](SECURITY.md)
 
 ---
 
@@ -112,7 +112,7 @@ Request: `{ "token": "…", "password": "…", "confirmPassword": "…" }` → `
 
 `GET /settings/public` response:
 ```json
-{ "data": { "company": { "name": "Alpha Recover", "email": "info@alpharecover.com", "phone": "+916355197917",
+{ "data": { "company": { "name": "Alpha Recovery", "email": "info@alpharecover.com", "phone": "+916355197917",
   "whatsapp": "https://wa.me/916355197917", "address": "…", "hours": "Mon – Sat, 9:00 AM – 6:00 PM" },
   "socialLinks": [{ "platform": "youtube", "url": "…" }] } }
 ```

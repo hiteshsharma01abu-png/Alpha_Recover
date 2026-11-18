@@ -1,4 +1,4 @@
-# Alpha Recover — Design System
+# Alpha Recovery — Design System
 
 **Last reviewed:** 2026-11-18
 **Scope:** how the UI looks and how to build new screens that match it (student dashboard, lesson player, checkout pages, admin). How the code is organized lives in [ARCHITECTURE.md](ARCHITECTURE.md).

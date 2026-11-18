@@ -1,6 +1,6 @@
-# Alpha Recover — Deployment
+# Alpha Recovery — Deployment
 
-**Last reviewed:** 2026-11-16 · Related: [ARCHITECTURE.md](ARCHITECTURE.md) (§3 hosting checklist) · [SECURITY.md](SECURITY.md) · [TESTING.md](TESTING.md) §8 (release validation)
+**Last reviewed:** 2026-11-18 · Related: [ARCHITECTURE.md](ARCHITECTURE.md) (§3 hosting checklist) · [SECURITY.md](SECURITY.md) · [TESTING.md](TESTING.md) §8 (release validation)
 
 > **Status:** the production host isn't chosen yet. The frontend is temporarily on Vercel; the API has never been deployed. This guide covers both targets the backend is built for: **cPanel with "Setup Node.js App"** and a **VPS**. The automated deploy job is added to CI once the host is known.
 

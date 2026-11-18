@@ -1,13 +1,13 @@
-# Alpha Recover — Admin Panel UI/UX Plan
+# Alpha Recovery — Admin Panel UI/UX Plan
 
-**Last reviewed:** 2026-11-13 · **Status:** Proposal
+**Last reviewed:** 2026-11-18 · **Status:** Proposal
 **Related:** [NAVIGATION.md](NAVIGATION.md) · [FOLDER_STRUCTURE.md](FOLDER_STRUCTURE.md) · public design system: [../DESIGN.md](../DESIGN.md)
 
 > **Hard rule:** the public website's look doesn't change. All admin styles live under the `.adm` root (class prefix `adm-`) in `src/admin/**`. `src/styles/global.css` and public components aren't edited for the admin.
 
 ## 1. Design direction
 
-A **calm, premium operations console** in the Alpha Recover brand. It uses the public site's identity (pine green, ivory, brass accents, mint highlights; Syne and Manrope type) but tuned for density and long work sessions:
+A **calm, premium operations console** in the Alpha Recovery brand. It uses the public site's identity (pine green, ivory, brass accents, mint highlights; Syne and Manrope type) but tuned for density and long work sessions:
 
 - **Content first:** data is the hero. Fewer glows and decorative grids than the marketing site, with brand accents saved for focus, active state and key numbers.
 - **Predictable patterns:** every list, detail and edit flow looks and behaves the same across modules.
@@ -39,7 +39,7 @@ Light values are proposals and must be **checked for WCAG AA contrast** (4.5:1 f
 
 ```
 ┌──────────── sidebar ────────────┬──────────────────────── top bar ────────────────────────┐
-│  Alpha Recover · Admin          │  ☰  Leads & Inquiries   Home / Leads    ⌕  ◐  [RP ▾]    │
+│  Alpha Recovery · Admin          │  ☰  Leads & Inquiries   Home / Leads    ⌕  ◐  [RP ▾]    │
 │  OVERVIEW                       ├─────────────────────────────────────────────────────────┤
 │   ▸ Dashboard                   │  Page header: title · description · [ + Primary action ] │
 │  SALES                          │  Filter bar: search · status · reason · date · ⋯ · Export│
@@ -114,7 +114,7 @@ Drawers slide 200ms ease-out; toasts fade and slide; skeletons shimmer subtly (d
 
 ## 8. Branding touches
 
-- Sidebar header: the Alpha Recover mark plus the word "Admin" in brass small caps.
+- Sidebar header: the Alpha Recovery mark plus the word "Admin" in brass small caps.
 - Login page: a split layout with a pine panel and brand glow on the left and the form on the right; uses the public site's font pairing.
 - Favicon badge or title prefix `Admin ·` so the tab is distinguishable from the public site.
 - `noindex, nofollow` meta on every admin page.

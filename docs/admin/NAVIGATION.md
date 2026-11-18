@@ -1,6 +1,6 @@
-# Alpha Recover — Admin Panel Navigation & Modules
+# Alpha Recovery — Admin Panel Navigation & Modules
 
-**Last reviewed:** 2026-11-16 · **Status:** Proposal · built so far: Dashboard, Leads & Inquiries, Students, Enrollments, Certificates, Courses, Plans & Offers, Demo Videos, Blog, Reports, Activity Log, Team & Access, Email Log, Settings
+**Last reviewed:** 2026-11-18 · **Status:** Proposal · built so far: Dashboard, Leads & Inquiries, Students, Enrollments, Certificates, Courses, Plans & Offers, Demo Videos, Blog, Reports, Activity Log, Team & Access, Email Log, Settings
 **Related:** [ARCHITECTURE.md](ARCHITECTURE.md) · [AUTH_AND_RBAC.md](AUTH_AND_RBAC.md) (permission strings) · [UI_UX.md](UI_UX.md) (sidebar behaviour) · [../API.md](../API.md) §10–14
 
 ## 1. How the proposed list was finalized against the real project

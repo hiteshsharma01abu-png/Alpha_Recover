@@ -11,7 +11,7 @@ function layout(title: string, bodyHtml: string): string {
   return `<!doctype html><html><body style="margin:0;background:#123128;font-family:Arial,sans-serif;color:#F0EDE4">
 <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:32px 16px">
 <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;background:#0D231D;border:1px solid #1F5E57;border-radius:8px">
-<tr><td style="padding:28px 32px"><p style="margin:0 0 4px;font-size:13px;letter-spacing:.08em;color:#D9B56E;text-transform:uppercase">Alpha Recover</p>
+<tr><td style="padding:28px 32px"><p style="margin:0 0 4px;font-size:13px;letter-spacing:.08em;color:#D9B56E;text-transform:uppercase">Alpha Recovery</p>
 <h1 style="margin:0 0 20px;font-size:22px;color:#F0EDE4">${escapeHtml(title)}</h1>
 <div style="font-size:15px;line-height:1.6;color:#CFDDD8">${bodyHtml}</div>
 </td></tr></table></td></tr></table></body></html>`;
@@ -23,7 +23,7 @@ function button(url: string, label: string) {
 
 export const templates = {
   verify_email: (p: { firstName: string; url: string }): Rendered => ({
-    subject: 'Verify your email for Alpha Recover',
+    subject: 'Verify your email for Alpha Recovery',
     text: `Hi ${p.firstName},\n\nConfirm your email address to finish setting up your account:\n${p.url}\n\nThis link expires in 24 hours. If you didn't create an account, ignore this email.`,
     html: layout(
       'Verify your email',
@@ -31,7 +31,7 @@ export const templates = {
     ),
   }),
   password_reset: (p: { firstName: string; url: string }): Rendered => ({
-    subject: 'Reset your Alpha Recover password',
+    subject: 'Reset your Alpha Recovery password',
     text: `Hi ${p.firstName},\n\nReset your password here:\n${p.url}\n\nThis link expires in 1 hour. If you didn't ask for this, ignore this email.`,
     html: layout(
       'Reset your password',
@@ -40,11 +40,11 @@ export const templates = {
   }),
   /** A Super Admin added this person to the team; the link sets their first password. */
   staff_invite: (p: { firstName: string; invitedBy: string; roleLabel: string; url: string }): Rendered => ({
-    subject: `You're invited to the Alpha Recover admin panel`,
-    text: `Hi ${p.firstName},\n\n${p.invitedBy} added you to the Alpha Recover team as ${p.roleLabel}.\n\nSet your password to get started:\n${p.url}\n\nThis link expires in 3 days. After that, ask for a new invite.`,
+    subject: `You're invited to the Alpha Recovery admin panel`,
+    text: `Hi ${p.firstName},\n\n${p.invitedBy} added you to the Alpha Recovery team as ${p.roleLabel}.\n\nSet your password to get started:\n${p.url}\n\nThis link expires in 3 days. After that, ask for a new invite.`,
     html: layout(
-      'Join the Alpha Recover team',
-      `<p>Hi ${escapeHtml(p.firstName)},</p><p>${escapeHtml(p.invitedBy)} added you to the Alpha Recover team as <strong>${escapeHtml(p.roleLabel)}</strong>.</p>${button(p.url, 'Set your password')}<p style="font-size:13px">This link expires in 3 days. After that, ask for a new invite.</p>`,
+      'Join the Alpha Recovery team',
+      `<p>Hi ${escapeHtml(p.firstName)},</p><p>${escapeHtml(p.invitedBy)} added you to the Alpha Recovery team as <strong>${escapeHtml(p.roleLabel)}</strong>.</p>${button(p.url, 'Set your password')}<p style="font-size:13px">This link expires in 3 days. After that, ask for a new invite.</p>`,
     ),
   }),
   /** To the team: a new lead arrived. */
@@ -87,8 +87,8 @@ export const templates = {
       ? 'Thanks for requesting a callback. Our team will call you within 24 hours (Mon – Sat, 9:00 AM – 6:00 PM IST).'
       : 'Thanks for getting in touch. We have received your message and will reply within 24 hours.';
     return {
-      subject: p.callback ? 'We will call you back soon — Alpha Recover' : 'We received your message — Alpha Recover',
-      text: `${hi}\n\n${line}\n\nFor anything urgent, WhatsApp us at +91 63551 97917.\n\nAlpha Recover`,
+      subject: p.callback ? 'We will call you back soon — Alpha Recovery' : 'We received your message — Alpha Recovery',
+      text: `${hi}\n\n${line}\n\nFor anything urgent, WhatsApp us at +91 63551 97917.\n\nAlpha Recovery`,
       html: layout(
         p.callback ? 'Callback requested' : 'Message received',
         `<p>${escapeHtml(hi)}</p><p>${escapeHtml(line)}</p><p>For anything urgent, WhatsApp us at <a href="https://wa.me/916355197917" style="color:#D9B56E">+91 63551 97917</a>.</p>`,

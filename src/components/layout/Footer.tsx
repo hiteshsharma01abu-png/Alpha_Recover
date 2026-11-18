@@ -254,7 +254,7 @@ export function Footer() {
           </div>
 
           <div className="footer-bottom">
-            <span>© {new Date().getFullYear()} Alpha Recover®. All rights reserved.</span>
+            <span>© {new Date().getFullYear()} Alpha Recovery®. All rights reserved.</span>
             <div className="footer-legal">
               <Link to="/about">Privacy Policy</Link>
               <span>|</span>

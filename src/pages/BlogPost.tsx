@@ -11,7 +11,7 @@ export function BlogPost() {
   useEffect(() => {
     if (!post) return;
     const previous = document.title;
-    document.title = `${post.seoTitle || post.title} | Alpha Recover`;
+    document.title = `${post.seoTitle || post.title} | Alpha Recovery`;
     const meta = document.querySelector<HTMLMetaElement>('meta[name="description"]');
     const previousDescription = meta?.content;
     if (meta) meta.content = post.seoDescription || post.excerpt;

@@ -1,10 +1,10 @@
-# Alpha Recover
+# Alpha Recovery
 
-Frontend for **Alpha Recover**: online data recovery training and services from Ahmedabad.
+Frontend for **Alpha Recovery**: online data recovery training and services from Ahmedabad.
 
 **Project folder:** `Alpha Recover`  
 **Live site (temporary):** https://recova-sand.vercel.app  
-**Vercel project:** `recova` (hosting slug; app brand is Alpha Recover). Production hosting is undecided; see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) §3.
+**Vercel project:** `recova` (hosting slug; app brand is Alpha Recovery). Production hosting is undecided; see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) §3.
 
 ## Getting started
 
@@ -68,7 +68,7 @@ The pages don't call the API yet: auth, payments, leads and the training portal 
 
 ## Brand
 
-- **Name:** Alpha Recover
+- **Name:** Alpha Recovery
 - **Email:** info@alpharecover.com
 - **Phone:** +91 63551 97917
 - **Address:** Ahmedabad, Gujarat, India
