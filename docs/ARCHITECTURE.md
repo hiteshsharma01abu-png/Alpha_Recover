@@ -16,7 +16,7 @@
 | Data | All copy and data in `src/data/content.ts` (no API yet) |
 | Build | `tsc -b && vite build` → static `dist/` (one JS + one CSS bundle) |
 | Lint | `oxlint` (`.oxlintrc.json`) |
-| Hosting (temporary) | Vercel, deployed from `Dev`: static SPA plus a staging API function built by `npm run build:vercel` ([DEPLOYMENT.md](DEPLOYMENT.md) §9). Production host undecided (see §3) |
+| Hosting (temporary) | Vercel, deployed manually (`npx vercel --prod`): static SPA plus a staging API function built by `npm run build:vercel` ([DEPLOYMENT.md](DEPLOYMENT.md) §9). Production host undecided (see §3) |
 
 ### Source layout
 

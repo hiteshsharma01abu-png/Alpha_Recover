@@ -2,7 +2,7 @@
 
 **Last reviewed:** 2026-11-18 · Related: [ARCHITECTURE.md](ARCHITECTURE.md) (§3 hosting checklist) · [SECURITY.md](SECURITY.md) · [TESTING.md](TESTING.md) §8 (release validation)
 
-> **Status:** the production host isn't chosen yet. The frontend is temporarily on Vercel (deployed from the `Dev` branch). A Vercel staging setup for the API is prepared ([§9](#9-vercel-staging-temporary)) but needs a managed MySQL and Vercel env vars before it works. This guide covers both targets the backend is built for: **cPanel with "Setup Node.js App"** and a **VPS**. The automated deploy job is added to CI once the host is known.
+> **Status:** the production host isn't chosen yet. The frontend is temporarily on Vercel (deployed manually with `npx vercel --prod`; the project isn't connected to GitHub). A Vercel staging setup for the API is prepared ([§9](#9-vercel-staging-temporary)) but needs a managed MySQL and Vercel env vars before it works. This guide covers both targets the backend is built for: **cPanel with "Setup Node.js App"** and a **VPS**. The automated deploy job is added to CI once the host is known.
 
 ---
 
@@ -114,7 +114,9 @@ Then watch Sentry and the app log for 30 minutes.
 
 For testing logins and the admin panel online before the real host is chosen. Not for production: no host cron (queued emails don't drain), and the database is a free-tier managed MySQL.
 
-**How it works:** Vercel runs `npm run build:vercel` (set in `vercel.json`). After the normal build, [`scripts/build-vercel.mjs`](../scripts/build-vercel.mjs) writes `.vercel/output/` in Vercel's [Build Output API](https://vercel.com/docs/build-output-api/v3) format: `dist/` as static files, the whole API bundled into one Node function ([`server/vercel.ts`](../server/vercel.ts)), and routing (real files first, `/api/*` → the function, everything else → `index.html`). Vercel uses that folder instead of `dist/`. `TRUSTED_PROXY_HEADER` defaults to `x-real-ip` there.
+**How it works:** Vercel runs `npm run build:vercel` (set in `vercel.json`). After the normal build, [`scripts/build-vercel.mjs`](../scripts/build-vercel.mjs) writes `.vercel/output/` in Vercel's [Build Output API](https://vercel.com/docs/build-output-api/v3) format: `dist/` as static files, the whole API bundled into one Node function ([`server/vercel.ts`](../server/vercel.ts)), and routing (real files first, `/api/*` → the function, everything else → `index.html`). Vercel uses that folder instead of `dist/`. `TRUSTED_PROXY_HEADER` defaults to `x-real-ip` there. Keep routing and cache headers in that script, not in `vercel.json`: rewrites there are applied first and send `/api/*` to `index.html`.
+
+**Deploying:** the Vercel project isn't connected to GitHub, so pushes don't deploy. Run `npx vercel --prod` from the repo (or connect it once with `npx vercel git connect`).
 
 **One-time setup:**
 
