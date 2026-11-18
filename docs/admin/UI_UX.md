@@ -16,7 +16,7 @@ A **calm, premium operations console** in the Alpha Recovery brand. It uses the 
 
 ## 2. Themes (dark and light)
 
-Both themes are defined as CSS custom properties on `.adm[data-theme]`. The toggle offers **System / Light / Dark**, stored per browser, defaulting to System (`prefers-color-scheme`).
+Both themes are defined as CSS custom properties on `.adm[data-theme]`. The toggle offers **System / Light / Dark**, stored per browser, defaulting to Dark until the person picks one (System follows `prefers-color-scheme`).
 
 | Token | Dark (from the public palette) | Light (proposed) | Use |
 |---|---|---|---|

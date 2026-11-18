@@ -6,15 +6,15 @@ const KEY = 'ar_admin_theme';
 const read = (): ThemePreference => {
   try {
     const v = localStorage.getItem(KEY);
-    return v === 'light' || v === 'dark' ? v : 'system';
+    return v === 'light' || v === 'system' ? v : 'dark';
   } catch {
-    return 'system';
+    return 'dark';
   }
 };
 
 const systemDark = () => typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-/** Admin theme: System / Light / Dark, remembered per browser (docs/admin/UI_UX.md §2). */
+/** Admin theme: System / Light / Dark, remembered per browser; Dark until one is picked (docs/admin/UI_UX.md §2). */
 export function useAdminTheme() {
   const [preference, setPreference] = useState<ThemePreference>(read);
   const [dark, setDark] = useState(systemDark);
@@ -29,8 +29,7 @@ export function useAdminTheme() {
   const choose = (next: ThemePreference) => {
     setPreference(next);
     try {
-      if (next === 'system') localStorage.removeItem(KEY);
-      else localStorage.setItem(KEY, next);
+      localStorage.setItem(KEY, next);
     } catch {
       // storage blocked: the choice lasts for this visit only
     }
