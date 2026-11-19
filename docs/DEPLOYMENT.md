@@ -1,6 +1,6 @@
 # Alpha Recovery — Deployment
 
-**Last reviewed:** 2026-11-18 · Related: [ARCHITECTURE.md](ARCHITECTURE.md) (§3 hosting checklist) · [SECURITY.md](SECURITY.md) · [TESTING.md](TESTING.md) §8 (release validation)
+**Last reviewed:** 2026-11-19 · Related: [ARCHITECTURE.md](ARCHITECTURE.md) (§3 hosting checklist) · [SECURITY.md](SECURITY.md) · [TESTING.md](TESTING.md) §8 (release validation)
 
 > **Status:** the production host isn't chosen yet. The frontend is temporarily on Vercel (deployed manually with `npx vercel --prod`; the project isn't connected to GitHub). A Vercel staging setup for the API is prepared ([§9](#9-vercel-staging-temporary)) but needs a managed MySQL and Vercel env vars before it works. This guide covers both targets the backend is built for: **cPanel with "Setup Node.js App"** and a **VPS**. The automated deploy job is added to CI once the host is known.
 
@@ -121,15 +121,15 @@ For testing logins and the admin panel online before the real host is chosen. No
 **One-time setup:**
 
 1. **Database:** create a managed MySQL 8 (e.g. Aiven's free plan). Build `DATABASE_URL` from its connection details and add TLS: `mysql://USER:PASS@HOST:PORT/DBNAME?ssl={"rejectUnauthorized":false}` (encrypted; the certificate isn't verified, acceptable for staging only).
-2. **Vercel → Project → Settings → Environment Variables** (Production): `APP_URL` = `https://recova-sand.vercel.app`, `DATABASE_URL`, and fresh `BETTER_AUTH_SECRET` / `CRON_SECRET` / `IP_HASH_SALT` (`openssl rand -base64 32` each). Vercel runs with `NODE_ENV=production`, so the app also requires `POSTMARK_SERVER_TOKEN` (use `POSTMARK_API_TEST`: accepted, nothing is sent) and `TURNSTILE_SECRET_KEY` (Cloudflare's always-pass test secret `1x0000000000000000000000000000000AA`), plus the build-time `VITE_TURNSTILE_SITE_KEY` = `1x00000000000000000000AA`.
+2. **Vercel → Project → Settings → Environment Variables** (Production): `APP_URL` = `https://alpharecovery-training.vercel.app`, `DATABASE_URL`, and fresh `BETTER_AUTH_SECRET` / `CRON_SECRET` / `IP_HASH_SALT` (`openssl rand -base64 32` each). Vercel runs with `NODE_ENV=production`, so the app also requires `POSTMARK_SERVER_TOKEN` (use `POSTMARK_API_TEST`: accepted, nothing is sent) and `TURNSTILE_SECRET_KEY` (Cloudflare's always-pass test secret `1x0000000000000000000000000000000AA`), plus the build-time `VITE_TURNSTILE_SITE_KEY` = `1x00000000000000000000AA`.
 3. **Schema, catalog and a staff account**, from your machine against the managed database (same values as step 2 in the shell):
    ```bash
    DATABASE_URL='…' npm run db:migrate
    DATABASE_URL='…' npm run db:seed
-   DATABASE_URL='…' APP_URL='https://recova-sand.vercel.app' BETTER_AUTH_SECRET='…' CRON_SECRET='…' IP_HASH_SALT='…' \
+   DATABASE_URL='…' APP_URL='https://alpharecovery-training.vercel.app' BETTER_AUTH_SECRET='…' CRON_SECRET='…' IP_HASH_SALT='…' \
      npm run admin:create -- --email you@example.com --name You
    ```
-4. Push to `Dev` (or redeploy), then check `https://recova-sand.vercel.app/api/v1/health` returns `"db":"ok"` and sign in at `/admin/login`.
+4. Deploy with `npx vercel --prod`, then check `https://alpharecovery-training.vercel.app/api/v1/health` returns `"db":"ok"` and sign in at `/admin/login`.
 
 If `/api/v1/health` still returns the website's HTML, Vercel didn't pick up `.vercel/output`: check the build log for the `.vercel/output/ ready` line.
 

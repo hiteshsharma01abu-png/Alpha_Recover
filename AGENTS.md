@@ -7,7 +7,7 @@ Instructions for AI coding agents (Cursor, Claude Code) and developers working i
 **Alpha Recovery**: a marketing + training site for an Ahmedabad data recovery training and services business (logical, electrical/PCB, mechanical and firmware recovery courses; Professional Plan pricing; demo videos).
 The frontend is complete, but its forms are still **UI stubs** (`alert()` / `setNote(...)`). The **API foundation** (Phase 1: `server/`, Node + Hono + MySQL + Better Auth) exists; features get wired phase by phase (see `docs/PLAN.md`).
 
-- Live (temporary): https://recova-sand.vercel.app. Production hosting is undecided (cPanel or VPS).
+- Live (temporary): https://alpharecovery-training.vercel.app. Production hosting is undecided (cPanel or VPS).
 - Brand and contact details live in `company` in `src/data/content.ts`. Never hard-code them elsewhere.
 
 ## Commands

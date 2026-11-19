@@ -3,7 +3,7 @@
 Frontend for **Alpha Recovery**: online data recovery training and services from Ahmedabad.
 
 **Project folder:** `Alpha Recover`  
-**Live site (temporary):** https://recova-sand.vercel.app  
+**Live site (temporary):** https://alpharecovery-training.vercel.app  
 **Vercel project:** `recova` (hosting slug; app brand is Alpha Recovery). Production hosting is undecided; see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) §3.
 
 ## Getting started
