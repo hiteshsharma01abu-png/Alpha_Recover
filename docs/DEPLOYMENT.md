@@ -116,7 +116,7 @@ For testing logins and the admin panel online before the real host is chosen. No
 
 **How it works:** Vercel runs `npm run build:vercel` (set in `vercel.json`). After the normal build, [`scripts/build-vercel.mjs`](../scripts/build-vercel.mjs) writes `.vercel/output/` in Vercel's [Build Output API](https://vercel.com/docs/build-output-api/v3) format: `dist/` as static files, the whole API bundled into one Node function ([`server/vercel.ts`](../server/vercel.ts)), and routing (real files first, `/api/*` → the function, everything else → `index.html`). Vercel uses that folder instead of `dist/`. `TRUSTED_PROXY_HEADER` defaults to `x-real-ip` there. Keep routing and cache headers in that script, not in `vercel.json`: rewrites there are applied first and send `/api/*` to `index.html`.
 
-**Deploying:** the Vercel project isn't connected to GitHub, so pushes don't deploy. Run `npx vercel --prod` from the repo (or connect it once with `npx vercel git connect`).
+**Deploying:** the Vercel project isn't connected to GitHub, so pushes don't deploy. Run `npx vercel --prod --scope hiteshbuster` from the repo (or connect it once with `npx vercel git connect`). The only public URL is **https://alpharecovery-training.vercel.app** — do not recreate `recova-sand.vercel.app`. After deploy, confirm that alias is on the new production deployment (`npx vercel alias set <deployment-url> alpharecovery-training.vercel.app --scope hiteshbuster` if it isn't).
 
 **One-time setup:**
 

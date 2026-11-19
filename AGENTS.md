@@ -7,7 +7,7 @@ Instructions for AI coding agents (Cursor, Claude Code) and developers working i
 **Alpha Recovery**: a marketing + training site for an Ahmedabad data recovery training and services business (logical, electrical/PCB, mechanical and firmware recovery courses; Professional Plan pricing; demo videos).
 The frontend is complete, but its forms are still **UI stubs** (`alert()` / `setNote(...)`). The **API foundation** (Phase 1: `server/`, Node + Hono + MySQL + Better Auth) exists; features get wired phase by phase (see `docs/PLAN.md`).
 
-- Live (temporary): https://alpharecovery-training.vercel.app. Production hosting is undecided (cPanel or VPS).
+- Live (temporary): **https://alpharecovery-training.vercel.app** only. Do not use or recreate `recova-sand.vercel.app` (removed). Production hosting is undecided (cPanel or VPS).
 - Brand and contact details live in `company` in `src/data/content.ts`. Never hard-code them elsewhere.
 
 ## Commands
@@ -107,5 +107,5 @@ Guard rails:
 
 - Don't read or print `.env*` files or `.vercel/.env*` (secrets).
 - Don't edit `dist/`, `dist-server/`, `.vercel/`, `node_modules/` or `.venv-rembg/` (a local Python venv for the `rembg` image tool, not part of the app).
-- Don't deploy (`vercel`, `vercel --prod`) without explicit confirmation.
+- Don't deploy (`vercel`, `vercel --prod`) without explicit confirmation. When deploying, the live URL is always https://alpharecovery-training.vercel.app (alias after deploy if needed; never `recova-sand.vercel.app`).
 - Don't redesign existing UI or change routes unless asked.
