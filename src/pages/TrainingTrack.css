@@ -1,0 +1,228 @@
+/* Training track page */
+.tt-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tt-chips li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.95rem;
+  border: 1px solid color-mix(in srgb, var(--mint) 30%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--mint) 6%, transparent);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.tt {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.tt-level {
+  padding: 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--mint) 22%, transparent);
+  border-radius: 16px;
+  background:
+    radial-gradient(ellipse 60% 50% at 0% 0%, color-mix(in srgb, var(--mint) 8%, transparent), transparent 70%),
+    linear-gradient(180deg, color-mix(in srgb, var(--surface-alt) 92%, var(--mint)), var(--surface));
+}
+
+.tt-level-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.1rem;
+  padding: 0 0.35rem;
+}
+
+.tt-level-head > img {
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--mint) 40%, transparent));
+}
+
+.tt-level-head h2 {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: clamp(1.2rem, 2.4vw, 1.5rem);
+  font-weight: 800;
+}
+
+.tt-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--mint) 35%, transparent);
+  border-radius: 10px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.tt-lessons {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(var(--tt-rows, 8), auto);
+  gap: 0.55rem 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tt-lessons button {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.35rem 0.9rem 0.35rem 0.4rem;
+  border: 1px solid color-mix(in srgb, var(--mint) 16%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--dark-band) 70%, transparent);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.94rem;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.tt-lessons button:hover,
+.tt-lessons button:focus-visible {
+  border-color: color-mix(in srgb, var(--mint) 50%, transparent);
+}
+
+.tt-num {
+  display: grid;
+  place-items: center;
+  min-width: 42px;
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--mint) 14%, var(--surface));
+  color: var(--mint);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.tt-title {
+  overflow-wrap: anywhere;
+}
+
+.tt-cta {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 0.5rem;
+  padding: 1.5rem 1.75rem;
+  border: 1px solid color-mix(in srgb, var(--mint) 25%, transparent);
+  border-radius: 16px;
+  background:
+    radial-gradient(ellipse 50% 90% at 100% 50%, color-mix(in srgb, var(--mint) 12%, transparent), transparent 70%),
+    var(--surface);
+}
+
+.tt-cta > img {
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--mint) 40%, transparent));
+}
+
+.tt-cta h2 {
+  margin: 0 0 0.3rem;
+  font-family: var(--font-body);
+  font-size: clamp(1.2rem, 2.4vw, 1.5rem);
+  font-weight: 800;
+}
+
+.tt-cta p {
+  margin: 0;
+  color: var(--text-sub);
+}
+
+.tt-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.tt-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.75rem 1.3rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.94rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.tt-btn-mint {
+  background: var(--mint);
+  color: var(--mint-ink);
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--mint) 22%, transparent);
+}
+
+.tt-btn-line {
+  border: 1px solid color-mix(in srgb, var(--mint) 45%, transparent);
+  color: var(--text);
+}
+
+.tt-btn:hover {
+  filter: brightness(1.08);
+}
+
+@media (max-width: 860px) {
+  .tt-lessons {
+    grid-auto-flow: row;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+  }
+
+  .tt-cta {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .tt-cta-actions {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 520px) {
+  .tt-level {
+    padding: 1rem 0.75rem;
+  }
+
+  .tt-level-head {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .tt-level-head > img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .tt-count {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  .tt-cta {
+    padding: 1.25rem;
+  }
+
+  .tt-cta-actions,
+  .tt-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -1,0 +1,112 @@
+/* Inner-page hero (Services, Industries, Blog, Training track, Verify Certificate) */
+.ph {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid color-mix(in srgb, var(--mint) 22%, transparent);
+  background:
+    radial-gradient(ellipse 45% 90% at 85% 40%, color-mix(in srgb, var(--mint) 16%, transparent), transparent 70%),
+    radial-gradient(ellipse 60% 80% at 0% 0%, color-mix(in srgb, var(--mint) 7%, transparent), transparent 65%),
+    var(--dark-band);
+}
+
+/* Soft light wave behind the illustration, from the brand sheet */
+.ph-has-art::before {
+  content: '';
+  position: absolute;
+  right: -4%;
+  top: 18%;
+  width: min(58%, 760px);
+  aspect-ratio: 390 / 119;
+  background: url('/assets/page-wave.webp') center / contain no-repeat;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.ph-inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2rem 0 2.25rem;
+}
+
+.ph-has-art .ph-inner {
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+}
+
+.ph-crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.9rem;
+  font-size: 0.9rem;
+  color: var(--text-sub);
+}
+
+.ph-crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.ph-crumbs a {
+  color: var(--text-sub);
+  text-decoration: none;
+}
+
+.ph-crumbs a:hover {
+  color: var(--mint);
+}
+
+.ph-crumbs [aria-current] {
+  color: var(--text);
+}
+
+.ph h1 {
+  margin: 0;
+  font-size: clamp(2.1rem, 4.6vw, 3.25rem);
+  line-height: 1.08;
+  max-width: 22ch;
+}
+
+.ph-sub {
+  margin: 0.85rem 0 0;
+  max-width: 58ch;
+  font-size: clamp(1rem, 1.5vw, 1.1rem);
+  line-height: 1.6;
+  color: var(--text-sub);
+}
+
+.ph-art {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ph-art img {
+  width: min(100%, 360px);
+  height: auto;
+  filter: drop-shadow(0 18px 40px color-mix(in srgb, var(--mint) 22%, transparent));
+}
+
+@media (max-width: 760px) {
+  .ph-has-art .ph-inner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ph-art {
+    display: none;
+  }
+
+  .ph-has-art::before {
+    width: 90%;
+    top: auto;
+    bottom: -10%;
+    opacity: 0.35;
+  }
+
+  .ph-inner {
+    padding: 1.5rem 0 1.75rem;
+  }
+}

@@ -1,0 +1,64 @@
+.fs {
+  display: grid;
+  grid-template-columns: repeat(var(--fs-cols, 4), minmax(0, 1fr));
+  margin: 2.5rem 0 0;
+  padding: 1.35rem 0.5rem;
+  list-style: none;
+  border: 1px solid color-mix(in srgb, var(--mint) 22%, transparent);
+  border-radius: 14px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--mint) 5%, var(--surface)), var(--surface));
+}
+
+.fs-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  padding: 0.35rem 1rem;
+}
+
+.fs-item + .fs-item {
+  border-left: 1px solid color-mix(in srgb, var(--mint) 18%, transparent);
+}
+
+.fs-item img {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--mint) 35%, transparent));
+}
+
+.fs-item strong {
+  display: block;
+  font-size: 0.98rem;
+  color: var(--text);
+}
+
+.fs-item small {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.84rem;
+  color: var(--text-sub);
+}
+
+@media (max-width: 900px) {
+  .fs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 0.75rem;
+  }
+
+  .fs-item {
+    justify-content: flex-start;
+  }
+
+  .fs-item + .fs-item {
+    border-left: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .fs {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 1rem 0.25rem;
+  }
+}

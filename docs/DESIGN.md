@@ -1,6 +1,6 @@
 # Alpha Recovery — Design System
 
-**Last reviewed:** 2026-11-18
+**Last reviewed:** 2026-11-20
 **Scope:** how the UI looks and how to build new screens that match it (student dashboard, lesson player, checkout pages, admin). How the code is organized lives in [ARCHITECTURE.md](ARCHITECTURE.md).
 
 > **Source of truth:** token values live in [`src/styles/global.css`](../src/styles/global.css) (`:root`). This doc explains *what to use when*. It deliberately doesn't copy values, so it can't drift from the CSS.
@@ -30,9 +30,10 @@ A dark, technical "lab" aesthetic: deep pine-green backgrounds, ivory text, bras
 | `--brass-text` | Text placed **on** brass |
 | `--ok` | Success / "recovered" states |
 | `--danger` | Errors, destructive actions |
+| `--mint` / `--mint-ink` | Mint accent (icon glows, pill buttons, active states) and the dark text placed **on** mint |
 
 - Contrast ratios are noted next to each token in `global.css`; keep text on `--bg`/`--surface` at the listed tokens to stay AA-compliant.
-- **Mint** (`#7DFFC0`) is the glow/highlight colour used in glass panels and icon variants. It's currently hard-coded rather than tokenized. If you add new mint usages, introduce a `--mint` token rather than repeating the hex.
+- **Mint** is now the `--mint` token. Older CSS still repeats `#7DFFC0`; new code uses the token (mix it with `color-mix()` for borders and glows).
 - The **compat aliases** at the bottom of `:root` (`--bg-card`, `--heading`, `--cyan`…) exist for older CSS. Don't use them in new code; use the primary names above.
 
 ## 3. Typography
@@ -70,6 +71,9 @@ Fonts load from Google Fonts at the top of `global.css`. Base body size is 16px,
 | Tabs / filters | Account toggle, TrainingExplorer tracks, Demos filters | `role="tab"`, `aria-selected`, `is-active` class |
 | Form states | `.field-error`, `.form-error`, `.form-success`, `.hp-field` (honeypot), `.turnstile-box` in `global.css`; `.success` (page-scoped in `SimplePages.css`) | Use these for every API-backed form: errors in `--danger`, success in `--ok`. The `<Turnstile>` widget lives in `src/components/ui/Turnstile.tsx`; `submitLead()` / `formErrors()` in `src/lib/leads.ts` |
 | Floating actions | WhatsApp float, scroll-to-top | Bottom corners; keep new floating UI clear of them |
+| Inner-page hero | `<PageHero crumbs title sub art>` in `src/components/ui/PageHero.tsx` (`ph-`) | Breadcrumb, title, subtitle, optional chips (children) and a glowing illustration (`heroArt` in `src/data/pageContent.ts`); used by Services, Industries, Blog, Training track, Verify Certificate. The illustration hides below 760px |
+| Icon cards | `<IconCard item>` in `.ic-grid` (`src/components/ui/IconCard.tsx`, `ic-`) | Icon tile + title + text + mint pill link; 3 / 2 / 1 columns |
+| Feature strip | `<FeatureStrip items>` (`src/components/ui/FeatureStrip.tsx`, `fs-`) | Bordered row of icon highlights at the bottom of inner pages; 4 → 2 → 1 columns |
 | Article content | `.prose` (in `SimplePages.css`) + `<Markdown source>` from `src/components/ui/Markdown.tsx` | Headings (`#`/`##` → h2), lists, quotes (brass left border), code blocks (`--dark-band`), inline code (`--chip`), brass underlined links |
 
 ## 6. Icons
@@ -84,6 +88,7 @@ Fonts load from Google Fonts at the top of `global.css`. Base body size is 16px,
 ## 7. Imagery
 
 - Photos are optimized **WebP** in `public/assets/`, referenced by absolute path (`/assets/pcb.webp`); section → image maps live in [`src/data/sectionMedia.ts`](../src/data/sectionMedia.ts).
+- Inner-page hero illustrations (`public/assets/page-*.webp`: hard drive, laptop + drive, certificate, light wave) are cut from the brand asset sheet with transparent backgrounds; the source sheet and the redesign references (`alpha_recovery_assets/`) are kept outside the repo.
 - Above-the-fold images are preloaded in `index.html`.
 - Use `loading="lazy"` / `fetchPriority="low"` for below-the-fold images; always set `width`/`height` to avoid layout shift.
 - **Logo and favicons** live in `public/alpha-recovery-branding/` (usage in its `README.txt`); paths are in `brandLogo` in `src/data/content.ts`. Public header/drawer use `alpha-logo-header.svg`, the footer `alpha-logo-footer.svg` (tagline included), and the admin `BrandLogo` the tiled mark (`favicon.svg`) plus theme-aware text, since the wordmark's white text vanishes on the light admin theme.

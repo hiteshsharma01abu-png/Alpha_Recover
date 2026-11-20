@@ -1,31 +1,20 @@
-import { Link } from 'react-router-dom';
-import { services } from '../data/content';
-import './SimplePages.css';
+import { FeatureStrip } from '../components/ui/FeatureStrip';
+import { IconCard } from '../components/ui/IconCard';
+import { PageHero } from '../components/ui/PageHero';
+import { heroArt, servicesPage } from '../data/pageContent';
 
 export function Services() {
   return (
     <div>
-      <div className="page-hero">
-        <div className="container">
-          <div className="breadcrumb">
-            <Link to="/">Home</Link>
-            <span>/</span>
-            <span>Services</span>
-          </div>
-          <h1>Services</h1>
-        </div>
-      </div>
+      <PageHero crumbs={[{ label: 'Services' }]} title={servicesPage.title} sub={servicesPage.sub} art={heroArt.hdd} />
       <section className="section">
         <div className="container">
-          <div className="list-grid">
-            {services.map((s) => (
-              <article key={s} className="panel list-item">
-                <h2>{s}</h2>
-                <p>Book a diagnosis or ask for remote assistance on WhatsApp.</p>
-                <Link to="/contact">Request service</Link>
-              </article>
+          <div className="ic-grid">
+            {servicesPage.cards.map((card) => (
+              <IconCard key={card.title} item={card} />
             ))}
           </div>
+          <FeatureStrip items={servicesPage.features} />
         </div>
       </section>
     </div>

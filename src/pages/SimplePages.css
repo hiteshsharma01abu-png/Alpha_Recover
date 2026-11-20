@@ -477,119 +477,12 @@ a.contact-info-card:hover {
   color: var(--text-sub);
 }
 
-.list-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
-}
-
-.list-item h2 {
-  font-size: 1.1rem;
-  color: #F0EDE4;
-  margin: 0 0 0.45rem;
-}
-
-.list-item p {
-  margin: 0 0 0.85rem;
-  color: #F0EDE4;
-  line-height: 1.5;
-}
-
-.list-item a {
-  font-weight: 700;
-  color: #F0EDE4;
-}
-
-.blog-list,
-.grid-3 {
-  display: grid;
-  gap: 1rem;
-}
-
-.blog-list {
-  grid-template-columns: 1fr;
-  max-width: 760px;
-}
-
-.grid-3 {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.blog-list time {
-  color: #F0EDE4;
-  font-size: 0.85rem;
-}
-
-.blog-list .panel h2,
-.grid-3 .panel h2 {
-  margin: 0.35rem 0 0.5rem;
-  color: #F0EDE4;
-  font-size: 1.2rem;
-}
-
-.blog-list a {
-  color: #F0EDE4;
-  font-weight: 700;
-}
-
-.hero-sub {
-  max-width: 50rem;
-  margin: 0.75rem 0 0;
-  color: var(--mute);
-}
-
-.track-modules {
-  display: grid;
-  gap: 1rem;
-}
-
-.lesson-ol {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 0.35rem;
-}
-
-.lesson-ol button {
-  width: 100%;
-  display: flex;
-  gap: 0.75rem;
-  align-items: baseline;
-  text-align: left;
-  background: transparent;
-  border: 0;
-  border-bottom: 1px solid var(--line);
-  color: var(--fog);
-  padding: 0.7rem 0.2rem;
-  cursor: pointer;
-}
-
-.lesson-ol button:hover {
-  color: var(--signal);
-}
-
-.lesson-ol span {
-  color: var(--cyan);
-  font-family: var(--font-display);
-  font-size: 0.8rem;
-}
-
-.track-cta {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  margin-top: 0.5rem;
-}
-
 @media (max-width: 900px) {
 
   .demo-grid,
-  .list-grid,
   .contact-layout,
   .contact-page-grid,
-  .account-grid,
-  .grid-3 {
+  .account-grid {
     grid-template-columns: 1fr;
   }
 
@@ -610,47 +503,6 @@ a.contact-info-card:hover {
     max-width: none;
   }
 }
-/* Verify certificate result */
-.cert-result {
-  margin-top: 1.25rem;
-  padding: 1rem 1.15rem;
-  border: 1px solid var(--line);
-  border-left: 3px solid var(--ok);
-  border-radius: var(--radius);
-  background: var(--surface);
-}
-
-.cert-result--revoked {
-  border-left-color: var(--danger);
-}
-
-.cert-result-status {
-  margin: 0 0 0.75rem;
-  font-weight: 700;
-  color: var(--ok);
-}
-
-.cert-result--revoked .cert-result-status {
-  color: var(--danger);
-}
-
-.cert-result dl {
-  display: grid;
-  grid-template-columns: max-content 1fr;
-  gap: 0.4rem 1rem;
-  margin: 0;
-}
-
-.cert-result dt {
-  color: var(--content);
-}
-
-.cert-result dd {
-  margin: 0;
-  color: var(--text);
-  font-weight: 600;
-}
-
 /* Account settings */
 .settings-stack {
   display: grid;

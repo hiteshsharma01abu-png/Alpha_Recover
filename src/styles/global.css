@@ -38,6 +38,9 @@
 
   /* Accents */
   --brass: #D9B56E;
+  /* mint accent: icons, pill buttons and glows on the redesigned inner pages */
+  --mint: #7DFFC0;
+  --mint-ink: #06120E;
   /* eyebrows, sale badge, dial tip (~5.4:1) */
   --brass-text: #3A2A0A;
   /* text on brass badge */

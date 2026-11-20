@@ -1,8 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { FeatureStrip } from '../components/ui/FeatureStrip';
+import { PageHero } from '../components/ui/PageHero';
+import { heroArt, verifyPage } from '../data/pageContent';
 import { api, ApiError } from '../lib/api';
-import './SimplePages.css';
+import { icons } from '../lib/icons';
+import './VerifyCertificate.css';
 
 type Verification = {
   code: string;
@@ -63,72 +67,73 @@ export function VerifyCertificate() {
 
   return (
     <div>
-      <div className="page-hero">
-        <div className="container">
-          <div className="breadcrumb">
-            <Link to="/">Home</Link>
-            <span>/</span>
-            <span>Verify Certificate</span>
-          </div>
-          <h1>Verify Certificate</h1>
-        </div>
-      </div>
+      <PageHero crumbs={[{ label: 'Verify Certificate' }]} title={verifyPage.title} sub={verifyPage.sub} art={heroArt.certificate} />
       <section className="section">
-        <div className="container narrow">
-          <form className="panel" onSubmit={onSubmit}>
-            <p>Enter the certificate ID printed on the trainee’s certificate.</p>
-            <div className="field">
+        <div className="container">
+          <form className="vc-card" onSubmit={onSubmit}>
+            <span className="vc-badge" aria-hidden>
+              <img src={icons.shieldCheck} alt="" width={64} height={64} />
+            </span>
+            <div className="vc-body">
+              <h2>{verifyPage.cardTitle}</h2>
+              <p>{verifyPage.cardText}</p>
               <label htmlFor="code">Certificate ID</label>
-              <input
-                id="code"
-                name="code"
-                required
-                placeholder="e.g. AR-2026-00421"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                autoComplete="off"
-                spellCheck={false}
-              />
-            </div>
-            <button className="btn btn-primary" type="submit" disabled={checking}>
-              {checking ? 'Checking…' : 'Verify'}
-            </button>
-
-            {result?.kind === 'found' ? (
-              <div className={`cert-result cert-result--${result.cert.status}`} role="status">
-                <p className="cert-result-status">
-                  {result.cert.status === 'valid' ? '✓ Valid certificate' : '✕ This certificate has been revoked'}
-                </p>
-                <dl>
-                  <dt>Certificate ID</dt>
-                  <dd>{result.cert.code}</dd>
-                  <dt>Awarded to</dt>
-                  <dd>{result.cert.recipientName}</dd>
-                  <dt>Program</dt>
-                  <dd>{result.cert.programTitle}</dd>
-                  <dt>Issued</dt>
-                  <dd>{longDate(result.cert.issuedAt)}</dd>
-                  {result.cert.revokedAt ? (
-                    <>
-                      <dt>Revoked</dt>
-                      <dd>{longDate(result.cert.revokedAt)}</dd>
-                    </>
-                  ) : null}
-                </dl>
+              <div className="vc-input">
+                <img src={icons.award} alt="" width={22} height={22} />
+                <input
+                  id="code"
+                  name="code"
+                  required
+                  placeholder="e.g. AR-2026-00421"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  autoComplete="off"
+                  spellCheck={false}
+                />
               </div>
-            ) : null}
-            {result?.kind === 'not_found' ? (
-              <p className="form-error" role="alert">
-                No certificate found with ID “{result.code}”. Check the ID and try again, or{' '}
-                <Link to="/contact">contact us</Link>.
-              </p>
-            ) : null}
-            {result?.kind === 'error' ? (
-              <p className="form-error" role="alert">
-                {result.message}
-              </p>
-            ) : null}
+              <button className="vc-submit" type="submit" disabled={checking}>
+                {checking ? 'Checking…' : 'Verify'} <span aria-hidden>→</span>
+              </button>
+
+              {result?.kind === 'found' ? (
+                <div className={`vc-result vc-result--${result.cert.status}`} role="status">
+                  <p className="vc-result-status">
+                    {result.cert.status === 'valid' ? '✓ Valid certificate' : '✕ This certificate has been revoked'}
+                  </p>
+                  <dl>
+                    <dt>Certificate ID</dt>
+                    <dd>{result.cert.code}</dd>
+                    <dt>Awarded to</dt>
+                    <dd>{result.cert.recipientName}</dd>
+                    <dt>Program</dt>
+                    <dd>{result.cert.programTitle}</dd>
+                    <dt>Issued</dt>
+                    <dd>{longDate(result.cert.issuedAt)}</dd>
+                    {result.cert.revokedAt ? (
+                      <>
+                        <dt>Revoked</dt>
+                        <dd>{longDate(result.cert.revokedAt)}</dd>
+                      </>
+                    ) : null}
+                  </dl>
+                </div>
+              ) : null}
+              {result?.kind === 'not_found' ? (
+                <p className="vc-error" role="alert">
+                  No certificate found with ID “{result.code}”. Check the ID and try again, or{' '}
+                  <Link to="/contact">contact us</Link>.
+                </p>
+              ) : null}
+              {result?.kind === 'error' ? (
+                <p className="vc-error" role="alert">
+                  {result.message}
+                </p>
+              ) : null}
+            </div>
           </form>
+          <div className="vc-features">
+            <FeatureStrip items={verifyPage.features} />
+          </div>
         </div>
       </section>
     </div>

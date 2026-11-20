@@ -1,28 +1,20 @@
-import { Link } from 'react-router-dom';
-import { industries } from '../data/content';
-import './SimplePages.css';
+import { FeatureStrip } from '../components/ui/FeatureStrip';
+import { IconCard } from '../components/ui/IconCard';
+import { PageHero } from '../components/ui/PageHero';
+import { heroArt, industriesPage } from '../data/pageContent';
 
 export function Industries() {
   return (
     <div>
-      <div className="page-hero">
-        <div className="container">
-          <div className="breadcrumb">
-            <Link to="/">Home</Link>
-            <span>/</span>
-            <span>Industries</span>
-          </div>
-          <h1>Industries</h1>
-        </div>
-      </div>
+      <PageHero crumbs={[{ label: 'Industries' }]} title={industriesPage.title} sub={industriesPage.sub} art={heroArt.laptop} />
       <section className="section">
-        <div className="container grid-3">
-          {industries.map((i) => (
-            <article key={i.title} className="panel">
-              <h2>{i.title}</h2>
-              <p>{i.text}</p>
-            </article>
-          ))}
+        <div className="container">
+          <div className="ic-grid">
+            {industriesPage.cards.map((card) => (
+              <IconCard key={card.title} item={card} />
+            ))}
+          </div>
+          <FeatureStrip items={industriesPage.features} />
         </div>
       </section>
     </div>
