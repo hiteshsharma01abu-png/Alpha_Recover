@@ -7,10 +7,12 @@ import { AccountSettings } from './pages/AccountSettings';
 import { Blog } from './pages/Blog';
 import { BlogPost } from './pages/BlogPost';
 import { Contact } from './pages/Contact';
+import { Dashboard } from './pages/Dashboard';
 import { Demos } from './pages/Demos';
 import { Home } from './pages/Home';
 import { Industries } from './pages/Industries';
 import { LegalPage } from './pages/Legal';
+import { LessonPlayer } from './pages/LessonPlayer';
 import { Pricing } from './pages/Pricing';
 import { ResetPassword } from './pages/ResetPassword';
 import { Services } from './pages/Services';
@@ -40,6 +42,8 @@ export default function App() {
         <Route path="contact" element={<Contact />} />
         <Route path="account" element={<Account />} />
         <Route path="account/settings" element={<AccountSettings />} />
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="learn/:courseSlug/:moduleSlug/:lessonSlug" element={<LessonPlayer />} />
         <Route path="about" element={<About />} />
         <Route path="privacy-policy" element={<LegalPage page="privacy" />} />
         <Route path="terms" element={<LegalPage page="terms" />} />

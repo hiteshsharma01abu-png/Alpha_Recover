@@ -51,7 +51,7 @@ public/
 |---|---|---|
 | `/` | Home | Hero, solutions, training explorer, pro training, demo videos, Professional Plan, contact CTA |
 | `/training` | TrainingIndex | Training explorer + pro training |
-| `/training/:trackId` | TrainingTrack | Track modules and lessons (lesson player not built) |
+| `/training/:trackId` | TrainingTrack | Track modules and lessons; each lesson links to the player |
 | `/pricing` | Pricing | Professional Plan with Buy Now (checkout stub) |
 | `/demos` | Demos | Filter, search, pagination over demo videos |
 | `/contact` | Contact | Contact form (stub) |
@@ -61,6 +61,8 @@ public/
 | `/blog`, `/blog/:slug` | Blog | Excerpts only |
 | `/verify-certificate` | VerifyCertificate | Certificate lookup (API) |
 | `/account/settings` | AccountSettings | Profile, change password, your devices (sign out others) |
+| `/dashboard` | Dashboard | My Learning: accessible courses with progress, continue learning, certificates (`GET /me/dashboard`) |
+| `/learn/:courseSlug/:moduleSlug/:lessonSlug` | LessonPlayer | Bunny embed (signed URL), locked / coming-soon states, mark complete, prev/next, outline with progress; saves position every 15 s, on pause and at the end via the player.js messages |
 | `/verify-email` | VerifyEmail | Landing page for the verification email link (`?token=`) |
 | `/reset-password` | ResetPassword | Landing page for the password-reset email link (`?token=`) |
 

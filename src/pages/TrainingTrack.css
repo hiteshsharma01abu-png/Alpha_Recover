@@ -78,7 +78,7 @@
   list-style: none;
 }
 
-.tt-lessons button {
+.tt-lessons a {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
@@ -93,12 +93,12 @@
   font: inherit;
   font-size: 0.94rem;
   text-align: left;
-  cursor: pointer;
+  text-decoration: none;
   transition: border-color 0.2s ease;
 }
 
-.tt-lessons button:hover,
-.tt-lessons button:focus-visible {
+.tt-lessons a:hover,
+.tt-lessons a:focus-visible {
   border-color: color-mix(in srgb, var(--mint) 50%, transparent);
 }
 

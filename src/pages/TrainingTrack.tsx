@@ -4,6 +4,7 @@ import { PageHero } from '../components/ui/PageHero';
 import { heroArt, trackPage } from '../data/pageContent';
 import { useTrainingTracksState } from '../lib/catalog';
 import { icons } from '../lib/icons';
+import { lessonPath } from '../lib/learning';
 import './TrainingTrack.css';
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
@@ -61,18 +62,11 @@ export function TrainingTrack() {
               <ol className="tt-lessons" style={{ '--tt-rows': Math.ceil(mod.lessons.length / 2) } as CSSProperties}>
                 {mod.lessons.map((lesson, i) => (
                   <li key={lesson.id}>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        alert(
-                          'Lesson player unlocks after purchase + auth. Video CMS comes with backend.',
-                        )
-                      }
-                    >
+                    <Link to={lessonPath(track.id, mod.id, lesson.id)}>
                       <span className="tt-num">{String(i + 1).padStart(2, '0')}</span>
                       <span className="tt-title">{lesson.title}</span>
                       <img src={icons.chevronRight} alt="" width={16} height={16} />
-                    </button>
+                    </Link>
                   </li>
                 ))}
               </ol>

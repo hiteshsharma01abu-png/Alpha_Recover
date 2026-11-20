@@ -94,6 +94,8 @@ The pages don't call the API yet: auth, payments, leads and the training portal 
 | `/verify-certificate` | Verify certificate |
 | `/admin` | Admin panel (staff only; separate lazy-loaded chunk) |
 | `/account/settings` | Account settings: profile, password, devices |
+| `/dashboard` | My Learning: courses with progress, continue learning, certificates |
+| `/learn/:course/:module/:lesson` | Lesson player with the course outline and progress |
 | `/verify-email` | Email verification (link from email) |
 | `/reset-password` | Choose a new password (link from email) |
 

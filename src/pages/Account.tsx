@@ -381,9 +381,9 @@ export function Account() {
                     </button>
                   </div>
                 )}
-                <p className="account-soon">
-                  Your courses, progress and certificates will appear here once training access is available.
-                </p>
+                <Link className="account-link" to="/dashboard">
+                  My learning: courses, progress and certificates →
+                </Link>
                 <Link className="account-link" to="/account/settings">
                   Account settings: profile, password and devices →
                 </Link>

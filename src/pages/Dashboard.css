@@ -1,0 +1,195 @@
+/* Student dashboard (/dashboard) */
+.dsh {
+  display: grid;
+  gap: 1rem;
+}
+
+.dsh-loading {
+  min-height: 240px;
+}
+
+.dsh-muted {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-sub);
+}
+
+.dsh-continue {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1.1rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid color-mix(in srgb, var(--mint) 30%, transparent);
+  border-radius: 16px;
+  background:
+    radial-gradient(ellipse 50% 90% at 100% 50%, color-mix(in srgb, var(--mint) 12%, transparent), transparent 70%),
+    var(--surface);
+}
+
+.dsh-continue > img {
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--mint) 40%, transparent));
+}
+
+.dsh-continue h2 {
+  margin: 0.15rem 0 0.25rem;
+  font-family: var(--font-body);
+  font-size: clamp(1.1rem, 2.2vw, 1.35rem);
+  font-weight: 800;
+}
+
+.dsh-kicker {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+
+.dsh-heading {
+  margin: 1.25rem 0 0.25rem;
+  font-family: var(--font-body);
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.dsh-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.dsh-course {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid color-mix(in srgb, var(--mint) 18%, transparent);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.dsh-course h3 {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.dsh-course h3 a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.dsh-course h3 a:hover {
+  color: var(--mint);
+}
+
+.dsh-bar {
+  display: block;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--chip);
+}
+
+.dsh-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--mint);
+}
+
+.dsh-course-btn {
+  align-self: flex-start;
+  margin-top: auto;
+  padding: 0.55rem 1rem;
+  font-size: 0.88rem;
+}
+
+.dsh-certs {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dsh-certs li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.dsh-certs strong,
+.dsh-certs small {
+  display: block;
+}
+
+.dsh-certs small {
+  margin-top: 0.15rem;
+  color: var(--text-sub);
+}
+
+.dsh-certs a {
+  font-weight: 700;
+  color: var(--brass);
+}
+
+.dsh-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.dsh-empty h2 {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.dsh-empty p {
+  margin: 0;
+  color: var(--text-sub);
+}
+
+.dsh-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 1024px) {
+  .dsh-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .dsh-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dsh-continue {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .dsh-continue .btn {
+    grid-column: 1 / -1;
+  }
+}

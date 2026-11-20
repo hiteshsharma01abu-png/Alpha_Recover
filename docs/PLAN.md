@@ -123,6 +123,13 @@ Phase 7 QA & security hardening (continuous, gate before production launch)
 
 **Exit:** an enrolled test student can watch, resume, complete and download a certificate.
 
+**Status (2026-11-20, in progress):**
+- [x] Progress: `lesson_progress` (migration 0012), `PUT /me/progress/:lessonId`, `GET /me/progress` (auto-complete at 90 %, mark/unmark). 13 tests
+- [x] Playback API: `POST /lessons/:id/playback` with signed Bunny embed URLs (2 h); 409 while a lesson has no video, 503 until `BUNNY_STREAM_*` is set
+- [x] Lesson player page `/learn/…` (locked, coming soon, video, mark complete, prev/next, outline with progress) and student dashboard `/dashboard`; training lessons link to the player. Browser-verified as an enrolled student and signed out, 1440 and 390 px
+- [ ] Real video: needs the Bunny account, then video upload in the admin course editor (`POST /admin/videos/upload-url`)
+- [ ] Certificates: automatic issue, PDF + QR, download, `certificate_issued` email. **Blocked on the certificate rule** (PRD §6.1)
+
 ### Phase 5 — Payments & business logic · L
 | Task | Detail |
 |---|---|
