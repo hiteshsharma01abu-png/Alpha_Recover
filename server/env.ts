@@ -21,6 +21,9 @@ const envSchema = z.object({
   SENTRY_DSN: optional,
   /** Cloudflare Turnstile (bot protection on public forms). Optional in development. */
   TURNSTILE_SECRET_KEY: optional,
+  /** Bunny Stream (lesson videos). Without them, lessons with a video can't be played yet (503). */
+  BUNNY_STREAM_LIBRARY_ID: optional,
+  BUNNY_STREAM_TOKEN_KEY: optional,
 });
 
 export type Env = z.infer<typeof envSchema>;

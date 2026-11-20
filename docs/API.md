@@ -2,7 +2,7 @@
 
 **Base URL:** `/api/v1` (same origin as the SPA; Node.js + Hono, host-portable: cPanel Node.js App, VPS, or Vercel during development)
 **Format:** JSON (UTF-8). Request bodies are validated with Zod schemas shared from `shared/schemas/`.
-**Last reviewed:** 2026-11-18 · **Status:** Proposal · Related: [DATABASE.md](DATABASE.md) · [SECURITY.md](SECURITY.md)
+**Last reviewed:** 2026-11-20 · **Status:** Proposal · Related: [DATABASE.md](DATABASE.md) · [SECURITY.md](SECURITY.md)
 
 ---
 
@@ -135,7 +135,7 @@ Response `200`:
 |---|---|---|---|
 | GET | `/me` | user | Profile: id, email, firstName, lastName, certificateName, phone, country, role, emailVerified, whatsappOptIn, createdAt. **Implemented (Phase 3)** |
 | PATCH | `/me` | user | Update firstName, lastName, certificateName, phone (E.164), country, whatsappOptIn (consent timestamp kept from the first opt-in). Strict schema: email/role/status are rejected. Audit `user.update_profile`. **Implemented (Phase 3)** |
-| GET | `/me/dashboard` | student | Enrolled courses with progress %, "continue learning" lesson, certificates |
+| GET | `/me/dashboard` | student | Enrolled courses with progress %, "continue learning" lesson, certificates. **Implemented (Phase 4)** |
 | GET | `/me/enrollments` | student | Your enrollments, newest first: status (active / revoked / expired, computed from the end date), source, plan slug and name, start and end. **Implemented (Phase 3)** |
 | GET | `/me/orders` | user | Order history |
 | GET | `/me/orders/:orderNumber` | user | Order detail (used by the checkout success page) |
@@ -147,12 +147,13 @@ Response `200`:
 `GET /me/dashboard` response:
 ```json
 { "data": {
-  "courses": [{ "slug": "logical", "title": "Logical Failure Data Recovery", "lessonsTotal": 26, "lessonsCompleted": 9, "progressPct": 35 }],
-  "continue": { "courseSlug": "logical", "lessonId": "…", "lessonTitle": "Raw Partition / Drive Recovery", "positionSeconds": 312 },
-  "certificates": [{ "code": "AR-2026-00421", "issuedAt": "…" }],
+  "courses": [{ "slug": "logical", "title": "Logical Failure Data Recovery", "lessonsTotal": 26, "lessonsCompleted": 9, "progressPct": 35,
+                 "next": { "lessonId": "…", "moduleSlug": "logical-core", "lessonSlug": "l3", "lessonTitle": "…" } }],
+  "continue": { "courseSlug": "logical", "lessonId": "…", "moduleSlug": "logical-core", "lessonSlug": "l3", "lessonTitle": "Raw Partition / Drive Recovery", "positionSeconds": 312 },
+  "certificates": [{ "code": "AR-2026-00421", "programTitle": "…", "issuedAt": "…" }],
   "hasActiveEnrollment": true } }
 ```
-DB: `enrollments` + `lessons` count + `lesson_progress` aggregate. Ownership is always scoped to `session.userId`.
+DB: `enrollments` + `lessons` count + `lesson_progress` aggregate. Ownership is always scoped to `session.userId`. `continue` is the most recently touched unfinished lesson; if that lesson is finished, the next unfinished one in the same course; with no progress yet, the first unfinished lesson of the first course; `null` without access. Only `valid` certificates are listed.
 
 ---
 
@@ -161,10 +162,10 @@ DB: `enrollments` + `lessons` count + `lesson_progress` aggregate. Ownership is 
 | Method | Endpoint | Auth | Purpose |
 |---|---|---|---|
 | GET | `/courses` | public | Published tracks: slug, title, summary, imageUrl, moduleCount, lessonCount, totalDurationSeconds. `?include=outline` adds modules → lessons (used by the site to render the whole catalog in one request). Cached `s-maxage=300`. **Implemented (Phase 2)** |
-| GET | `/courses/:slug` | public (enriched if logged in, Phase 3–4) | Track → modules → lessons (`id`, `slug`, `title`, `durationSeconds`, `isPreview`, `hasVideo`; `locked` / `completed` arrive with auth). **Implemented (Phase 2)** without the logged-in fields |
-| POST | `/lessons/:id/playback` | public for preview lessons; student + access for others | Returns a short-lived signed playback URL |
-| PUT | `/me/progress/:lessonId` | student + access | Save position / completion |
-| GET | `/me/progress?course=:slug` | student | Progress map for a course |
+| GET | `/courses/:slug` | public | Track → modules → lessons (`id`, `slug`, `title`, `durationSeconds`, `isPreview`, `hasVideo`). **Implemented (Phase 2).** Stays identical for everyone so the CDN can cache it; per-student data (access, completion) comes from `GET /me/progress` (a lesson is locked when `enrolled` is false and it isn't a preview) |
+| POST | `/lessons/:id/playback` | public for preview lessons; student + access for others | Returns a short-lived signed playback URL. **Implemented (Phase 4)** |
+| PUT | `/me/progress/:lessonId` | student + access (or a preview lesson) | Save position / completion. **Implemented (Phase 4)** |
+| GET | `/me/progress?course=:slug` | student | `{ enrolled, lessons: { [lessonId]: { positionSeconds, completed } }, lessonsTotal, lessonsCompleted, progressPct }`. **Implemented (Phase 4)** |
 
 ### `GET /courses/:slug`
 Response:
@@ -179,14 +180,14 @@ Response:
 ### `POST /lessons/:id/playback`
 Response `200`: `{ "data": { "embedUrl": "https://iframe.mediadelivery.net/embed/…?token=…&expires=…", "expiresAt": "…", "resumeAt": 312 } }`
 Logic: lesson published → if `isPreview` allow; else require a session, and an active enrollment granting the lesson's course. Sign a Bunny token URL (TTL 2h, optionally bound to the client IP).
-Errors: 401 `UNAUTHENTICATED`, 403 `NOT_ENROLLED`, 403 `EMAIL_NOT_VERIFIED` (if configured), 404.
+Errors: 401 `UNAUTHENTICATED`, 403 `NOT_ENROLLED`, 404, 409 `CONFLICT` (published but no video yet: "coming soon"), 503 `SERVICE_UNAVAILABLE` (Bunny not configured: `BUNNY_STREAM_LIBRARY_ID` / `BUNNY_STREAM_TOKEN_KEY`). Token = `sha256(tokenKey + videoId + expires)` (Bunny embed token authentication). `EMAIL_NOT_VERIFIED` is planned, if the setting is enabled.
 DB: read `lessons`, `course_modules`, `enrollments`, `plan_courses`, `lesson_progress`.
 
 ### `PUT /me/progress/:lessonId`
 Request: `{ "positionSeconds": 312, "watchedSeconds": 300, "completed": false }`
-Validation: integers 0 ≤ x ≤ duration + 60. `watchedSeconds` only increases (server keeps the max).
+Validation: all fields optional but at least one; integers 0 ≤ x ≤ duration + 60 (24 h + 60 s when the duration is unknown). `watchedSeconds` only increases (server keeps the max). Completes when watched ≥ 90 % of the duration or `completed: true`; `completed: false` un-marks it. Free-preview lessons accept progress without an enrollment.
 Response `200`: `{ "data": { "completedAt": null, "courseProgressPct": 36 } }`
-Side effect: when every lesson in the plan's courses is complete (per `certificate_criteria`), issue a certificate (§ certificates service) and enqueue `certificate_issued`.
+Side effect (**planned**, waits for the owner's certificate rule, docs/PRD.md §6.1): when the criteria are met, issue a certificate and enqueue `certificate_issued`.
 
 ---
 

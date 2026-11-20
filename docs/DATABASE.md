@@ -1,6 +1,6 @@
 # Alpha Recovery — Database Schema
 
-**Last reviewed:** 2026-11-18 · Related: [ARCHITECTURE.md](ARCHITECTURE.md) · [API.md](API.md)
+**Last reviewed:** 2026-11-20 · Related: [ARCHITECTURE.md](ARCHITECTURE.md) · [API.md](API.md)
 
 **Database:** MySQL 8.0+ (MariaDB 10.6+ compatible subset) · **Engine:** InnoDB, `utf8mb4` · **ORM:** Drizzle (`mysql2`) · **Status:** Proposal, nothing created
 
@@ -32,7 +32,7 @@
 | 5 | `courses` | Training tracks (9 today) | yes |
 | 6 | `course_modules` | Modules within a track (16 today) | yes |
 | 7 | `lessons` | Lessons (117 today) | yes |
-| 8 | `lesson_progress` | Per-student lesson progress | no |
+| 8 | `lesson_progress` | Per-student lesson progress (Phase 4) | no |
 | 9 | `plans` | Purchasable plans ("Professional Plan") | yes |
 | 10 | `plan_courses` | Which courses a plan grants | no |
 | 11 | `promotions` | Time-boxed sale prices (drives the countdown) | yes |
@@ -172,6 +172,8 @@
 **Rule:** `published` controls visibility in the catalog. A published lesson without `video_id` is listed as "coming soon" (`hasVideo: false` in the API) and can't be played. That matches the current site, which lists all 117 lesson titles before any video exists.
 
 ## 8. `lesson_progress`
+
+> **Implemented (Phase 4)**, migration `0012_lesson_progress`. Writes go through `PUT /me/progress/:lessonId`; `watched_seconds` is raised with `greatest()` in SQL so concurrent saves can't lower it. A lesson without `duration_seconds` only completes when marked; `completed: false` clears `completed_at`.
 
 | Column | Type | Notes |
 |---|---|---|

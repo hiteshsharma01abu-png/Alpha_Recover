@@ -1,6 +1,6 @@
 # Alpha Recovery — Deployment
 
-**Last reviewed:** 2026-11-19 · Related: [ARCHITECTURE.md](ARCHITECTURE.md) (§3 hosting checklist) · [SECURITY.md](SECURITY.md) · [TESTING.md](TESTING.md) §8 (release validation)
+**Last reviewed:** 2026-11-20 · Related: [ARCHITECTURE.md](ARCHITECTURE.md) (§3 hosting checklist) · [SECURITY.md](SECURITY.md) · [TESTING.md](TESTING.md) §8 (release validation)
 
 > **Status:** the production host isn't chosen yet. The frontend is temporarily on Vercel (deployed manually with `npx vercel --prod`; the project isn't connected to GitHub). A Vercel staging setup for the API is prepared ([§9](#9-vercel-staging-temporary)) but needs a managed MySQL and Vercel env vars before it works. This guide covers both targets the backend is built for: **cPanel with "Setup Node.js App"** and a **VPS**. The automated deploy job is added to CI once the host is known.
 
@@ -31,6 +31,7 @@ Set these in the cPanel Node.js App's environment settings, or in a `chmod 600` 
 | `POSTMARK_SERVER_TOKEN` | required in production (the app refuses to start without it) |
 | `EMAIL_FROM` | a sender on the Postmark-verified domain |
 | `SENTRY_DSN` | optional |
+| `BUNNY_STREAM_LIBRARY_ID`, `BUNNY_STREAM_TOKEN_KEY` | optional until lesson videos exist: the Bunny Stream library id and its token-authentication key (playback URLs are signed for 2 hours) |
 | `TURNSTILE_SECRET_KEY` | required in production (Cloudflare Turnstile secret for the site) |
 
 **Frontend build variable:** `VITE_TURNSTILE_SITE_KEY` (the public site key) must be set when running `npm run build`, otherwise the forms render without the security check and the API rejects them in production.

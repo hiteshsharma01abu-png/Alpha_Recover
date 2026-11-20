@@ -85,6 +85,13 @@
       "when": 1794594722024,
       "tag": "0011_activity_created_idx",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1795167717209,
+      "tag": "0012_lesson_progress",
+      "breakpoints": true
     }
   ]
 }

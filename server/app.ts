@@ -14,6 +14,7 @@ import { demoVideoRoutes } from './routes/demoVideos';
 import { healthRoutes } from './routes/health';
 import { internalRoutes } from './routes/internal';
 import { leadRoutes } from './routes/leads';
+import { learningRoutes } from './routes/learning';
 import { meRoutes } from './routes/me';
 import { planRoutes } from './routes/plans';
 import { settingsRoutes } from './routes/settings';
@@ -50,6 +51,7 @@ export function createApp(deps: Deps) {
   app.route('/', certificateRoutes);
   app.route('/', settingsRoutes);
   app.route('/', meRoutes);
+  app.route('/', learningRoutes);
   app.route('/admin', adminRoutes);
 
   app.notFound((c) =>

@@ -349,6 +349,27 @@ export const enrollments = mysqlTable(
 export const DEMO_CATEGORIES = ['logical', 'electrical', 'mechanical', 'firmware'] as const;
 export const SKILL_LEVELS = ['beginner', 'intermediate', 'advanced'] as const;
 
+// ── Learning progress (Phase 4) ──────────────────────────────────────────────
+
+/** One row per student and lesson: resume point, furthest watched, completion (docs/DATABASE.md §8). */
+export const lessonProgress = mysqlTable(
+  'lesson_progress',
+  {
+    userId: char('user_id', { length: 36 })
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    lessonId: char('lesson_id', { length: 36 })
+      .notNull()
+      .references(() => lessons.id, { onDelete: 'cascade' }),
+    positionSeconds: int('position_seconds', { unsigned: true }).notNull().default(0),
+    /** Furthest point watched; only ever increases. */
+    watchedSeconds: int('watched_seconds', { unsigned: true }).notNull().default(0),
+    completedAt: ts('completed_at'),
+    updatedAt: updatedAt(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.lessonId] }), index('lesson_progress_user_updated_idx').on(t.userId, t.updatedAt)],
+);
+
 export const demoVideos = mysqlTable(
   'demo_videos',
   {
