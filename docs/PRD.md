@@ -1,6 +1,6 @@
 # Alpha Recovery — Product Requirements (PRD)
 
-**Last reviewed:** 2026-11-18 · **Status:** Draft for approval
+**Last reviewed:** 2026-11-20 · **Status:** Draft for approval
 **Related:** [ARCHITECTURE.md](ARCHITECTURE.md) · [DATABASE.md](DATABASE.md) · [API.md](API.md) · [SECURITY.md](SECURITY.md) · [TESTING.md](TESTING.md) · [PLAN.md](PLAN.md) · audit snapshot: [archive/2026-11-12-backend-audit.md](archive/2026-11-12-backend-audit.md)
 
 ---
@@ -148,7 +148,7 @@ Moved to [ARCHITECTURE.md](ARCHITECTURE.md): backend stack (§2), hosting requir
 ## 6. Open business decisions (needed before or during implementation)
 
 1. **Certificate criteria:** 100% lesson completion? A quiz? Manual approval?
-2. **Refund policy:** window (e.g. 7 days), partial refunds, and whether a refund revokes access (default: yes).
+2. ✅ **Answered 2026-11-20: full refund within 3 days of purchase, for any reason; the refund ends access to that purchase; one refund per purchase; duplicate/failed payments always refunded.** Published on `/refund-policy` (`refundWindowDays` in `src/data/legal.ts`); the Phase 5 refund flow must enforce it. The legal pages name the business as "Alpha Recovery" until it is registered. Original question — **Refund policy:** window (e.g. 7 days), partial refunds, and whether a refund revokes access (default: yes).
 3. **Verification before purchase:** require a verified email to buy? (Recommended: yes.)
 4. **Firmware software access** (a sold feature): download link, licence key, or delivered over WhatsApp?
 5. ✅ **Answered 2026-11-12: the callback form collects a phone number (required); email is optional.** Original question — **Callback form:** collect a phone number instead of (or in addition to) email?

@@ -256,9 +256,11 @@ export function Footer() {
           <div className="footer-bottom">
             <span>© {new Date().getFullYear()} Alpha Recovery®. All rights reserved.</span>
             <div className="footer-legal">
-              <Link to="/about">Privacy Policy</Link>
+              <Link to="/privacy-policy">Privacy Policy</Link>
               <span>|</span>
-              <Link to="/about">Terms &amp; Conditions</Link>
+              <Link to="/terms">Terms &amp; Conditions</Link>
+              <span>|</span>
+              <Link to="/refund-policy">Refund Policy</Link>
             </div>
           </div>
         </div>

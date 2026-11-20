@@ -1,6 +1,6 @@
 # Alpha Recovery — Architecture
 
-**Last reviewed:** 2026-11-18
+**Last reviewed:** 2026-11-20
 **Scope:** how the system is built: the current frontend, the planned backend, hosting and repository layout. Product scope and requirements live in [PRD.md](PRD.md); the visual system lives in [DESIGN.md](DESIGN.md).
 
 ---
@@ -57,6 +57,7 @@ public/
 | `/contact` | Contact | Contact form (stub) |
 | `/account` | Account | Login, register, forgot password; signed-in view (verification status, log out) |
 | `/about`, `/services`, `/industries` | Static pages | |
+| `/privacy-policy`, `/terms`, `/refund-policy` | LegalPage | One component; text in `src/data/legal.ts` (linked from the footer) |
 | `/blog`, `/blog/:slug` | Blog | Excerpts only |
 | `/verify-certificate` | VerifyCertificate | Certificate lookup (API) |
 | `/account/settings` | AccountSettings | Profile, change password, your devices (sign out others) |

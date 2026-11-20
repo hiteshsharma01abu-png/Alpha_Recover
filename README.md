@@ -86,6 +86,7 @@ The pages don't call the API yet: auth, payments, leads and the training portal 
 | `/contact` | Contact |
 | `/account` | Login / Register |
 | `/about` | About us |
+| `/privacy-policy`, `/terms`, `/refund-policy` | Privacy Policy, Terms & Conditions, Refund & Cancellation Policy |
 | `/services` | Services |
 | `/industries` | Industries |
 | `/blog` | Blog |

@@ -415,8 +415,10 @@
 
 .footer-legal {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.55rem;
+  justify-content: center;
+  gap: 0.35rem 0.55rem;
 }
 
 .footer-legal a {
@@ -564,7 +566,8 @@
     text-align: center;
     gap: 0.45rem;
     margin-top: 1.15rem;
-    padding: 1rem 0 4.75rem;
+    /* Room below for the stacked back-to-top + WhatsApp floats */
+    padding: 1rem 0 9.5rem;
   }
 }
 

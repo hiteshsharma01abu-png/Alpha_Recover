@@ -1,6 +1,6 @@
 # Alpha Recovery — Implementation Plan
 
-**Last reviewed:** 2026-11-18 · **Status:** For approval. Nothing is implemented yet.
+**Last reviewed:** 2026-11-20 · **Status:** For approval. Nothing is implemented yet.
 **Sizing:** S ≈ 1–2 dev-days, M ≈ 3–5, L ≈ 6–10, for one full-stack developer. Ranges assume decisions in [PRD.md](PRD.md) §6 are answered promptly.
 
 ---
@@ -31,7 +31,7 @@ Phase 7 QA & security hardening (continuous, gate before production launch)
 |---|---|
 | Answer [PRD.md](PRD.md) §6 open decisions (certificate criteria, refund policy, callback phone, session limit, international pricing, firmware software delivery, languages) | Business |
 | Create accounts: Razorpay (KYC takes days, so **start first**), Bunny (Stream + Storage), Postmark (verify `alpharecover.com` domain: SPF, DKIM, Return-Path), Cloudflare Turnstile, Sentry. A small managed MySQL for staging until the production host is chosen | Business + dev |
-| Publish legal pages (Privacy, Terms, Refund/Cancellation, Contact). **Razorpay activation requires them.** [FE + content] | Business |
+| ✅ **Done 2026-11-20:** legal pages published: `/privacy-policy`, `/terms` (includes digital delivery), `/refund-policy`; Contact already existed. Footer links them. Have them reviewed by a lawyer before launch. **Razorpay activation requires them.** [FE + content] | Business |
 | Provide real promotion dates, a final course list, and recorded lesson videos (or a schedule) | Business |
 
 **Exit:** decisions recorded in the PRD; API keys stored as environment secrets (GitHub Actions + staging host). **Hosting choice can wait until Phase 7**, but sooner is better so staging matches production.

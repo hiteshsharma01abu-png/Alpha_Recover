@@ -10,6 +10,7 @@ import { Contact } from './pages/Contact';
 import { Demos } from './pages/Demos';
 import { Home } from './pages/Home';
 import { Industries } from './pages/Industries';
+import { LegalPage } from './pages/Legal';
 import { Pricing } from './pages/Pricing';
 import { ResetPassword } from './pages/ResetPassword';
 import { Services } from './pages/Services';
@@ -40,6 +41,9 @@ export default function App() {
         <Route path="account" element={<Account />} />
         <Route path="account/settings" element={<AccountSettings />} />
         <Route path="about" element={<About />} />
+        <Route path="privacy-policy" element={<LegalPage page="privacy" />} />
+        <Route path="terms" element={<LegalPage page="terms" />} />
+        <Route path="refund-policy" element={<LegalPage page="refund" />} />
         <Route path="services" element={<Services />} />
         <Route path="industries" element={<Industries />} />
         <Route path="blog" element={<Blog />} />
