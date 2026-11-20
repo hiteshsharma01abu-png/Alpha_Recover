@@ -495,12 +495,12 @@
   }
 
   .footer-brand-col {
-    align-items: center;
+    align-items: flex-start;
   }
 
   .footer-lead {
     max-width: none;
-    text-align: center;
+    text-align: left;
     font-size: 0.86rem;
   }
 
@@ -513,7 +513,8 @@
 
   .footer-highlight {
     flex-direction: column;
-    text-align: center;
+    align-items: flex-start;
+    text-align: left;
     gap: 0.4rem;
     font-size: 0.72rem;
     flex: 1;
