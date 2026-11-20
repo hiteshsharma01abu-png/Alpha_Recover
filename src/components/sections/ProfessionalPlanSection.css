@@ -325,11 +325,15 @@
   box-shadow: none;
 }
 
-.pp-btn-ghost {
-  background: rgba(6, 20, 16, 0.35);
+.pp-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0.15rem 0 0;
+  font-size: 0.9rem;
+  font-weight: 600;
   color: rgba(230, 240, 236, 0.92);
-  border: 1px solid rgba(169, 194, 188, 0.28);
-  cursor: default;
 }
 
 .pp-features-card {
@@ -986,4 +990,24 @@
   .pp-section {
     padding-block: var(--section-y-sm);
   }
+}
+
+/* Site button style on every page except the homepage (<html data-home> is set on '/'; see Layout.tsx) */
+:root:not([data-home]) .pp-btn-outline {
+  background: var(--btn-soft-bg);
+  color: var(--btn-soft-text);
+  border: 1px solid var(--btn-soft-border);
+  box-shadow: var(--btn-soft-shadow);
+}
+
+:root:not([data-home]) .pp-btn-outline:hover {
+  background: var(--btn-soft-bg-hover);
+  color: var(--btn-soft-text);
+  border-color: var(--btn-soft-border-hover);
+  box-shadow: var(--btn-soft-shadow-hover);
+}
+
+:root:not([data-home]) .pp-btn-outline:active {
+  background: var(--btn-soft-bg-active);
+  box-shadow: var(--btn-soft-shadow-active);
 }

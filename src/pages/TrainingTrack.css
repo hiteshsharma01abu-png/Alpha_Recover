@@ -166,19 +166,23 @@
   white-space: nowrap;
 }
 
-.tt-btn-mint {
-  background: var(--mint);
-  color: var(--mint-ink);
-  box-shadow: 0 8px 22px color-mix(in srgb, var(--mint) 22%, transparent);
-}
-
-.tt-btn-line {
-  border: 1px solid color-mix(in srgb, var(--mint) 45%, transparent);
-  color: var(--text);
+.tt-btn {
+  background: var(--btn-soft-bg);
+  color: var(--btn-soft-text);
+  border: 1px solid var(--btn-soft-border);
+  box-shadow: var(--btn-soft-shadow);
 }
 
 .tt-btn:hover {
-  filter: brightness(1.08);
+  background: var(--btn-soft-bg-hover);
+  color: var(--btn-soft-text);
+  border-color: var(--btn-soft-border-hover);
+  box-shadow: var(--btn-soft-shadow-hover);
+}
+
+.tt-btn:active {
+  background: var(--btn-soft-bg-active);
+  box-shadow: var(--btn-soft-shadow-active);
 }
 
 @media (max-width: 860px) {

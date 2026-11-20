@@ -98,6 +98,7 @@ export const icons = {
   zap: iconSrc('lucide/zap'),
   star: iconSrc('lucide/star'),
   user: iconSrc('lucide/user'),
+  userDark: iconSrc('lucide/user', ICON_DARK),
   arrowUp: iconSrc('lucide/arrow-up', ICON_DARK),
   whatsapp: iconSrc('mdi/whatsapp', ICON_WA),
   whatsappWhite: iconSrc('mdi/whatsapp', ICON_WHITE),

@@ -97,18 +97,26 @@
   gap: 0.65rem;
   margin-top: 1.1rem;
   padding: 0.85rem 2.2rem;
-  border: 0;
+  border: 1px solid var(--btn-soft-border);
   border-radius: 12px;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--mint) 70%, var(--text)), var(--mint));
-  color: var(--mint-ink);
+  background: var(--btn-soft-bg);
+  color: var(--btn-soft-text);
   font: inherit;
   font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 10px 26px color-mix(in srgb, var(--mint) 24%, transparent);
+  box-shadow: var(--btn-soft-shadow);
 }
 
 .vc-submit:hover {
-  filter: brightness(1.06);
+  background: var(--btn-soft-bg-hover);
+  color: var(--btn-soft-text);
+  border-color: var(--btn-soft-border-hover);
+  box-shadow: var(--btn-soft-shadow-hover);
+}
+
+.vc-submit:active {
+  background: var(--btn-soft-bg-active);
+  box-shadow: var(--btn-soft-shadow-active);
 }
 
 .vc-submit:disabled {

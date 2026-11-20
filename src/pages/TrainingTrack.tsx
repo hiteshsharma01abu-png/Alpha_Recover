@@ -90,7 +90,7 @@ export function TrainingTrack() {
                 Get Professional Plan <span aria-hidden>→</span>
               </Link>
               <Link className="tt-btn tt-btn-line" to="/account">
-                <img src={icons.user} alt="" width={18} height={18} />
+                <img src={icons.userDark} alt="" width={18} height={18} />
                 Login to Portal
               </Link>
             </div>

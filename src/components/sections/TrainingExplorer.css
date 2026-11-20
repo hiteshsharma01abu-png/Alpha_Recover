@@ -512,3 +512,23 @@
     padding: 0.55rem 0.7rem;
   }
 }
+
+/* Site button style on every page except the homepage (<html data-home> is set on '/'; see Layout.tsx) */
+:root:not([data-home]) .tx-btn-outline {
+  background: var(--btn-soft-bg);
+  color: var(--btn-soft-text);
+  border: 1px solid var(--btn-soft-border);
+  box-shadow: var(--btn-soft-shadow);
+}
+
+:root:not([data-home]) .tx-btn-outline:hover {
+  background: var(--btn-soft-bg-hover);
+  color: var(--btn-soft-text);
+  border-color: var(--btn-soft-border-hover);
+  box-shadow: var(--btn-soft-shadow-hover);
+}
+
+:root:not([data-home]) .tx-btn-outline:active {
+  background: var(--btn-soft-bg-active);
+  box-shadow: var(--btn-soft-shadow-active);
+}

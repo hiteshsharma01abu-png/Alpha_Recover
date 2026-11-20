@@ -270,10 +270,10 @@ export function ProfessionalPlanSection({
                 <WhatsAppIcon />
                 Ask on WhatsApp
               </a>
-              <span className="pp-btn pp-btn-ghost">
+              <p className="pp-note">
                 <LockIcon />
                 Get Lifetime Access &amp; Updates
-              </span>
+              </p>
             </div>
           </div>
 

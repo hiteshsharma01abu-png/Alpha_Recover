@@ -41,6 +41,16 @@
   /* mint accent: icons, pill buttons and glows on the redesigned inner pages */
   --mint: #7DFFC0;
   --mint-ink: #06120E;
+  /* Site button look (soft ivory → teal, the hero "Demo Videos" pill): used by every button */
+  --btn-soft-bg: linear-gradient(135deg, #f0ede4 0%, #c5d8d2 42%, #4d7a73 100%);
+  --btn-soft-bg-hover: linear-gradient(135deg, #ffffff 0%, #e8f0ec 42%, #6a9a90 100%);
+  --btn-soft-bg-active: linear-gradient(135deg, #e4e0d4 0%, #b7cbc3 48%, #3f665f 100%);
+  --btn-soft-text: #123128;
+  --btn-soft-border: rgba(255, 255, 255, 0.5);
+  --btn-soft-border-hover: rgba(255, 255, 255, 0.8);
+  --btn-soft-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 8px 20px rgba(0, 0, 0, 0.22);
+  --btn-soft-shadow-hover: inset 0 1px 0 rgba(255, 255, 255, 0.75), 0 12px 28px rgba(0, 0, 0, 0.32);
+  --btn-soft-shadow-active: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 4px 12px rgba(0, 0, 0, 0.2);
   /* eyebrows, sale badge, dial tip (~5.4:1) */
   --brass-text: #3A2A0A;
   /* text on brass badge */
@@ -230,38 +240,28 @@ input[type='radio']:focus-visible {
   outline-offset: 2px;
 }
 
-.btn-primary {
-  background: var(--btn);
-  color: var(--btn-text);
-  box-shadow: none;
-}
-
-.btn-primary:hover {
-  background: var(--btn-hover);
-  color: var(--btn-text);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
-}
-
-.btn-primary:active {
-  background: var(--btn-active);
-  color: var(--btn-text);
-  transform: translateY(0);
-  box-shadow: none;
-}
-
+.btn-primary,
 .btn-ghost {
-  background: var(--chip);
-  border-color: var(--line-strong);
-  color: var(--text);
+  background: var(--btn-soft-bg);
+  color: var(--btn-soft-text);
+  border: 1px solid var(--btn-soft-border);
+  box-shadow: var(--btn-soft-shadow);
 }
 
+.btn-primary:hover,
 .btn-ghost:hover {
-  border-color: var(--brass);
-  color: var(--text);
-  background: color-mix(in srgb, var(--chip) 80%, #000);
+  background: var(--btn-soft-bg-hover);
+  color: var(--btn-soft-text);
+  border-color: var(--btn-soft-border-hover);
+  box-shadow: var(--btn-soft-shadow-hover);
   transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+}
+
+.btn-primary:active,
+.btn-ghost:active {
+  background: var(--btn-soft-bg-active);
+  box-shadow: var(--btn-soft-shadow-active);
+  transform: translateY(0);
 }
 
 .btn-ghost:active {
@@ -283,16 +283,11 @@ input[type='radio']:focus-visible {
 .pp-off,
 .pp-plan-badge,
 .scroll-top {
-  --soft-btn-bg: linear-gradient(135deg, #f0ede4 0%, #c5d8d2 42%, #4d7a73 100%);
-  --soft-btn-bg-hover: linear-gradient(135deg, #ffffff 0%, #e8f0ec 42%, #6a9a90 100%);
-  --soft-btn-bg-active: linear-gradient(135deg, #e4e0d4 0%, #b7cbc3 48%, #3f665f 100%);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--btn-soft-border);
   border-radius: 999px;
-  background: var(--soft-btn-bg);
-  color: #123128;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.55),
-    0 8px 20px rgba(0, 0, 0, 0.22);
+  background: var(--btn-soft-bg);
+  color: var(--btn-soft-text);
+  box-shadow: var(--btn-soft-shadow);
   transition:
     transform 0.2s ease,
     background 0.2s ease,
@@ -330,14 +325,12 @@ a.demos-view-all:hover,
 .dv-arrow:hover,
 .dv-play:hover,
 .scroll-top:hover {
-  background: var(--soft-btn-bg-hover);
-  color: #123128;
-  border-color: rgba(255, 255, 255, 0.8);
+  background: var(--btn-soft-bg-hover);
+  color: var(--btn-soft-text);
+  border-color: var(--btn-soft-border-hover);
   transform: translateY(-2px);
   filter: brightness(1.04);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.75),
-    0 12px 28px rgba(0, 0, 0, 0.32);
+  box-shadow: var(--btn-soft-shadow-hover);
 }
 
 .btn-soft:active,
@@ -358,13 +351,11 @@ a.demos-view-all:active,
 .dv-arrow:active,
 .dv-play:active,
 .scroll-top:active {
-  background: var(--soft-btn-bg-active);
-  color: #123128;
+  background: var(--btn-soft-bg-active);
+  color: var(--btn-soft-text);
   transform: translateY(0);
   filter: none;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--btn-soft-shadow-active);
 }
 
 .btn-soft svg,

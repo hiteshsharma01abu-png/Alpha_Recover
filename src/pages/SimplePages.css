@@ -349,20 +349,29 @@ a.contact-info-card:hover {
   gap: 0.45rem;
   width: 100%;
   min-height: 50px;
-  border: 0;
+  border: 1px solid var(--btn-soft-border);
   border-radius: 12px;
-  background: #F0EDE4;
-  color: #123128;
+  background: var(--btn-soft-bg);
+  color: var(--btn-soft-text);
   font-weight: 700;
   font-size: 0.98rem;
   cursor: pointer;
-  box-shadow: none;
-  transition: background 0.2s ease, transform 0.2s ease;
+  box-shadow: var(--btn-soft-shadow);
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .contact-send-btn:hover {
-  background: #FFFFFF;
+  background: var(--btn-soft-bg-hover);
+  color: var(--btn-soft-text);
+  border-color: var(--btn-soft-border-hover);
+  box-shadow: var(--btn-soft-shadow-hover);
   transform: translateY(-1px);
+}
+
+.contact-send-btn:active {
+  background: var(--btn-soft-bg-active);
+  box-shadow: var(--btn-soft-shadow-active);
+  transform: translateY(0);
 }
 
 .accent {

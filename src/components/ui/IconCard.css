@@ -69,21 +69,30 @@
   align-items: center;
   gap: 0.6rem;
   padding: 0.55rem 1.1rem;
+  border: 1px solid var(--btn-soft-border);
   border-radius: 999px;
-  background: var(--mint);
-  color: var(--mint-ink);
+  background: var(--btn-soft-bg);
+  color: var(--btn-soft-text);
   font-size: 0.88rem;
   font-weight: 700;
   text-decoration: none;
-  box-shadow: 0 6px 18px color-mix(in srgb, var(--mint) 22%, transparent);
+  box-shadow: var(--btn-soft-shadow);
   transition:
     filter 0.2s ease,
     transform 0.2s ease;
 }
 
 .ic-cta:hover {
-  filter: brightness(1.06);
+  background: var(--btn-soft-bg-hover);
+  color: var(--btn-soft-text);
+  border-color: var(--btn-soft-border-hover);
+  box-shadow: var(--btn-soft-shadow-hover);
   transform: translateX(2px);
+}
+
+.ic-cta:active {
+  background: var(--btn-soft-bg-active);
+  box-shadow: var(--btn-soft-shadow-active);
 }
 
 .ic-cta:focus-visible {

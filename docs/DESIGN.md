@@ -62,7 +62,7 @@ Fonts load from Google Fonts at the top of `global.css`. Base body size is 16px,
 
 | Pattern | Where | Notes |
 |---|---|---|
-| Buttons | `.btn`, `.btn-primary` (ivory), `.btn-ghost` (outline), `.btn-cyan` | Section-specific variants (`pp-btn-*`, `tx-btn-*`, `demos-btn-*`) follow the same states |
+| Buttons | `.btn` + `.btn-primary` / `.btn-ghost` / `.btn-cyan`; section variants (`pp-btn-*`, `tx-btn-*`, `demos-btn-*`, …) | **One site button look**: the soft ivory → teal gradient (the hero "Demo Videos" pill), from the `--btn-soft-*` tokens in `global.css` (background, hover, active, text, border, shadow). New buttons use those tokens. **Homepage exception:** the homepage keeps its original button colours (brass "View Plan" / "Register / Login", outline buttons); shared header/footer/section buttons switch to the site look only under `:root:not([data-home])` (`Layout.tsx` sets `data-home` on `/`) |
 | Form fields | `.field` (label + input/select/textarea), `.check` (checkbox row) | Account page uses its own `acc-*` field styling with leading icons |
 | Panels / cards | `.panel`, glass tokens (`--glass-bg`, `--glass-border`, `--glass-shadow`, `--glass-blur`) in `glass.css` | Use the glass tokens for new elevated cards |
 | Glass "orb" icons | `--glass-orb-*` tokens | Round 3D icon badges (pricing perks) |
