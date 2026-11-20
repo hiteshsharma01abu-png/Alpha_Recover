@@ -581,28 +581,3 @@
     height: 30px;
   }
 }
-
-/* Site button style on every page except the homepage (<html data-home> is set on '/'; see Layout.tsx) */
-:root:not([data-home]) .footer-btn-outline {
-  background: var(--btn-soft-bg);
-  color: var(--btn-soft-text);
-  border: 1px solid var(--btn-soft-border);
-  box-shadow: var(--btn-soft-shadow);
-}
-
-:root:not([data-home]) .footer-btn-outline:hover {
-  background: var(--btn-soft-bg-hover);
-  color: var(--btn-soft-text);
-  border-color: var(--btn-soft-border-hover);
-  box-shadow: var(--btn-soft-shadow-hover);
-}
-
-:root:not([data-home]) .footer-btn-outline:active {
-  background: var(--btn-soft-bg-active);
-  box-shadow: var(--btn-soft-shadow-active);
-}
-
-/* The phone icon is a mint image: darken it to match the button text */
-:root:not([data-home]) .footer-btn-outline img {
-  filter: brightness(0);
-}

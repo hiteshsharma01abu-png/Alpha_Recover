@@ -10,8 +10,9 @@ import '../../styles/glass.css';
 export function Layout() {
   const isHome = useLocation().pathname === '/';
 
-  // <html data-home> on the homepage: shared header/footer/section buttons keep their original
-  // homepage look there and use the site button style on every other page (docs/DESIGN.md §5).
+  // <html data-home> on the homepage: sections shared with other pages (pricing card, training
+  // explorer) keep their original homepage buttons there (docs/DESIGN.md §5). The header and
+  // footer are identical on every page and never use this flag.
   useLayoutEffect(() => {
     document.documentElement.toggleAttribute('data-home', isHome);
   }, [isHome]);
