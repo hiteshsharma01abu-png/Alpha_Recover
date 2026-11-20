@@ -1,5 +1,5 @@
-/** Local Iconify SVGs in /public/icons — no CDN (avoids rate-limits / broken imgs). */
-export const ICONIFY = '/icons';
+/** Local Iconify SVGs in /public/assets/icons — no CDN (avoids rate-limits / broken imgs). */
+export const ICONIFY = '/assets/icons';
 export const ICON_MINT = 'mint';
 export const ICON_WHITE = 'white';
 export const ICON_DARK = 'dark';

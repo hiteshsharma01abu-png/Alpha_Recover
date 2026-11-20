@@ -67,7 +67,7 @@
   --section-head-gap: 2rem;
   --font-display: 'Syne', system-ui, sans-serif;
   --font-body: 'Manrope', system-ui, sans-serif;
-  /* matches the ALPHA RECOVERY wordmark in public/alpha-recovery-branding/ */
+  /* matches the ALPHA RECOVERY wordmark in public/assets/brand/ */
   --font-logo: Arial, Helvetica, sans-serif;
   --shadow-glow: 0 0 0 1px color-mix(in srgb, var(--line-strong) 40%, transparent),
     0 12px 28px rgba(0, 0, 0, 0.35);

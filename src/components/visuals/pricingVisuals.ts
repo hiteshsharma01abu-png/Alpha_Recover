@@ -26,7 +26,7 @@ export const pricingFeatureIcons: string[] = [
 
 /** Open HDD actuator/platter — public Unsplash CDN (wide crop for pp-hero-visual). */
 export const pricingHeroVisual = U('photo-1597852074816-d933c7d2b988');
-export const pricingSectionBg = '/assets/pricing-bg.webp';
+export const pricingSectionBg = '/assets/images/backgrounds/pricing-bg.webp';
 
 export const pricingPerks = [
   {

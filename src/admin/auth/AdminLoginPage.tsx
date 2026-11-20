@@ -78,7 +78,7 @@ export function AdminLoginPage() {
               </ul>
             </div>
             <div className="adm-login-visual" aria-hidden>
-              <img src="/assets/hero-drive.webp" alt="" width={900} height={804} />
+              <img src="/assets/images/sections/hero-drive.webp" alt="" width={900} height={804} />
             </div>
           </div>
         </section>

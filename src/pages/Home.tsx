@@ -24,7 +24,7 @@ import { icons } from '../lib/icons';
 import '../styles/sections.css';
 import './Home.css';
 
-const heroDriveSrc = '/assets/hero-drive.webp';
+const heroDriveSrc = '/assets/images/sections/hero-drive.webp';
 
 const quickActionIconSrc: Record<string, string> = {
   'Logical Recovery': icons.laptop,

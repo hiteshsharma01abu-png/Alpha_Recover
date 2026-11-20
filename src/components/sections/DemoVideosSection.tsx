@@ -92,7 +92,7 @@ export function DemoVideosSection({
                   </span>
                   <span className="dv-duration">
                     <img
-                      src="/icons/lucide__clock__ivory.svg"
+                      src="/assets/icons/lucide__clock__ivory.svg"
                       alt=""
                       width={12}
                       height={12}

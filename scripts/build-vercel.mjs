@@ -42,7 +42,8 @@ await writeFile(
     {
       version: 3,
       routes: [
-        { src: '^/assets/(.*)$', headers: immutable, continue: true },
+        // Only Vite's hashed bundles are immutable; public/assets/ images, icons and favicons keep normal caching.
+        { src: '^/assets/[^/]+-[A-Za-z0-9_-]{8}\\.(js|css)$', headers: immutable, continue: true },
         { handle: 'filesystem' },
         { src: '^/api(/.*)?$', dest: '/api' },
         { src: '^/(.*)$', dest: '/index.html' },

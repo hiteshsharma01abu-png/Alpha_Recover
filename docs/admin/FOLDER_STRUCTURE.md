@@ -1,6 +1,6 @@
 # Alpha Recovery — Admin Panel Folder Structure
 
-**Last reviewed:** 2026-11-18 · **Status:** Proposal; built so far (paths as implemented): `components/DataTable.tsx` (StatusBadge, Pagination, Drawer on native `<dialog>`), `components/AdmIcon.tsx`, `components/BrandLogo.tsx`, `auth/RequirePermission.tsx`, `lib/useResource.ts`, `lib/useTableState.ts`, `modules/leads/` (LeadsPage, LeadDrawer, leadDisplay), `modules/students/` (StudentsPage, StudentDetailPage), `modules/team/` (TeamPage, RolesPage), `modules/activity/` (ActivityPage, activityDisplay), `components/Dialog.tsx`, `lib/format.ts`. React Query files below are deferred
+**Last reviewed:** 2026-11-20 · **Status:** Proposal; built so far (paths as implemented): `components/DataTable.tsx` (StatusBadge, Pagination, Drawer on native `<dialog>`), `components/AdmIcon.tsx`, `components/BrandLogo.tsx`, `auth/RequirePermission.tsx`, `lib/useResource.ts`, `lib/useTableState.ts`, `modules/leads/` (LeadsPage, LeadDrawer, leadDisplay), `modules/students/` (StudentsPage, StudentDetailPage), `modules/team/` (TeamPage, RolesPage), `modules/activity/` (ActivityPage, activityDisplay), `components/Dialog.tsx`, `lib/format.ts`. React Query files below are deferred
 **Related:** [ARCHITECTURE.md](ARCHITECTURE.md) · [NAVIGATION.md](NAVIGATION.md) · [AUTH_AND_RBAC.md](AUTH_AND_RBAC.md)
 
 Follows the existing conventions in `AGENTS.md`:
@@ -168,7 +168,7 @@ server/
 
 - `src/admin/layout/AdminLayout.css` defines **admin tokens** under `.adm[data-theme="dark"]` and `.adm[data-theme="light"]`, derived from the brand palette in `src/styles/global.css` (pine, ivory, brass, mint).
 - No admin rules go into `global.css`. The public site's appearance cannot change.
-- Icons reuse `src/lib/icons.ts` and `public/icons/` (new admin glyphs are added as SVG files in the same `set__name__variant` pattern).
+- Icons reuse `src/lib/icons.ts` and `public/assets/icons/` (new admin glyphs are added as SVG files in the same `set__name__variant` pattern).
 - Class prefix: `adm-` (e.g. `adm-sidebar`, `adm-table`, `adm-kpi`).
 
 ## 5. Tests

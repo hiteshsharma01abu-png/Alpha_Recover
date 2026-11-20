@@ -3,9 +3,9 @@ import { company, industries, services } from './content';
 
 /** Hero illustrations cut from the brand asset sheet, exported at 2× for high-DPI screens (shown at most 360px wide). */
 export const heroArt = {
-  hdd: { src: '/assets/page-hdd.webp', width: 722, height: 582 },
-  laptop: { src: '/assets/page-laptop.webp', width: 826, height: 558 },
-  certificate: { src: '/assets/page-certificate.webp', width: 670, height: 484 },
+  hdd: { src: '/assets/images/illustrations/page-hdd.webp', width: 722, height: 582 },
+  laptop: { src: '/assets/images/illustrations/page-laptop.webp', width: 826, height: 558 },
+  certificate: { src: '/assets/images/illustrations/page-certificate.webp', width: 670, height: 484 },
 };
 export type HeroArt = (typeof heroArt)[keyof typeof heroArt];
 
@@ -99,7 +99,7 @@ export const blogPage = {
   sub: 'Tips, guides, and best practices for reliable data recovery.',
   pageSize: 6,
   /** Decorative thumbnails, picked per post from the site's own photos (posts have no cover images yet). */
-  thumbs: ['/assets/hero-drive.webp', '/assets/pcb.webp', '/assets/logical.webp', '/assets/mechanical.webp', '/assets/firmware.webp', '/assets/why-photo.webp'],
+  thumbs: ['/assets/images/sections/hero-drive.webp', '/assets/images/sections/pcb.webp', '/assets/images/sections/logical.webp', '/assets/images/sections/mechanical.webp', '/assets/images/sections/firmware.webp', '/assets/images/sections/why-photo.webp'],
 };
 
 export const verifyPage = {

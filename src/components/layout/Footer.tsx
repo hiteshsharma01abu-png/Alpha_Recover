@@ -5,7 +5,7 @@ import { useSiteSettings } from '../../lib/settings';
 import { icons } from '../../lib/icons';
 import './Footer.css';
 
-const FOOTER_BG = '/assets/footer-bg.webp';
+const FOOTER_BG = '/assets/images/backgrounds/footer-bg.webp';
 
 const serviceIcons: Record<string, string> = {
   'CCTV / DVR drive data recovery': icons.cctv,

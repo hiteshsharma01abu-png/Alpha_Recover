@@ -1,43 +1,43 @@
-/** Content-matched photos for home sections (local compressed `/assets` WebP). */
+/** Content-matched photos for home sections (local compressed WebP in `/assets/images/sections/`). */
 
 import { icons } from '../lib/icons';
 
 export const recoverySolutionImages: Record<string, string> = {
-  logical: '/assets/logical.webp',
-  electrical: '/assets/pcb.webp',
-  mechanical: '/assets/mechanical.webp',
-  firmware: '/assets/firmware.webp',
+  logical: '/assets/images/sections/logical.webp',
+  electrical: '/assets/images/sections/pcb.webp',
+  mechanical: '/assets/images/sections/mechanical.webp',
+  firmware: '/assets/images/sections/firmware.webp',
 };
 
 export const trainingTrackImages: Record<string, string> = {
-  logical: '/assets/logical.webp',
-  electrical: '/assets/pcb.webp',
-  mechanical: '/assets/mechanical.webp',
-  'firmware-basic': '/assets/firmware.webp',
-  mrt: '/assets/pro-electronics.webp',
-  media: '/assets/track-media.webp',
-  electronics: '/assets/pro-electronics.webp',
-  basics: '/assets/training.webp',
-  bitlocker: '/assets/demo-bitlocker.webp',
+  logical: '/assets/images/sections/logical.webp',
+  electrical: '/assets/images/sections/pcb.webp',
+  mechanical: '/assets/images/sections/mechanical.webp',
+  'firmware-basic': '/assets/images/sections/firmware.webp',
+  mrt: '/assets/images/sections/pro-electronics.webp',
+  media: '/assets/images/sections/track-media.webp',
+  electronics: '/assets/images/sections/pro-electronics.webp',
+  basics: '/assets/images/sections/training.webp',
+  bitlocker: '/assets/images/sections/demo-bitlocker.webp',
 };
 
 export const proTrainingImages: Record<string, string> = {
-  recovery: '/assets/hero-drive.webp',
-  firmware: '/assets/firmware.webp',
-  electronics: '/assets/pro-electronics.webp',
+  recovery: '/assets/images/sections/hero-drive.webp',
+  firmware: '/assets/images/sections/firmware.webp',
+  electronics: '/assets/images/sections/pro-electronics.webp',
 };
 
 export { demoVideoImages } from '../components/visuals/demoVisuals';
 
-export const fallbackSectionImage = '/assets/training.webp';
+export const fallbackSectionImage = '/assets/images/sections/training.webp';
 
 export const whyLearnImages: Record<string, string> = {
-  cyber: '/assets/hero-drive.webp',
-  photo: '/assets/why-photo.webp',
-  it: '/assets/why-it.webp',
-  online: '/assets/why-online.webp',
-  assets: '/assets/hero-drive.webp',
-  institutes: '/assets/why-institutes.webp',
+  cyber: '/assets/images/sections/hero-drive.webp',
+  photo: '/assets/images/sections/why-photo.webp',
+  it: '/assets/images/sections/why-it.webp',
+  online: '/assets/images/sections/why-online.webp',
+  assets: '/assets/images/sections/hero-drive.webp',
+  institutes: '/assets/images/sections/why-institutes.webp',
 };
 
 export const whyLearnIconSrc: Record<string, string> = {

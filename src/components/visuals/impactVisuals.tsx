@@ -3,17 +3,17 @@ import { icons } from '../../lib/icons';
 
 const ASSET = '/assets';
 
-export const globalStatsBg = `${ASSET}/global-stats-bg.webp`;
-export const globalStatsGlobe = `${ASSET}/global-stats-globe.png`;
-export const globalStatsWave = `${ASSET}/global-stats-wave.png`;
+export const globalStatsBg = `${ASSET}/images/backgrounds/global-stats-bg.webp`;
+export const globalStatsGlobe = `${ASSET}/images/illustrations/global-stats-globe.png`;
+export const globalStatsWave = `${ASSET}/images/backgrounds/global-stats-wave.png`;
 
 export const globalStatIcons: Record<string, string> = {
-  Languages: `${ASSET}/stat-icon-languages.png`,
-  Trainees: `${ASSET}/stat-icon-trainees.png`,
-  'Cases / Year': `${ASSET}/stat-icon-cases.png`,
-  'Remote Assists': `${ASSET}/stat-icon-remote.png`,
-  Years: `${ASSET}/stat-icon-years.png`,
-  'Privacy Focus': `${ASSET}/stat-icon-privacy.png`,
+  Languages: `${ASSET}/images/stat-icons/stat-icon-languages.png`,
+  Trainees: `${ASSET}/images/stat-icons/stat-icon-trainees.png`,
+  'Cases / Year': `${ASSET}/images/stat-icons/stat-icon-cases.png`,
+  'Remote Assists': `${ASSET}/images/stat-icons/stat-icon-remote.png`,
+  Years: `${ASSET}/images/stat-icons/stat-icon-years.png`,
+  'Privacy Focus': `${ASSET}/images/stat-icons/stat-icon-privacy.png`,
 };
 
 function iconImg(src: string, key: string, size = 16): ReactNode {

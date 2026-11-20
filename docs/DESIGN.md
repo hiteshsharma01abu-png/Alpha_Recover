@@ -78,7 +78,7 @@ Fonts load from Google Fonts at the top of `global.css`. Base body size is 16px,
 
 ## 6. Icons
 
-- **Local SVG files only, no icon CDN.** Files live in `public/icons/` named `<set>__<name>__<variant>.svg` (e.g. `lucide__shield__mint.svg`).
+- **Local SVG files only, no icon CDN.** Files live in `public/assets/icons/` named `<set>__<name>__<variant>.svg` (e.g. `lucide__shield__mint.svg`).
 - Resolve paths with `iconSrc('lucide/shield', ICON_WHITE)` or the prebuilt map `icons.*` from [`src/lib/icons.ts`](../src/lib/icons.ts).
 - Variants: `mint` (default), `white`, `dark`, `ivory`, `wa` (WhatsApp green).
 - Sets: Lucide (`lucide/*`) for UI glyphs, MDI (`mdi/*`) for brand and device icons.
@@ -87,11 +87,12 @@ Fonts load from Google Fonts at the top of `global.css`. Base body size is 16px,
 
 ## 7. Imagery
 
-- Photos are optimized **WebP** in `public/assets/`, referenced by absolute path (`/assets/pcb.webp`); section → image maps live in [`src/data/sectionMedia.ts`](../src/data/sectionMedia.ts).
-- Inner-page hero illustrations (`public/assets/page-*.webp`: hard drive, laptop + drive, certificate, light wave) are cut from the brand asset sheet with transparent backgrounds and exported at 2× (Lanczos + light sharpen) so they stay crisp on high-DPI screens; the sheet is only 1536×1024, so a higher-resolution sheet is the way to get more real detail; the source sheet and the redesign references (`alpha_recovery_assets/`) are kept outside the repo.
+- **All assets live in `public/assets/`**: `brand/` (logos, favicons, apple-touch icon), `icons/` (UI SVGs, §6), and `images/` split into `backgrounds/`, `sections/` (photos in sections and cards), `illustrations/` (hero art, globe) and `stat-icons/`.
+- Photos are optimized **WebP** in `public/assets/images/`, referenced by absolute path (`/assets/images/sections/pcb.webp`); section → image maps live in [`src/data/sectionMedia.ts`](../src/data/sectionMedia.ts).
+- Inner-page hero illustrations (`public/assets/images/illustrations/page-*.webp`: hard drive, laptop + drive, certificate, light wave) are cut from the brand asset sheet with transparent backgrounds and exported at 2× (Lanczos + light sharpen) so they stay crisp on high-DPI screens; the sheet is only 1536×1024, so a higher-resolution sheet is the way to get more real detail; the source sheet and the redesign references (`alpha_recovery_assets/`) are kept outside the repo.
 - Above-the-fold images are preloaded in `index.html`.
 - Use `loading="lazy"` / `fetchPriority="low"` for below-the-fold images; always set `width`/`height` to avoid layout shift.
-- **Logo and favicons** live in `public/alpha-recovery-branding/` (usage in its `README.txt`); paths are in `brandLogo` in `src/data/content.ts`. Public header/drawer use `alpha-logo-header.svg`, the footer `alpha-logo-footer.svg` (tagline included), and the admin `BrandLogo` the tiled mark (`favicon.svg`) plus theme-aware text, since the wordmark's white text vanishes on the light admin theme.
+- **Logo and favicons** live in `public/assets/brand/` (usage in its `README.txt`); paths are in `brandLogo` in `src/data/content.ts`. Public header/drawer use `alpha-logo-header.svg`, the footer `alpha-logo-footer.svg` (tagline included), and the admin `BrandLogo` the tiled mark (`favicon.svg`) plus theme-aware text, since the wordmark's white text vanishes on the light admin theme.
 - Don't hot-link third-party images. (Demo thumbnails currently hot-link Unsplash; these should move to own storage with the backend.)
 
 ## 8. Motion
