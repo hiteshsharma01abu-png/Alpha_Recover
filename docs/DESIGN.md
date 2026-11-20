@@ -88,7 +88,7 @@ Fonts load from Google Fonts at the top of `global.css`. Base body size is 16px,
 ## 7. Imagery
 
 - Photos are optimized **WebP** in `public/assets/`, referenced by absolute path (`/assets/pcb.webp`); section → image maps live in [`src/data/sectionMedia.ts`](../src/data/sectionMedia.ts).
-- Inner-page hero illustrations (`public/assets/page-*.webp`: hard drive, laptop + drive, certificate, light wave) are cut from the brand asset sheet with transparent backgrounds; the source sheet and the redesign references (`alpha_recovery_assets/`) are kept outside the repo.
+- Inner-page hero illustrations (`public/assets/page-*.webp`: hard drive, laptop + drive, certificate, light wave) are cut from the brand asset sheet with transparent backgrounds and exported at 2× (Lanczos + light sharpen) so they stay crisp on high-DPI screens; the sheet is only 1536×1024, so a higher-resolution sheet is the way to get more real detail; the source sheet and the redesign references (`alpha_recovery_assets/`) are kept outside the repo.
 - Above-the-fold images are preloaded in `index.html`.
 - Use `loading="lazy"` / `fetchPriority="low"` for below-the-fold images; always set `width`/`height` to avoid layout shift.
 - **Logo and favicons** live in `public/alpha-recovery-branding/` (usage in its `README.txt`); paths are in `brandLogo` in `src/data/content.ts`. Public header/drawer use `alpha-logo-header.svg`, the footer `alpha-logo-footer.svg` (tagline included), and the admin `BrandLogo` the tiled mark (`favicon.svg`) plus theme-aware text, since the wordmark's white text vanishes on the light admin theme.

@@ -1,11 +1,11 @@
 import { icons } from '../lib/icons';
 import { company, industries, services } from './content';
 
-/** Hero illustrations cut from the brand asset sheet (public/alpha_recovery_assets/…/alpha_recovery_asset_sheet.png). */
+/** Hero illustrations cut from the brand asset sheet, exported at 2× for high-DPI screens (shown at most 360px wide). */
 export const heroArt = {
-  hdd: { src: '/assets/page-hdd.webp', width: 361, height: 291 },
-  laptop: { src: '/assets/page-laptop.webp', width: 413, height: 279 },
-  certificate: { src: '/assets/page-certificate.webp', width: 335, height: 242 },
+  hdd: { src: '/assets/page-hdd.webp', width: 722, height: 582 },
+  laptop: { src: '/assets/page-laptop.webp', width: 826, height: 558 },
+  certificate: { src: '/assets/page-certificate.webp', width: 670, height: 484 },
 };
 export type HeroArt = (typeof heroArt)[keyof typeof heroArt];
 
