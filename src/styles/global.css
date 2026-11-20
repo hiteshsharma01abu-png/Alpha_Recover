@@ -207,12 +207,27 @@ p {
 
 .btn:focus-visible,
 a:focus-visible,
-button:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible {
+button:focus-visible {
   outline: 2px solid var(--brass);
   outline-offset: 3px;
+}
+
+/* Form fields: browsers treat a click into a text field as :focus-visible, so a brass outline
+   showed on every click. Fields get the teal ring used by the contact and account forms instead;
+   fields inside a styled box (search bars) show the ring on the box via :focus-within. */
+/* :where() keeps the weight of a plain `input:focus-visible`, so component styles can override it */
+input:where(:not([type='checkbox'], [type='radio'])):focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  border-color: color-mix(in srgb, var(--text) 45%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--line-strong) 70%, transparent);
+}
+
+input[type='checkbox']:focus-visible,
+input[type='radio']:focus-visible {
+  outline: 2px solid var(--mint);
+  outline-offset: 2px;
 }
 
 .btn-primary {

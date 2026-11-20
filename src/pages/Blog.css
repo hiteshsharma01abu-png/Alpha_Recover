@@ -30,6 +30,10 @@
   outline: none;
 }
 
+.bl-search input:focus-visible {
+  box-shadow: none;
+}
+
 .bl-search input::placeholder {
   color: var(--content);
 }

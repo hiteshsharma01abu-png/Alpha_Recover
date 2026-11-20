@@ -77,6 +77,18 @@
   outline-offset: 2px;
 }
 
+/* Fields match :focus-visible on every click, so the gold outline showed constantly: a teal ring instead.
+   Checkboxes and radios (keyboard focus only) keep an outline, in teal. */
+.adm :where(input:not([type='checkbox'], [type='radio']), select, textarea):focus-visible {
+  outline: none;
+  border-color: var(--adm-teal-strong);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--adm-teal-strong) 25%, transparent);
+}
+
+.adm :where(input[type='checkbox'], input[type='radio']):focus-visible {
+  outline-color: var(--adm-teal-strong);
+}
+
 .adm a {
   color: inherit;
 }

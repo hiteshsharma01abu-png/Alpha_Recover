@@ -198,6 +198,15 @@
   outline: none;
 }
 
+.demos-search:focus-within {
+  border-color: color-mix(in srgb, var(--text) 45%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--line-strong) 70%, transparent);
+}
+
+.demos-search input:focus-visible {
+  box-shadow: none;
+}
+
 .demos-search input::placeholder {
   color: rgba(190, 210, 202, 0.55);
 }

@@ -83,6 +83,10 @@
   outline: none;
 }
 
+.vc-input input:focus-visible {
+  box-shadow: none;
+}
+
 .vc-input input::placeholder {
   color: var(--content);
 }
