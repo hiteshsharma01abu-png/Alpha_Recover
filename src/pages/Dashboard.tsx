@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { PageHero } from '../components/ui/PageHero';
 import { useAuth } from '../lib/auth';
 import { icons } from '../lib/icons';
-import { getDashboard, lessonPath, type Dashboard as DashboardData } from '../lib/learning';
+import { certificateDownloadUrl, getDashboard, lessonPath, type Dashboard as DashboardData } from '../lib/learning';
 import './Dashboard.css';
 
 /** "2026-10-02T…" → "2 October 2026" */
@@ -130,7 +130,12 @@ export function Dashboard() {
                           {cert.code} · issued {longDate(cert.issuedAt)}
                         </small>
                       </span>
-                      <Link to={`/verify-certificate?code=${cert.code}`}>Verify</Link>
+                      <span className="dsh-cert-actions">
+                        <a className="btn btn-primary dsh-cert-download" href={certificateDownloadUrl(cert.code)} download>
+                          Download PDF
+                        </a>
+                        <Link to={`/verify-certificate?code=${cert.code}`}>Verify</Link>
+                      </span>
                     </li>
                   ))}
                 </ul>

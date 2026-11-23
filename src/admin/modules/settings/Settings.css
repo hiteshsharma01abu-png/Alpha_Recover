@@ -48,7 +48,12 @@
   max-width: 220px;
 }
 
+.adm-settings-medium {
+  max-width: 420px;
+}
+
 .adm-settings-card input,
+.adm-settings-card select,
 .adm-settings-card textarea {
   width: 100%;
   min-height: 40px;

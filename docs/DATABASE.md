@@ -1,6 +1,6 @@
 # Alpha Recovery — Database Schema
 
-**Last reviewed:** 2026-11-20 · Related: [ARCHITECTURE.md](ARCHITECTURE.md) · [API.md](API.md)
+**Last reviewed:** 2026-11-23 · Related: [ARCHITECTURE.md](ARCHITECTURE.md) · [API.md](API.md)
 
 **Database:** MySQL 8.0+ (MariaDB 10.6+ compatible subset) · **Engine:** InnoDB, `utf8mb4` · **ORM:** Drizzle (`mysql2`) · **Status:** Proposal, nothing created
 
@@ -402,12 +402,13 @@
 | issued_at | datetime(3) | not null |
 | status | enum `certificate_status` | `valid`, `revoked` |
 | revoked_at / revoked_reason | datetime(3) / text | null |
-| pdf_storage_key | text | null until generated |
-| issued_by | char(36) | FK → users.id, null (null = automatic) |
+| pdf_storage_key | text | unused: PDFs are generated on request (`GET /me/certificates/:code/download`) |
+| issued_by | char(36) | FK → users.id, null (null = issued automatically on course completion) |
 | created_at / updated_at | datetime(3) | |
 
 **Indexes:** unique(`code`), (`user_id`).
 **Validation:** `code` matches `^AR-\d{4}-\d{5}$`; plan_id and course_id are not both null.
+**Automatic issue (Phase 4):** one certificate per completed course (`course_id` set, `program_title` = course title), see `issueCourseCertificateIfComplete()` in `server/services/certificates.ts`.
 
 ## 20. `certificate_sequences`
 
@@ -451,7 +452,7 @@ Incremented inside the issuing transaction with
 | updated_by | char(36) | FK → users.id |
 | updated_at | datetime(3) | |
 
-**Seed keys:** `company` (public: name, email, phone, whatsapp, address, hours, replyNote, visitNote), `social_links` (public), `max_student_sessions` (2), `certificate_criteria` (`{ "type": "all_lessons_completed" }`), `refund_revokes_access` (true), `lead_notification_emails` (array), `require_verified_email_for_purchase` (true).
+**Seed keys:** `company` (public: name, email, phone, whatsapp, address, hours, replyNote, visitNote), `social_links` (public), `max_student_sessions` (2), `certificate_criteria` (`{ "type": "all_lessons_completed" | "manual" }`; **implemented**: a policy key, not seeded, read with that default; Super Admin edits it in Settings → Policies), `refund_revokes_access` (true), `lead_notification_emails` (array), `require_verified_email_for_purchase` (true).
 Values are validated per key with Zod.
 
 ## 23. `notification_jobs`

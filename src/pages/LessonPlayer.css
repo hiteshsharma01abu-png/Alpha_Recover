@@ -10,6 +10,39 @@
   gap: 1.5rem;
 }
 
+.lp-earned {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--ok) 55%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--ok) 10%, var(--surface));
+}
+
+.lp-earned > img {
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--mint) 40%, transparent));
+}
+
+.lp-earned strong,
+.lp-earned span {
+  display: block;
+}
+
+.lp-earned span {
+  margin-top: 0.2rem;
+  font-size: 0.9rem;
+  color: var(--text-sub);
+}
+
+.lp-earned-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .lp-stage {
   overflow: hidden;
   aspect-ratio: 16 / 9;
@@ -260,6 +293,16 @@
   .lp-outline {
     position: static;
     max-height: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .lp-earned {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .lp-earned-actions {
+    grid-column: 1 / -1;
   }
 }
 

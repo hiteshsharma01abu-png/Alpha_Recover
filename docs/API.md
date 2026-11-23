@@ -2,7 +2,7 @@
 
 **Base URL:** `/api/v1` (same origin as the SPA; Node.js + Hono, host-portable: cPanel Node.js App, VPS, or Vercel during development)
 **Format:** JSON (UTF-8). Request bodies are validated with Zod schemas shared from `shared/schemas/`.
-**Last reviewed:** 2026-11-20 · **Status:** Proposal · Related: [DATABASE.md](DATABASE.md) · [SECURITY.md](SECURITY.md)
+**Last reviewed:** 2026-11-23 · **Status:** Proposal · Related: [DATABASE.md](DATABASE.md) · [SECURITY.md](SECURITY.md)
 
 ---
 
@@ -139,8 +139,8 @@ Response `200`:
 | GET | `/me/enrollments` | student | Your enrollments, newest first: status (active / revoked / expired, computed from the end date), source, plan slug and name, start and end. **Implemented (Phase 3)** |
 | GET | `/me/orders` | user | Order history |
 | GET | `/me/orders/:orderNumber` | user | Order detail (used by the checkout success page) |
-| GET | `/me/certificates` | student | Own certificates |
-| GET | `/me/certificates/:id/download` | student | 302 to a signed PDF URL (5 min) |
+| GET | `/me/certificates` | student | Your valid certificates: code, recipientName, programTitle, issuedAt. **Implemented (Phase 4)** |
+| GET | `/me/certificates/:code/download` | student | The certificate PDF (`application/pdf`, attachment), generated on request from the stored row, so a corrected name is always current. Only your own valid certificates (else 404). **Implemented (Phase 4)**; replaces the planned 302 to a signed storage URL: nothing is stored, so it works on any host |
 | GET | `/me/sessions` | user | Active sessions: id, device ("Chrome on macOS"), ipAddress, createdAt, lastActiveAt, expiresAt, current. **Implemented (Phase 3)** |
 | DELETE | `/me/sessions/:id` | user | Sign out one of your own sessions (someone else's id → 404). Audit `auth.session_revoke`. **Implemented (Phase 3)** |
 
@@ -187,7 +187,8 @@ DB: read `lessons`, `course_modules`, `enrollments`, `plan_courses`, `lesson_pro
 Request: `{ "positionSeconds": 312, "watchedSeconds": 300, "completed": false }`
 Validation: all fields optional but at least one; integers 0 ≤ x ≤ duration + 60 (24 h + 60 s when the duration is unknown). `watchedSeconds` only increases (server keeps the max). Completes when watched ≥ 90 % of the duration or `completed: true`; `completed: false` un-marks it. Free-preview lessons accept progress without an enrollment.
 Response `200`: `{ "data": { "completedAt": null, "courseProgressPct": 36 } }`
-Side effect (**planned**, waits for the owner's certificate rule, docs/PRD.md §6.1): when the criteria are met, issue a certificate and enqueue `certificate_issued`.
+Response also carries `certificate`: `{ code, programTitle }` when this save completed the course and issued its certificate, else `null`.
+Side effect: when the lesson is complete and every published lesson of its course is now complete, and `certificate_criteria` is `all_lessons_completed` (the default), the course certificate is issued (one valid per student and course or program title; the student row is locked so concurrent saves can't issue twice), `certificate_issued` is queued, and `certificates.auto_issue` is logged.
 
 ---
 

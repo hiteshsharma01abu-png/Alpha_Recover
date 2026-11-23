@@ -138,9 +138,22 @@
   color: var(--text-sub);
 }
 
-.dsh-certs a {
+.dsh-cert-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem 1rem;
+}
+
+.dsh-cert-actions > a:not(.btn) {
   font-weight: 700;
   color: var(--brass);
+}
+
+.dsh-cert-download {
+  padding: 0.5rem 0.95rem;
+  font-size: 0.86rem;
 }
 
 .dsh-empty {
@@ -191,5 +204,14 @@
 
   .dsh-continue .btn {
     grid-column: 1 / -1;
+  }
+
+  .dsh-certs li {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .dsh-cert-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
   }
 }

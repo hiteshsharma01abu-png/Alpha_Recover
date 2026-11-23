@@ -29,4 +29,11 @@ export const getDashboard = () => api.get<Dashboard>('/me/dashboard').then((r) =
 export const getPlayback = (lessonId: string) =>
   api.post<{ embedUrl: string; expiresAt: string; resumeAt: number }>(`/lessons/${lessonId}/playback`).then((r) => r.data);
 export const saveProgress = (lessonId: string, body: { positionSeconds?: number; watchedSeconds?: number; completed?: boolean }) =>
-  api.put<{ completedAt: string | null; courseProgressPct: number }>(`/me/progress/${lessonId}`, body).then((r) => r.data);
+  api
+    .put<{ completedAt: string | null; courseProgressPct: number; certificate: EarnedCertificate | null }>(`/me/progress/${lessonId}`, body)
+    .then((r) => r.data);
+
+/** Set when finishing a lesson completes the course and issues its certificate. */
+export type EarnedCertificate = { code: string; programTitle: string };
+/** Same-origin link: the session cookie authorizes it, and the API answers with the PDF as a download. */
+export const certificateDownloadUrl = (code: string) => `/api/v1/me/certificates/${encodeURIComponent(code)}/download`;

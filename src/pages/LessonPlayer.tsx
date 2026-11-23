@@ -9,8 +9,10 @@ import {
   getCourseProgress,
   getPlayback,
   lessonPath,
+  certificateDownloadUrl,
   saveProgress,
   type CourseOutline,
+  type EarnedCertificate,
   type CourseProgress,
   type OutlineLesson,
 } from '../lib/learning';
@@ -37,6 +39,7 @@ function Player({ courseSlug }: { courseSlug: string }) {
   const [playbacks, setPlaybacks] = useState<Record<string, Playback>>({});
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const [earned, setEarned] = useState<EarnedCertificate | null>(null);
 
   useEffect(() => {
     let live = true;
@@ -93,7 +96,8 @@ function Player({ courseSlug }: { courseSlug: string }) {
     };
   }, [canPlay, lessonId, playbacks]);
 
-  function applySaved(id: string, completedAt: string | null, courseProgressPct: number, positionSeconds?: number) {
+  function applySaved(id: string, completedAt: string | null, courseProgressPct: number, positionSeconds?: number, certificate?: EarnedCertificate | null) {
+    if (certificate) setEarned(certificate);
     setProgress((p) => {
       if (!p) return p;
       const before = p.lessons[id];
@@ -114,7 +118,7 @@ function Player({ courseSlug }: { courseSlug: string }) {
     setSaveError('');
     try {
       const res = await saveProgress(lesson.id, { completed: !done(lesson) });
-      applySaved(lesson.id, res.completedAt, res.courseProgressPct);
+      applySaved(lesson.id, res.completedAt, res.courseProgressPct, undefined, res.certificate);
     } catch (err) {
       setSaveError(err instanceof ApiError ? err.message : 'Could not save. Please try again.');
     } finally {
@@ -155,6 +159,25 @@ function Player({ courseSlug }: { courseSlug: string }) {
       <PageHero crumbs={[{ label: 'Training', to: '/training' }, { label: course.title, to: `/training/${course.slug}` }, { label: lesson.title }]} title={lesson.title} sub={`${lesson.moduleTitle} · Lesson ${index + 1} of ${flat.length}`} />
       <section className="section lp-section">
         <div className="container lp">
+          {earned ? (
+            <div className="lp-earned" role="status">
+              <img src={icons.award} alt="" width={40} height={40} />
+              <div>
+                <strong>Congratulations! You&apos;ve earned your certificate.</strong>
+                <span>
+                  {earned.programTitle} · {earned.code}
+                </span>
+              </div>
+              <div className="lp-earned-actions">
+                <a className="btn btn-primary" href={certificateDownloadUrl(earned.code)} download>
+                  Download PDF
+                </a>
+                <Link className="btn btn-ghost" to="/dashboard">
+                  My Learning
+                </Link>
+              </div>
+            </div>
+          ) : null}
           <div className="lp-main">
             <div className="lp-stage">
               {!accessKnown ? (
@@ -283,7 +306,7 @@ function BunnyFrame({
   title: string;
   lessonId: string;
   trackProgress: boolean;
-  onSaved: (id: string, completedAt: string | null, pct: number, positionSeconds?: number) => void;
+  onSaved: (id: string, completedAt: string | null, pct: number, positionSeconds?: number, certificate?: EarnedCertificate | null) => void;
 }) {
   const frame = useRef<HTMLIFrameElement>(null);
   const onSavedRef = useRef(onSaved);
@@ -298,7 +321,7 @@ function BunnyFrame({
     let lastSave = 0;
     const save = (body: Parameters<typeof saveProgress>[1]) =>
       saveProgress(lessonId, body)
-        .then((r) => onSavedRef.current(lessonId, r.completedAt, r.courseProgressPct, body.positionSeconds))
+        .then((r) => onSavedRef.current(lessonId, r.completedAt, r.courseProgressPct, body.positionSeconds, r.certificate))
         .catch(() => {});
     const send = (method: string, value?: string) =>
       frame.current?.contentWindow?.postMessage(JSON.stringify({ context: 'player.js', version: '0.0.11', method, value, listener: value }), BUNNY_ORIGIN);

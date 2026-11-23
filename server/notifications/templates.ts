@@ -1,6 +1,6 @@
 /**
  * Email templates (docs/API.md §13). Each returns subject, plain text and HTML.
- * Later phases add order_receipt, enrollment_welcome, lead_ack, lead_alert, certificate_issued…
+ * Later phases add order_receipt, enrollment_welcome…
  */
 type Rendered = { subject: string; text: string; html: string };
 
@@ -36,6 +36,15 @@ export const templates = {
     html: layout(
       'Reset your password',
       `<p>Hi ${escapeHtml(p.firstName)},</p><p>We received a request to reset your password.</p>${button(p.url, 'Reset password')}<p style="font-size:13px">This link expires in 1 hour. If you didn't ask for this, ignore this email.</p>`,
+    ),
+  }),
+  /** The student completed a course and its certificate was issued automatically. */
+  certificate_issued: (p: { firstName: string; programTitle: string; code: string; dashboardUrl: string; verifyUrl: string }): Rendered => ({
+    subject: `Your certificate is ready: ${p.programTitle}`,
+    text: `Hi ${p.firstName},\n\nCongratulations on completing ${p.programTitle}! Your certificate (ID ${p.code}) is ready.\n\nDownload it from My Learning:\n${p.dashboardUrl}\n\nAnyone can confirm it's genuine here:\n${p.verifyUrl}\n\nAlpha Recovery`,
+    html: layout(
+      'Your certificate is ready',
+      `<p>Hi ${escapeHtml(p.firstName)},</p><p>Congratulations on completing <strong>${escapeHtml(p.programTitle)}</strong>! Your certificate is ready.</p><p>Certificate ID: <strong>${escapeHtml(p.code)}</strong></p>${button(p.dashboardUrl, 'Download your certificate')}<p style="font-size:13px">Anyone can confirm it's genuine at <a href="${escapeHtml(p.verifyUrl)}" style="color:#7DFFC0">${escapeHtml(p.verifyUrl)}</a>.</p>`,
     ),
   }),
   /** A Super Admin added this person to the team; the link sets their first password. */

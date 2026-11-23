@@ -1,7 +1,8 @@
 import { createHash } from 'node:crypto';
 import { asc, eq } from 'drizzle-orm';
 import { afterAll, beforeAll, beforeEach, describe, expect, inject, it } from 'vitest';
-import { certificates, courseModules, courses, lessonProgress, lessons, plans, users } from './db/schema';
+import { activityLogs, certificates, courseModules, courses, lessonProgress, lessons, notificationJobs, plans, siteSettings, users } from './db/schema';
+import { renderCertificatePdf } from './services/certificatePdf';
 import { seedCatalog, seedPlans } from './db/seed';
 import { grantEnrollment } from './services/enrollments';
 import { CookieJar, createTestContext, getJson, postJson, readJson, resetTables, sendJson } from './test/helpers';
@@ -215,6 +216,93 @@ describe.skipIf(!dbAvailable)('learning: playback, progress, dashboard (MySQL)',
       ]);
       const { data } = await readJson(await getJson(ctx.app, '/me/dashboard', jar));
       expect(data.certificates).toEqual([expect.objectContaining({ code: 'AR-2026-00001', programTitle: course.title })]);
+    });
+  });
+
+  describe('certificates', () => {
+    /** The course with the fewest published lessons, and its lessons in order. */
+    const smallest = async () => {
+      const all = await ctx.db.select({ id: courses.id, slug: courses.slug, title: courses.title }).from(courses);
+      const sized = await Promise.all(all.map(async (c) => ({ ...c, lessons: await lessonsOf(c.slug) })));
+      return sized.sort((a, b) => a.lessons.length - b.lessons.length)[0];
+    };
+    const completeAll = async (list: { id: string }[]) => {
+      let last: any;
+      for (const l of list) last = await readJson(await put(l.id, { completed: true }));
+      return last;
+    };
+    const download = (code: string, as?: CookieJar) => getJson(ctx.app, `/me/certificates/${code}/download`, as);
+
+    it('issues the course certificate once the last lesson is complete, emails it, and logs it', async () => {
+      await enroll();
+      await ctx.db.update(users).set({ certificateName: 'Ravi Kumar Shah' }).where(eq(users.id, userId));
+      const course = await smallest();
+      const before = await completeAll(course.lessons.slice(0, -1));
+      expect(before.data.certificate).toBeNull();
+      const last = await readJson(await put(course.lessons.at(-1)!.id, { completed: true }));
+      expect(last.data).toMatchObject({ courseProgressPct: 100, certificate: { code: expect.stringMatching(/^AR-\d{4}-\d{5}$/), programTitle: course.title } });
+
+      const [cert] = await ctx.db.select().from(certificates);
+      expect(cert).toMatchObject({ userId, courseId: course.id, recipientName: 'Ravi Kumar Shah', programTitle: course.title, status: 'valid', issuedBy: null });
+      const [job] = await ctx.db.select().from(notificationJobs).where(eq(notificationJobs.template, 'certificate_issued'));
+      expect(job).toMatchObject({ toAddress: 'ravi@example.com', payload: expect.objectContaining({ code: cert.code, verifyUrl: `http://localhost:5173/verify-certificate?code=${cert.code}` }) });
+      expect(await ctx.db.$count(activityLogs, eq(activityLogs.action, 'certificates.auto_issue'))).toBe(1);
+
+      // Un-marking and re-marking, or a concurrent double save, never issues a second one.
+      await put(course.lessons[0].id, { completed: false });
+      expect((await readJson(await put(course.lessons[0].id, { completed: true }))).data.certificate).toBeNull();
+      await Promise.all([put(course.lessons[1].id, { completed: true }), put(course.lessons[1].id, { completed: true })]);
+      expect(await ctx.db.$count(certificates)).toBe(1);
+      const dash = (await readJson(await getJson(ctx.app, '/me/dashboard', jar))).data;
+      expect(dash.certificates).toEqual([expect.objectContaining({ code: cert.code })]);
+    });
+
+    it('issues exactly one under concurrent completion of the last two lessons', async () => {
+      await enroll();
+      const course = await smallest();
+      await completeAll(course.lessons.slice(0, -2));
+      await Promise.all(course.lessons.slice(-2).map((l) => put(l.id, { completed: true })));
+      expect(await ctx.db.$count(certificates)).toBe(1);
+    });
+
+    it('issues nothing when the setting is "manual"', async () => {
+      await ctx.db.insert(siteSettings).values({ key: 'certificate_criteria', value: { type: 'manual' } });
+      await enroll();
+      const course = await smallest();
+      expect((await completeAll(course.lessons)).data).toMatchObject({ courseProgressPct: 100, certificate: null });
+      expect(await ctx.db.$count(certificates)).toBe(0);
+    });
+
+    it('downloads your own valid certificate as a PDF, and nobody else\'s', async () => {
+      await enroll();
+      const course = await smallest();
+      const { data } = await completeAll(course.lessons);
+      const code = data.certificate.code;
+      expect((await download(code)).status).toBe(401);
+      const res = await download(code, jar);
+      expect(res.status).toBe(200);
+      expect(res.headers.get('content-type')).toBe('application/pdf');
+      expect(res.headers.get('content-disposition')).toBe(`attachment; filename="Alpha-Recovery-Certificate-${code}.pdf"`);
+      const bytes = new Uint8Array(await res.arrayBuffer());
+      expect(new TextDecoder().decode(bytes.slice(0, 5))).toBe('%PDF-');
+      expect((await readJson(await getJson(ctx.app, '/me/certificates', jar))).data).toEqual([expect.objectContaining({ code, programTitle: course.title })]);
+
+      const other = new CookieJar();
+      await postJson(
+        ctx.app,
+        '/auth/register',
+        { firstName: 'Asha', email: 'asha@example.com', country: 'IN', password: 'correct-horse-battery', confirmPassword: 'correct-horse-battery', acceptTerms: true },
+        other,
+      );
+      expect((await download(code, other)).status).toBe(404);
+      expect((await download('not-a-code', jar)).status).toBe(400);
+      await ctx.db.update(certificates).set({ status: 'revoked', revokedAt: new Date() });
+      expect((await download(code, jar)).status).toBe(404);
+    });
+
+    it('renders names the standard PDF fonts can\'t print without failing', async () => {
+      const pdf = await renderCertificatePdf({ code: 'AR-2026-00001', recipientName: 'रवि Kumar — Ōno', programTitle: 'Logical Failure Data Recovery', issuedAt: new Date(), verifyUrl: 'https://example.com/verify-certificate?code=AR-2026-00001' });
+      expect(pdf.byteLength).toBeGreaterThan(1000);
     });
   });
 });

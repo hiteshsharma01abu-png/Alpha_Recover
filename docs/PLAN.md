@@ -1,6 +1,6 @@
 # Alpha Recovery — Implementation Plan
 
-**Last reviewed:** 2026-11-20 · **Status:** For approval. Nothing is implemented yet.
+**Last reviewed:** 2026-11-23 · **Status:** For approval. Nothing is implemented yet.
 **Sizing:** S ≈ 1–2 dev-days, M ≈ 3–5, L ≈ 6–10, for one full-stack developer. Ranges assume decisions in [PRD.md](PRD.md) §6 are answered promptly.
 
 ---
@@ -128,7 +128,7 @@ Phase 7 QA & security hardening (continuous, gate before production launch)
 - [x] Playback API: `POST /lessons/:id/playback` with signed Bunny embed URLs (2 h); 409 while a lesson has no video, 503 until `BUNNY_STREAM_*` is set
 - [x] Lesson player page `/learn/…` (locked, coming soon, video, mark complete, prev/next, outline with progress) and student dashboard `/dashboard`; training lessons link to the player. Browser-verified as an enrolled student and signed out, 1440 and 390 px
 - [ ] Real video: needs the Bunny account, then video upload in the admin course editor (`POST /admin/videos/upload-url`)
-- [ ] Certificates: automatic issue, PDF + QR, download, `certificate_issued` email. **Blocked on the certificate rule** (PRD §6.1)
+- [x] Certificates: issued automatically when every lesson of a course is complete (policy `certificate_criteria`, default automatic, editable in Settings → Policies), A4 PDF with the brand mark and a QR code to `/verify-certificate`, download from My Learning and the player, `certificate_issued` email, audit. 6 tests; QR decoded and the flow browser-verified (2026-11-23)
 
 ### Phase 5 — Payments & business logic · L
 | Task | Detail |

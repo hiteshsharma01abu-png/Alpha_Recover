@@ -30,6 +30,8 @@ export const settingSchemas = {
     cin: text,
     gst: text,
   }),
+  /** When certificates are issued: automatically once every lesson of a course is complete, or only by staff. */
+  certificate_criteria: z.object({ type: z.enum(['all_lessons_completed', 'manual']) }),
   social_links: z.array(
     z.object({ platform: z.enum(['youtube', 'linkedin', 'facebook', 'instagram']), url: httpsUrl }),
   ),
@@ -40,7 +42,10 @@ export type SettingKey = keyof typeof settingSchemas;
 /** Keys the public site reads through GET /settings/public. */
 export const PUBLIC_SETTING_KEYS: readonly SettingKey[] = ['company', 'social_links'];
 /** Keys that change access rules: editing them needs settings.edit_policies (Super Admin). */
-export const POLICY_SETTING_KEYS: readonly SettingKey[] = ['max_student_sessions'];
+export const POLICY_SETTING_KEYS: readonly SettingKey[] = ['max_student_sessions', 'certificate_criteria'];
+
+/** Default until a Super Admin changes it (owner decision 2026-11-20). */
+export const DEFAULT_CERTIFICATE_CRITERIA: SettingValue<'certificate_criteria'> = { type: 'all_lessons_completed' };
 export type SettingValue<K extends SettingKey> = z.infer<(typeof settingSchemas)[K]>;
 
 /** Reads and validates a setting; returns `fallback` if it's missing or invalid. */

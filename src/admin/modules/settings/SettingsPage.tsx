@@ -54,7 +54,7 @@ export function SettingsPage() {
 
 function SettingsTab({ tab, s, reload }: { tab: Tab; s: AdminSettings; reload: () => void }) {
   if (tab === 'notifications') return <LeadEmailsSection entry={s.lead_notification_emails} reload={reload} />;
-  if (tab === 'policies') return <PoliciesSection entry={s.max_student_sessions} reload={reload} />;
+  if (tab === 'policies') return <PoliciesSection entry={s.max_student_sessions} certificates={s.certificate_criteria} reload={reload} />;
   return (
     <div className="adm-settings">
       <CompanySection entry={s.company} reload={reload} />
@@ -273,9 +273,12 @@ function LeadEmailsSection({ entry, reload }: { entry: SettingEntry<string[]>; r
   );
 }
 
-function PoliciesSection({ entry, reload }: { entry: SettingEntry<number>; reload: () => void }) {
+type CertificateCriteria = { type: 'all_lessons_completed' | 'manual' };
+
+function PoliciesSection({ entry, certificates, reload }: { entry: SettingEntry<number>; certificates: SettingEntry<CertificateCriteria>; reload: () => void }) {
   const { can } = useAdminSession();
   const [max, setMax] = useState(String(entry.value ?? DEFAULT_MAX_SESSIONS));
+  const [criteria, setCriteria] = useState<CertificateCriteria['type']>(certificates.value?.type ?? 'all_lessons_completed');
   return (
     <div className="adm-settings">
       <Section
@@ -294,6 +297,25 @@ function PoliciesSection({ entry, reload }: { entry: SettingEntry<number>; reloa
             Devices per student
             <input type="number" min={1} max={10} required value={max} onChange={(e) => setMax(e.target.value)} />
             {Object.values(errors)[0] ? <span className="adm-field-error">{Object.values(errors)[0]}</span> : <span className="adm-muted adm-small">1–10. Applies from each student&apos;s next sign-in.</span>}
+          </label>
+        )}
+      </Section>
+      <Section
+        title="Certificates"
+        intro="When students get their course certificate. Automatic: issued (and emailed) the moment a student completes every lesson of a course. Manual: only the certificates staff issue from the Certificates page. Certificates already issued are not affected."
+        entry={certificates}
+        canEdit={can('settings.edit_policies')}
+        readOnlyNote="Only a Super Admin can change policies."
+        onSave={() => adminApi.settings.save('certificate_criteria', { type: criteria }).then((r) => (reload(), r))}
+      >
+        {(errors) => (
+          <label className="adm-settings-field adm-settings-medium">
+            Issue certificates
+            <select value={criteria} onChange={(e) => setCriteria(e.target.value as CertificateCriteria['type'])}>
+              <option value="all_lessons_completed">Automatically, when all lessons are complete</option>
+              <option value="manual">Only when staff issue them</option>
+            </select>
+            {Object.values(errors)[0] ? <span className="adm-field-error">{Object.values(errors)[0]}</span> : null}
           </label>
         )}
       </Section>

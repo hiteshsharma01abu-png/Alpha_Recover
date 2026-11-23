@@ -29,6 +29,8 @@
     "drizzle-orm": "^0.45.4",
     "hono": "^4.13.18",
     "mysql2": "^3.24.6",
+    "pdf-lib": "^1.17.1",
+    "qrcode": "^1.5.4",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.3",
@@ -36,6 +38,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.13.3",
+    "@types/qrcode": "^1.5.5",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",

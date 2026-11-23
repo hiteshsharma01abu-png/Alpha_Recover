@@ -1,10 +1,14 @@
 import { and, asc, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';
+import { logActivity } from '../audit';
 import { getUser, requireUser } from '../auth/middleware';
 import { certificates, courses, enrollments, lessonProgress } from '../db/schema';
 import { AppError } from '../lib/errors';
 import { validate } from '../lib/validate';
+import { enqueueEmail } from '../notifications/outbox';
+import { renderCertificatePdf } from '../services/certificatePdf';
+import { CERTIFICATE_CODE, issueCourseCertificateIfComplete } from '../services/certificates';
 import { accessibleCourseIds, canAccessCourse, liveEnrollment } from '../services/enrollments';
 import {
   bunnyEmbedUrl,
@@ -122,7 +126,70 @@ export const learningRoutes = new Hono<AppEnv>()
       .from(lessonProgress)
       .where(and(eq(lessonProgress.userId, user.id), eq(lessonProgress.lessonId, lesson.id)));
     const course = await courseProgress(db, user.id, lesson.courseId);
-    return c.json({ data: { completedAt: row.completedAt?.toISOString() ?? null, courseProgressPct: course.pct } });
+
+    // Finishing the last lesson of a course issues its certificate (if the setting is automatic).
+    const issued = row.completedAt && course.total && course.completed === course.total ? await issueCourseCertificateIfComplete(db, user.id, lesson.courseId) : null;
+    if (issued) {
+      const { env } = c.get('deps');
+      const verifyUrl = `${env.APP_URL}/verify-certificate?code=${issued.code}`;
+      await enqueueEmail(db, 'certificate_issued', issued.email, {
+        firstName: issued.firstName,
+        programTitle: issued.programTitle,
+        code: issued.code,
+        dashboardUrl: `${env.APP_URL}/dashboard`,
+        verifyUrl,
+      });
+      await logActivity(c, {
+        action: 'certificates.auto_issue',
+        entityType: 'certificate',
+        entityId: issued.id,
+        metadata: { code: issued.code, userId: user.id, programTitle: issued.programTitle },
+      });
+    }
+    return c.json({
+      data: {
+        completedAt: row.completedAt?.toISOString() ?? null,
+        courseProgressPct: course.pct,
+        certificate: issued ? { code: issued.code, programTitle: issued.programTitle } : null,
+      },
+    });
+  })
+
+  /** Your valid certificates, newest first. */
+  .get('/me/certificates', requireUser(), async (c) => {
+    c.header('Cache-Control', 'no-store');
+    const user = (await getUser(c))!;
+    const rows = await c
+      .get('deps')
+      .db.select({ code: certificates.code, recipientName: certificates.recipientName, programTitle: certificates.programTitle, issuedAt: certificates.issuedAt })
+      .from(certificates)
+      .where(and(eq(certificates.userId, user.id), eq(certificates.status, 'valid')))
+      .orderBy(desc(certificates.issuedAt));
+    return c.json({ data: rows.map((r) => ({ ...r, issuedAt: r.issuedAt.toISOString() })) });
+  })
+
+  /** The PDF of one of your valid certificates, generated on request (always shows the current printed name). */
+  .get('/me/certificates/:code/download', requireUser(), validate('param', z.object({ code: z.string().regex(CERTIFICATE_CODE) })), async (c) => {
+    const { db, env } = c.get('deps');
+    const user = (await getUser(c))!;
+    const { code } = c.req.valid('param');
+    const [cert] = await db
+      .select()
+      .from(certificates)
+      .where(and(eq(certificates.code, code), eq(certificates.userId, user.id), eq(certificates.status, 'valid')));
+    if (!cert) throw new AppError('NOT_FOUND', 'Certificate not found');
+    const pdf = await renderCertificatePdf({
+      code: cert.code,
+      recipientName: cert.recipientName,
+      programTitle: cert.programTitle,
+      issuedAt: cert.issuedAt,
+      verifyUrl: `${env.APP_URL}/verify-certificate?code=${cert.code}`,
+    });
+    return c.body(pdf as Uint8Array<ArrayBuffer>, 200, {
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="Alpha-Recovery-Certificate-${cert.code}.pdf"`,
+      'Cache-Control': 'private, no-store',
+    });
   })
 
   /** Courses you can open with progress, where to continue, and your certificates. */

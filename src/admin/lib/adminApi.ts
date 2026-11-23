@@ -211,6 +211,7 @@ export type AdminSettings = {
   social_links: SettingEntry<{ platform: SocialPlatform; url: string }[]>;
   lead_notification_emails: SettingEntry<string[]>;
   max_student_sessions: SettingEntry<number>;
+  certificate_criteria: SettingEntry<{ type: 'all_lessons_completed' | 'manual' }>;
 };
 
 export type EmailState = 'queued' | 'retrying' | 'sent' | 'failed';

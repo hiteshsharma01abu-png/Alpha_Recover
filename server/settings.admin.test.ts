@@ -27,7 +27,7 @@ describe.skipIf(!dbAvailable)('admin settings API (MySQL)', () => {
   it('returns every key, with null for unset ones, flags, and who changed it', async () => {
     const { jar } = await loginAs(ctx, 'admin');
     const { data } = await readJson(await getJson(ctx.app, '/admin/settings', jar));
-    expect(Object.keys(data).sort()).toEqual(['company', 'lead_notification_emails', 'max_student_sessions', 'social_links']);
+    expect(Object.keys(data).sort()).toEqual(['certificate_criteria', 'company', 'lead_notification_emails', 'max_student_sessions', 'social_links']);
     expect(data.company).toMatchObject({ value: company, isPublic: true, isPolicy: false, updatedBy: null });
     expect(data.max_student_sessions).toMatchObject({ value: null, isPolicy: true });
     expect((await getJson(ctx.app, '/admin/settings', (await loginAs(ctx, 'finance_manager')).jar)).status).toBe(403);
