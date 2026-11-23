@@ -96,6 +96,8 @@ export type StudentDetail = Omit<StudentRow, 'enrolled'> & {
   enrollments: { id: string; plan: string; source: EnrollmentSource; status: EnrollmentStatus; startsAt: string; expiresAt: string | null; revokedReason: string | null }[];
   certificates: { id: string; code: string; recipientName: string; programTitle: string; status: 'valid' | 'revoked'; issuedAt: string }[];
   sessions: { id: string; device: string; signedInAt: string; lastActiveAt: string }[];
+  /** Courses the student has started, most recent activity first. */
+  learning: { slug: string; title: string; lessonsTotal: number; lessonsCompleted: number; progressPct: number; lastActivityAt: string }[];
 };
 
 export type StudentUpdate = Partial<{ firstName: string; lastName: string | null; certificateName: string | null; phone: string | null; country: string }>;

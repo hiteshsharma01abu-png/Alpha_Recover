@@ -1,17 +1,18 @@
-import { and, asc, count, desc, eq, exists, gt, isNull, like, notExists, or, type SQL } from 'drizzle-orm';
+import { and, asc, count, desc, eq, exists, gt, isNull, like, notExists, or, sql, type SQL } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { REGISTER_COUNTRIES } from '../../../shared/countries';
 import { logActivity } from '../../audit';
 import { requireStaff } from '../../auth/middleware';
 import type { Database } from '../../db';
-import { certificates, enrollments, plans, sessions, users } from '../../db/schema';
+import { certificates, courseModules, courses, enrollments, lessonProgress, lessons, plans, sessions, users } from '../../db/schema';
 import { AppError } from '../../lib/errors';
 import { maskEmail, maskPhone } from '../../lib/mask';
 import { describeDevice } from '../../lib/userAgent';
 import { validate } from '../../lib/validate';
 import type { AppEnv } from '../../types';
 import { liveEnrollment } from '../../services/enrollments';
+import { publishedLessons } from '../../services/learning';
 import { profileUpdate } from '../me';
 
 const countryCodes = REGISTER_COUNTRIES.map((c) => c.code) as [string, ...string[]];
@@ -106,7 +107,7 @@ export const adminStudentRoutes = new Hono<AppEnv>()
   .get('/students/:id', requireStaff('students.view'), validate('param', idParam), async (c) => {
     const { db } = c.get('deps');
     const s = await loadStudent(db, c.req.valid('param').id);
-    const [enrollmentRows, certificateRows, sessionRows] = await Promise.all([
+    const [enrollmentRows, certificateRows, sessionRows, learningRows] = await Promise.all([
       db
         .select({
           id: enrollments.id,
@@ -131,7 +132,30 @@ export const adminStudentRoutes = new Hono<AppEnv>()
         .from(sessions)
         .where(and(eq(sessions.userId, s.id), gt(sessions.expiresAt, new Date())))
         .orderBy(desc(sessions.updatedAt)),
+      // Courses this student has started: completed lessons and last activity per course.
+      db
+        .select({
+          courseId: courses.id,
+          slug: courses.slug,
+          title: courses.title,
+          done: sql<number>`sum(${lessonProgress.completedAt} is not null)`,
+          lastActivityAt: sql<Date>`max(${lessonProgress.updatedAt})`.mapWith(lessonProgress.updatedAt),
+        })
+        .from(lessonProgress)
+        .innerJoin(lessons, eq(lessons.id, lessonProgress.lessonId))
+        .innerJoin(courseModules, eq(courseModules.id, lessons.moduleId))
+        .innerJoin(courses, eq(courses.id, courseModules.courseId))
+        .where(and(eq(lessonProgress.userId, s.id), eq(lessons.status, 'published'), isNull(lessons.deletedAt), isNull(courseModules.deletedAt), isNull(courses.deletedAt)))
+        .groupBy(courses.id, courses.slug, courses.title),
     ]);
+    const outline = await publishedLessons(db, learningRows.map((l) => l.courseId));
+    const learning = learningRows
+      .map((l) => {
+        const total = outline.filter((x) => x.courseId === l.courseId).length;
+        const completed = Number(l.done);
+        return { slug: l.slug, title: l.title, lessonsTotal: total, lessonsCompleted: completed, progressPct: total ? Math.round((completed / total) * 100) : 0, lastActivityAt: l.lastActivityAt.toISOString() };
+      })
+      .sort((a, b) => b.lastActivityAt.localeCompare(a.lastActivityAt));
     const iso = (d: Date | null) => d?.toISOString() ?? null;
     return c.json({
       data: {
@@ -155,6 +179,7 @@ export const adminStudentRoutes = new Hono<AppEnv>()
           expiresAt: iso(e.expiresAt),
         })),
         certificates: certificateRows.map((x) => ({ ...x, issuedAt: x.issuedAt.toISOString() })),
+        learning,
         // Device only: the raw IP stays out of the admin UI.
         sessions: sessionRows.map((x) => ({ id: x.id, device: describeDevice(x.userAgent), signedInAt: x.createdAt.toISOString(), lastActiveAt: x.updatedAt.toISOString() })),
       },

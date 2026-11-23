@@ -128,6 +128,7 @@ Phase 7 QA & security hardening (continuous, gate before production launch)
 - [x] Playback API: `POST /lessons/:id/playback` with signed Bunny embed URLs (2 h); 409 while a lesson has no video, 503 until `BUNNY_STREAM_*` is set
 - [x] Lesson player page `/learn/…` (locked, coming soon, video, mark complete, prev/next, outline with progress) and student dashboard `/dashboard`; training lessons link to the player. Browser-verified as an enrolled student and signed out, 1440 and 390 px
 - [ ] Real video: needs the Bunny account, then video upload in the admin course editor (`POST /admin/videos/upload-url`)
+- [x] Admin learning progress: per-course progress on the student page, Learning report tab (lessons completed, active learners, certificates, completion per course, most-completed lessons, where learners stop). 3 tests; browser-verified (2026-11-23)
 - [x] Certificates: issued automatically when every lesson of a course is complete (policy `certificate_criteria`, default automatic, editable in Settings → Policies), A4 PDF with the brand mark and a QR code to `/verify-certificate`, download from My Learning and the player, `certificate_issued` email, audit. 6 tests; QR decoded and the flow browser-verified (2026-11-23)
 
 ### Phase 5 — Payments & business logic · L

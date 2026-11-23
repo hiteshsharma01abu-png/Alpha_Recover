@@ -1,4 +1,4 @@
-import { and, count, desc, eq, gte, isNull, lt, ne, sql, type Column, type SQL } from 'drizzle-orm';
+import { and, count, countDistinct, desc, eq, gte, isNull, lt, ne, sql, type Column, type SQL } from 'drizzle-orm';
 import { Hono } from 'hono';
 import type { Context } from 'hono';
 import { z } from 'zod';
@@ -7,7 +7,7 @@ import { REPORT_ACCESS, REPORT_INTERVALS, REPORT_TYPES, type ReportInterval, typ
 import { logActivity } from '../../audit';
 import { requireStaff } from '../../auth/middleware';
 import type { Database } from '../../db';
-import { courseModules, courses, demoVideos, enrollments, leads, lessons, users } from '../../db/schema';
+import { certificates, courseModules, courses, demoVideos, enrollments, leads, lessonProgress, lessons, users } from '../../db/schema';
 import { AppError } from '../../lib/errors';
 import { csvCell } from '../../lib/mask';
 import { validate } from '../../lib/validate';
@@ -132,6 +132,102 @@ async function enrollmentsReport(db: Database, r: Range): Promise<Report> {
   };
 }
 
+/** Published lessons of published courses, joined to their course; progress rows of students only. */
+const visibleLessons = and(isNull(lessons.deletedAt), eq(lessons.status, 'published'), isNull(courseModules.deletedAt), isNull(courses.deletedAt), eq(courses.status, 'published'))!;
+
+/**
+ * Lessons completed per day/week/month, active learners and certificates in the range; plus all-time
+ * completion per course (finished ÷ started), the most-completed lessons in the range, and the lessons
+ * most often started but not finished (where learners stop).
+ */
+async function learningReport(db: Database, r: Range): Promise<Report> {
+  // Every progress query joins to the lesson and course (visibility) and keeps students only.
+  const studentRows = and(eq(users.id, lessonProgress.userId), eq(users.role, 'student'));
+  const b = bucketSql(lessonProgress.completedAt, r.interval);
+  const lessonKey = sql<string>`concat(${lessons.title}, ' · ', ${courses.title})`;
+  const completedInRange = and(visibleLessons, inRange(lessonProgress.completedAt, r));
+
+  const [seriesRows, [active], [certs], perLearner, totals, top, stuck] = await Promise.all([
+    db
+      .select({ bucket: b, n: count() })
+      .from(lessonProgress)
+      .innerJoin(users, studentRows)
+      .innerJoin(lessons, eq(lessons.id, lessonProgress.lessonId))
+      .innerJoin(courseModules, eq(courseModules.id, lessons.moduleId))
+      .innerJoin(courses, eq(courses.id, courseModules.courseId))
+      .where(completedInRange)
+      .groupBy(b),
+    db
+      .select({ n: countDistinct(lessonProgress.userId) })
+      .from(lessonProgress)
+      .innerJoin(users, studentRows)
+      .innerJoin(lessons, eq(lessons.id, lessonProgress.lessonId))
+      .innerJoin(courseModules, eq(courseModules.id, lessons.moduleId))
+      .innerJoin(courses, eq(courses.id, courseModules.courseId))
+      .where(and(visibleLessons, inRange(lessonProgress.updatedAt, r))),
+    db.select({ n: count() }).from(certificates).where(inRange(certificates.issuedAt, r)),
+    db
+      .select({ courseId: courses.id, title: courses.title, sort: courses.sortOrder, userId: lessonProgress.userId, done: sql<number>`sum(${lessonProgress.completedAt} is not null)` })
+      .from(lessonProgress)
+      .innerJoin(users, studentRows)
+      .innerJoin(lessons, eq(lessons.id, lessonProgress.lessonId))
+      .innerJoin(courseModules, eq(courseModules.id, lessons.moduleId))
+      .innerJoin(courses, eq(courses.id, courseModules.courseId))
+      .where(visibleLessons)
+      .groupBy(courses.id, courses.title, courses.sortOrder, lessonProgress.userId),
+    db
+      .select({ courseId: courses.id, n: count() })
+      .from(lessons)
+      .innerJoin(courseModules, eq(courseModules.id, lessons.moduleId))
+      .innerJoin(courses, eq(courses.id, courseModules.courseId))
+      .where(visibleLessons)
+      .groupBy(courses.id),
+    db
+      .select({ key: lessonKey, n: count() })
+      .from(lessonProgress)
+      .innerJoin(users, studentRows)
+      .innerJoin(lessons, eq(lessons.id, lessonProgress.lessonId))
+      .innerJoin(courseModules, eq(courseModules.id, lessons.moduleId))
+      .innerJoin(courses, eq(courses.id, courseModules.courseId))
+      .where(completedInRange)
+      .groupBy(lessons.id, lessons.title, courses.title)
+      .orderBy(desc(count()))
+      .limit(10),
+    db
+      .select({ key: lessonKey, n: count() })
+      .from(lessonProgress)
+      .innerJoin(users, studentRows)
+      .innerJoin(lessons, eq(lessons.id, lessonProgress.lessonId))
+      .innerJoin(courseModules, eq(courseModules.id, lessons.moduleId))
+      .innerJoin(courses, eq(courses.id, courseModules.courseId))
+      .where(and(visibleLessons, isNull(lessonProgress.completedAt)))
+      .groupBy(lessons.id, lessons.title, courses.title)
+      .orderBy(desc(count()))
+      .limit(10),
+  ]);
+
+  const lessonsPerCourse = new Map(totals.map((t) => [t.courseId, Number(t.n)]));
+  const byCourse = new Map<string, { key: string; sort: number; started: number; finished: number }>();
+  for (const row of perLearner) {
+    const entry = byCourse.get(row.courseId) ?? { key: row.title, sort: row.sort, started: 0, finished: 0 };
+    entry.started += 1;
+    if (Number(row.done) >= (lessonsPerCourse.get(row.courseId) ?? Infinity)) entry.finished += 1;
+    byCourse.set(row.courseId, entry);
+  }
+  const points = fill(r, seriesRows);
+
+  return {
+    totals: { lessonsCompleted: points.reduce((n, p) => n + p.count, 0), activeLearners: Number(active.n), certificatesIssued: Number(certs.n) },
+    series: { label: 'Lessons completed', points },
+    breakdowns: {
+      courseCompletion: [...byCourse.values()].sort((x, y) => x.sort - y.sort).map((x) => ({ key: x.key, count: x.finished, of: x.started })),
+      topLessons: tally(top),
+      stuckLessons: tally(stuck),
+    },
+    note: 'Course completion and “where learners stop” are all time; the other numbers follow the date range.',
+  };
+}
+
 /** Not date-based: view counts are running totals (no per-day history) and coverage is "now". */
 async function contentReport(db: Database, user: { role: Parameters<typeof can>[0] }): Promise<Report> {
   const out: Report = { totals: {}, breakdowns: {}, note: 'Demo views are running totals since launch; the date range doesn’t apply here.' };
@@ -184,7 +280,8 @@ async function build(c: Context<AppEnv>, type: ReportType, q: RangeInput): Promi
   const { db } = c.get('deps');
   if (type === 'content') return contentReport(db, c.get('user')!);
   const r = resolveRange(q);
-  const report = type === 'leads' ? await leadsReport(db, r) : type === 'students' ? await studentsReport(db, r) : await enrollmentsReport(db, r);
+  const report =
+    type === 'leads' ? await leadsReport(db, r) : type === 'students' ? await studentsReport(db, r) : type === 'learning' ? await learningReport(db, r) : await enrollmentsReport(db, r);
   return { ...report, range: { from: r.from, to: r.to, interval: r.interval } };
 }
 

@@ -1,6 +1,6 @@
 # Alpha Recovery — Admin Authentication & RBAC
 
-**Last reviewed:** 2026-11-18 · **Status:** **Roles and matrix approved and implemented (2026-11-13):** `users.role` migrated (`finance_manager` added, `support` → `support_manager`), matrix in `shared/permissions.ts`, `GET /admin/me`. **2FA: optional for now (owner's decision)**, built in a later admin piece. Staff session limits (8h / 30 min idle) also come later.
+**Last reviewed:** 2026-11-23 · **Status:** **Roles and matrix approved and implemented (2026-11-13):** `users.role` migrated (`finance_manager` added, `support` → `support_manager`), matrix in `shared/permissions.ts`, `GET /admin/me`. **2FA: optional for now (owner's decision)**, built in a later admin piece. Staff session limits (8h / 30 min idle) also come later.
 **Related:** [ARCHITECTURE.md](ARCHITECTURE.md) · [NAVIGATION.md](NAVIGATION.md) · [SECURITY.md](SECURITY.md) · [../SECURITY.md](../SECURITY.md)
 
 ## 1. Current system (verified in code, 2026-11-13)
@@ -75,7 +75,7 @@ Permission strings are `module.action`.
 
 V view · A add · E edit · D delete · X export · I import · ★ special action · — none
 
-Report tabs (implemented, `shared/reports.ts`): a tab shows only if the role also has view access to the module it summarises: Leads → `leads.view`, Students → `students.view`, Enrollments → `enrollments.view`, Content → `courses.view` or `demos.view`. So today finance sees Students and Enrollments (Revenue arrives with payments), content managers see Content, support sees Leads, Students and Enrollments.
+Report tabs (implemented, `shared/reports.ts`): a tab shows only if the role also has view access to the module it summarises: Leads → `leads.view`, Students → `students.view`, Enrollments → `enrollments.view`, Learning → `students.view` or `courses.view` (aggregates only, no student names), Content → `courses.view` or `demos.view`. So today finance sees Students, Enrollments and Learning (Revenue arrives with payments), content managers see Learning and Content, support sees Leads, Students, Enrollments and Learning.
 
 | Module | super_admin | admin | finance_manager | content_manager | support_manager |
 |---|---|---|---|---|---|

@@ -152,7 +152,9 @@ function Tiles({ items }: { items: [string, string, string?][] }) {
 function ReportBody({ type, r }: { type: ReportType; r: ReportData }) {
   const t = r.totals;
   const b = r.breakdowns;
-  const chart = r.series && r.range ? <ColumnChart title={r.series.label} points={r.series.points} interval={r.range.interval} unit={type === 'leads' ? 'Leads' : type === 'students' ? 'Sign-ups' : 'Grants'} unitOne={type === 'leads' ? 'lead' : type === 'students' ? 'sign-up' : 'grant'} /> : null;
+  const units: Partial<Record<ReportType, [string, string]>> = { leads: ['Leads', 'lead'], students: ['Sign-ups', 'sign-up'], enrollments: ['Grants', 'grant'], learning: ['Lessons', 'lesson'] };
+  const [unit, unitOne] = units[type] ?? ['', ''];
+  const chart = r.series && r.range ? <ColumnChart title={r.series.label} points={r.series.points} interval={r.range.interval} unit={unit} unitOne={unitOne} /> : null;
 
   if (type === 'leads') {
     return (
@@ -174,6 +176,20 @@ function ReportBody({ type, r }: { type: ReportType; r: ReportData }) {
         {chart}
         <div className="adm-report-grid">
           <BreakdownBars title="By country" items={b.country ?? []} label={(k) => (k === 'other' ? 'Other countries' : countryName(k))} />
+        </div>
+      </>
+    );
+  }
+  if (type === 'learning') {
+    return (
+      <>
+        {r.note ? <p className="adm-muted adm-small">{r.note}</p> : null}
+        <Tiles items={[['Lessons completed', num(t.lessonsCompleted), 'in this period'], ['Active learners', num(t.activeLearners), 'students with any progress'], ['Certificates issued', num(t.certificatesIssued), 'in this period']]} />
+        {chart}
+        <div className="adm-report-grid">
+          <BreakdownBars title="Course completion" items={b.courseCompletion ?? []} label={(k) => k} note="Students who finished every lesson, of those who started the course." />
+          <BreakdownBars title="Most-completed lessons" items={b.topLessons ?? []} label={(k) => k} />
+          <BreakdownBars title="Where learners stop" items={b.stuckLessons ?? []} label={(k) => k} note="Lessons started but not finished: worth checking for clarity or length." />
         </div>
       </>
     );

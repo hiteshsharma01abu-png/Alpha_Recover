@@ -245,6 +245,32 @@ function StudentView({ s, reload }: { s: StudentDetail; reload: () => void }) {
 
         <section className="adm-panel adm-panel-wide">
           <div className="adm-panel-head">
+            <h3>Learning progress</h3>
+          </div>
+          {s.learning.length ? (
+            <ul className="adm-list">
+              {s.learning.map((l) => (
+                <li key={l.slug}>
+                  <span className="adm-list-row">
+                    <strong>{l.title}</strong>
+                    {l.lessonsTotal && l.lessonsCompleted >= l.lessonsTotal ? <StatusBadge tone="success">Completed</StatusBadge> : null}
+                  </span>
+                  <span className="adm-stu-progress" role="progressbar" aria-valuenow={l.progressPct} aria-valuemin={0} aria-valuemax={100} aria-label={`${l.title} progress`}>
+                    <span style={{ width: `${l.progressPct}%` }} />
+                  </span>
+                  <span className="adm-sub">
+                    {l.lessonsCompleted} of {l.lessonsTotal} lessons · {l.progressPct}% · last active {ago(l.lastActivityAt)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="adm-muted">No lessons started yet.</p>
+          )}
+        </section>
+
+        <section className="adm-panel adm-panel-wide">
+          <div className="adm-panel-head">
             <h3>Certificates</h3>
             {can('certificates.add') ? (
               <button type="button" className="adm-btn" onClick={() => setAccess({ kind: 'issue-cert' })}>
