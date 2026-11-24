@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { AuthTopBar, LearnerShell } from '../components/layout/LearnerShell';
+import { LearnerShell } from '../components/layout/LearnerShell';
 import { useAuth } from '../lib/auth';
 import { certificateDownloadUrl, getDashboard, lessonPath, type Dashboard as DashboardData } from '../lib/learning';
 import { courseThumb, learnerAssets } from '../lib/learnerAssets';
@@ -99,7 +99,6 @@ export function Dashboard() {
   if (!auth.loaded) {
     return (
       <div className="dsh-gate">
-        <AuthTopBar />
         <div className="dsh-gate-body" aria-busy="true">
           <div className="dsh-loading" />
         </div>
@@ -110,7 +109,6 @@ export function Dashboard() {
   if (!auth.user) {
     return (
       <div className="dsh-gate">
-        <AuthTopBar />
         <section className="dsh-gate-body">
           <div className="dsh-empty account-glass">
             <h2>{auth.unavailable ? 'The training portal is unavailable right now' : 'Log in to see your courses'}</h2>
