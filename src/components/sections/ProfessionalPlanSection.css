@@ -3,7 +3,7 @@
   position: relative;
   z-index: 4;
   overflow: hidden;
-  background: #050d0b;
+  background: var(--dark-band);
   padding-block: clamp(2.5rem, 5vw, 4.25rem);
 }
 
@@ -61,31 +61,34 @@
   max-width: 36rem;
 }
 
-.pp-kicker {
-  display: inline-flex;
+.pp-sale-strip {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.4rem;
-  margin: 0 0 0.85rem;
-  padding: 0.35rem 0.85rem 0.35rem 0.55rem;
-  border-radius: 999px;
-  background: rgba(8, 28, 20, 0.72);
-  border: 1px solid rgba(125, 255, 192, 0.35);
-  color: #7dffc0;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  justify-content: space-between;
+  gap: 0.85rem 1.25rem;
+  margin-top: 0.15rem;
+  padding: 0.95rem 1.05rem;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--mint) 18%, transparent);
+  background:
+    radial-gradient(ellipse 70% 80% at 0% 50%, color-mix(in srgb, var(--mint) 10%, transparent), transparent 55%),
+    color-mix(in srgb, var(--surface-alt) 80%, #000);
 }
 
-.pp-kicker-bolt {
+.pp-sale-copy {
   display: grid;
-  place-items: center;
-  width: 1.35rem;
-  height: 1.35rem;
-  border-radius: 50%;
-  background: rgba(125, 255, 192, 0.16);
-  font-size: 0.75rem;
-  line-height: 1;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.pp-kicker {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mint);
 }
 
 .pp-hero-copy h2 {
@@ -114,56 +117,46 @@
 .pp-countdown {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.55rem;
-  margin-bottom: 0.95rem;
+  gap: 0.45rem;
 }
 
 .pp-countdown-cell {
-  min-width: 4.35rem;
-  text-align: center;
-  padding: 0.65rem 0.55rem 0.55rem;
-  border-radius: 14px;
-  background: rgba(6, 20, 16, 0.72);
-  border: 1px solid rgba(125, 255, 192, 0.22);
-  box-shadow:
-    inset 1px 1px 0 rgba(125, 255, 192, 0.12),
-    0 10px 24px rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(10px);
+  display: grid;
+  justify-items: center;
+  min-width: 3.1rem;
+  padding: 0.45rem 0.5rem;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--mint) 16%, transparent);
+  background: color-mix(in srgb, var(--dark-band) 70%, transparent);
 }
 
 .pp-countdown-cell strong {
-  display: block;
-  font-size: 1.45rem;
-  font-weight: 700;
-  line-height: 1.1;
-  color: #7dffc0;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--mint);
+  line-height: 1;
 }
 
 .pp-countdown-cell span {
-  color: rgba(220, 232, 226, 0.78);
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  margin-top: 0.2rem;
+  font-size: 0.65rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--content);
 }
 
 .pp-sale {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
   margin: 0;
-  color: #7dffc0;
-  font-size: 0.92rem;
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--text);
+  font-size: 0.95rem;
 }
 
 .pp-sale strong {
   font-weight: 800;
-  color: #9dffd0;
-}
-
-.pp-sale svg {
-  flex-shrink: 0;
-  color: #7dffc0;
+  color: var(--text);
 }
 
 .pp-hero-visual {
@@ -218,8 +211,13 @@
 .pp-price-card {
   display: flex;
   flex-direction: column;
-  gap: 1.15rem;
-  padding: 1.45rem 1.35rem 1.4rem;
+  gap: 0.85rem;
+  padding: 1.35rem 1.25rem 1.4rem;
+  border-color: color-mix(in srgb, var(--brass) 55%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--brass) 28%, transparent),
+    inset 1px 1px 0 rgba(125, 255, 192, 0.12),
+    0 20px 48px rgba(0, 0, 0, 0.35);
 }
 
 .pp-price-card::before {
@@ -229,112 +227,118 @@
   left: -20%;
   width: 70%;
   height: 90%;
-  background: linear-gradient(125deg, rgba(125, 255, 192, 0.16), transparent 55%);
+  background: linear-gradient(125deg, color-mix(in srgb, var(--brass) 14%, transparent), transparent 55%);
   pointer-events: none;
 }
 
-.pp-plan-badge {
+.pp-recommended-badge {
   position: relative;
   z-index: 1;
-  align-self: flex-start;
   display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.85rem;
-  font-size: 0.78rem;
-  font-weight: 700;
-  /* Soft fill lives in global.css */
+  align-self: flex-start;
+  padding: 0.28rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brass-text);
+  background: linear-gradient(135deg, #f0d792 0%, var(--brass) 50%, #c49a45 100%);
 }
 
-.pp-price {
+.pp-plan-name {
   position: relative;
   z-index: 1;
-  display: grid;
-  gap: 0.35rem;
-}
-
-.pp-price s {
-  color: rgba(190, 210, 202, 0.55);
-  font-size: 1rem;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text);
 }
 
 .pp-price-row {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 0.65rem;
+  align-items: baseline;
+  gap: 0.45rem 0.75rem;
 }
 
-.pp-price strong {
-  font-size: clamp(2.35rem, 4vw, 3rem);
+.pp-price {
+  font-family: var(--font-display);
+  font-size: clamp(1.85rem, 3vw, 2.35rem);
+  font-weight: 800;
   line-height: 1;
-  color: #f5f7f6;
-  letter-spacing: -0.03em;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.pp-was {
+  color: var(--content);
+  text-decoration: line-through;
+  font-size: 0.95rem;
 }
 
 .pp-off {
   display: inline-flex;
   align-items: center;
-  padding: 0.32rem 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
   font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  /* Soft fill lives in global.css */
+  font-weight: 750;
+  color: var(--mint-ink);
+  background: color-mix(in srgb, var(--mint) 88%, #fff);
+}
+
+.pp-once {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 650;
+  color: var(--content);
 }
 
 .pp-actions {
   position: relative;
   z-index: 1;
   display: grid;
-  gap: 0.7rem;
+  gap: 0.55rem;
   margin-top: auto;
+  padding-top: 0.25rem;
 }
 
 .pp-btn {
+  appearance: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.45rem;
   width: 100%;
-  min-height: 3rem;
-  padding: 0.8rem 1.1rem;
+  min-height: 2.75rem;
+  padding: 0.7rem 1rem;
   border-radius: 999px;
+  border: 1px solid transparent;
+  font: inherit;
   font-size: 0.92rem;
-  font-weight: 700;
-  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  font-weight: 750;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    color 0.18s ease;
 }
 
-/* Soft fill/hover for .pp-btn-primary lives in global.css */
-
-.pp-btn-outline {
-  background: rgba(6, 20, 16, 0.45);
-  color: #f5f7f6;
-  border: 1.5px solid rgba(125, 255, 192, 0.45);
+.pp-btn:focus-visible {
+  outline: 2px solid var(--mint);
+  outline-offset: 2px;
 }
 
-.pp-btn-outline:hover {
-  background: rgba(125, 255, 192, 0.12);
-  color: #f5f7f6;
-  border-color: rgba(125, 255, 192, 0.7);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
-}
-
-.pp-btn-outline:active {
-  transform: translateY(0);
-  box-shadow: none;
-}
-
-.pp-note {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  margin: 0.15rem 0 0;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: rgba(230, 240, 236, 0.92);
-}
+/* .pp-btn-gold and .pp-btn-ghost fills live in global.css (--btn-gold-* / --btn-ghost-mint-*) */
 
 .pp-features-card {
   padding: 1.35rem 1.35rem 1.25rem;
@@ -731,18 +735,19 @@
     font-size: clamp(1.9rem, 8vw, 2.45rem);
   }
 
+  .pp-sale-strip {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
   .pp-countdown {
-    gap: 0.45rem;
+    width: 100%;
+    justify-content: space-between;
   }
 
   .pp-countdown-cell {
     flex: 1 1 0;
     min-width: 0;
-    padding: 0.55rem 0.35rem 0.5rem;
-  }
-
-  .pp-countdown-cell strong {
-    font-size: 1.25rem;
   }
 
   .pp-main {
@@ -933,15 +938,19 @@
   }
 
   .pp-kicker {
-    font-size: 0.62rem;
+    font-size: 0.7rem;
   }
 
-  .pp-price strong {
-    font-size: 2.25rem;
+  .pp-sale-strip {
+    padding: 0.8rem 0.9rem;
+  }
+
+  .pp-price {
+    font-size: 2.1rem;
   }
 
   .pp-btn {
-    min-height: 2.85rem;
+    min-height: 2.65rem;
     font-size: 0.88rem;
   }
 
@@ -992,22 +1001,3 @@
   }
 }
 
-/* Site button style on every page except the homepage (<html data-home> is set on '/'; see Layout.tsx) */
-:root:not([data-home]) .pp-btn-outline {
-  background: var(--btn-soft-bg);
-  color: var(--btn-soft-text);
-  border: 1px solid var(--btn-soft-border);
-  box-shadow: var(--btn-soft-shadow);
-}
-
-:root:not([data-home]) .pp-btn-outline:hover {
-  background: var(--btn-soft-bg-hover);
-  color: var(--btn-soft-text);
-  border-color: var(--btn-soft-border-hover);
-  box-shadow: var(--btn-soft-shadow-hover);
-}
-
-:root:not([data-home]) .pp-btn-outline:active {
-  background: var(--btn-soft-bg-active);
-  box-shadow: var(--btn-soft-shadow-active);
-}

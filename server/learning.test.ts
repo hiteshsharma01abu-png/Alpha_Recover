@@ -47,7 +47,7 @@ describe.skipIf(!dbAvailable)('learning: playback, progress, dashboard (MySQL)',
       jar,
     );
     userId = (await ctx.db.select().from(users))[0].id;
-    planId = (await ctx.db.select().from(plans))[0].id;
+    planId = (await ctx.db.select().from(plans).where(eq(plans.slug, 'professional')))[0].id;
   });
 
   describe('progress', () => {

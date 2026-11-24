@@ -1,0 +1,211 @@
+.pfq {
+  padding: clamp(2rem, 4vw, 3.25rem) 0;
+  background: var(--surface);
+}
+
+.pfq-shell {
+  max-width: 960px;
+  margin-inline: auto;
+}
+
+.pfq-head {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.pfq-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+
+.pfq-eyebrow::before {
+  content: '';
+  width: 1.35rem;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--brass);
+}
+
+.pfq-head h2 {
+  margin: 0 0 0.55rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.55rem, 3vw, 2rem);
+  font-weight: 800;
+}
+
+.pfq-head p {
+  margin: 0 auto;
+  max-width: 36rem;
+  color: var(--content);
+  line-height: 1.5;
+}
+
+.pfq-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  justify-content: center;
+  margin-bottom: 1.15rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  padding-bottom: 0.15rem;
+}
+
+.pfq-tab {
+  appearance: none;
+  flex: 0 0 auto;
+  min-height: 2.35rem;
+  padding: 0.45rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--mint) 18%, transparent);
+  background: transparent;
+  color: var(--text-sub);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+
+.pfq-tab:hover {
+  color: var(--text);
+  background: color-mix(in srgb, var(--mint) 8%, transparent);
+}
+
+.pfq-tab.is-active {
+  color: var(--mint-ink);
+  background: color-mix(in srgb, var(--mint) 88%, #fff);
+  border-color: transparent;
+}
+
+.pfq-tab:focus-visible {
+  outline: 2px solid var(--mint);
+  outline-offset: 2px;
+}
+
+.pfq-list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.pfq-item {
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--mint) 14%, transparent);
+  background: color-mix(in srgb, var(--surface-alt) 75%, #000);
+  overflow: hidden;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.pfq-item.is-open {
+  border-color: color-mix(in srgb, var(--mint) 40%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--mint) 18%, transparent);
+}
+
+.pfq-trigger {
+  appearance: none;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.95rem 1rem;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pfq-trigger:focus-visible {
+  outline: 2px solid var(--mint);
+  outline-offset: -2px;
+}
+
+.pfq-q {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.pfq-icon {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--mint) 22%, transparent);
+  color: var(--mint);
+  transition: transform 0.18s ease;
+}
+
+.pfq-item.is-open .pfq-icon {
+  transform: rotate(180deg);
+}
+
+.pfq-panel {
+  padding: 0 1rem 1rem;
+}
+
+.pfq-panel[hidden] {
+  display: none;
+}
+
+.pfq-a {
+  margin: 0;
+  padding-top: 0.15rem;
+  border-top: 1px solid color-mix(in srgb, var(--mint) 10%, transparent);
+  color: var(--content);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.pfq-a a {
+  color: var(--brass);
+  font-weight: 650;
+}
+
+.pfq-more {
+  margin-top: 1.75rem;
+  padding: 1.25rem 1.15rem;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--mint) 16%, transparent);
+  background: color-mix(in srgb, var(--dark-band) 55%, transparent);
+  text-align: center;
+  display: grid;
+  gap: 0.65rem;
+  justify-items: center;
+}
+
+.pfq-more h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.pfq-more p {
+  margin: 0;
+  max-width: 32rem;
+  color: var(--content);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pfq-tab,
+  .pfq-item,
+  .pfq-icon {
+    transition: none;
+  }
+}

@@ -1,7 +1,7 @@
 .demos-page {
   position: relative;
   overflow: hidden;
-  background: #050d0b;
+  background: var(--surface);
   color: #f5f7f6;
   padding-bottom: clamp(2.5rem, 5vw, 4rem);
 }
@@ -385,8 +385,7 @@
   transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
-.demos-btn-primary,
-.demos-btn-outline {
+.demos-btn-primary {
   background: var(--btn-soft-bg);
   color: var(--btn-soft-text);
   border: 1px solid var(--btn-soft-border);
@@ -399,8 +398,7 @@
   height: 16px;
 }
 
-.demos-btn-primary:hover,
-.demos-btn-outline:hover {
+.demos-btn-primary:hover {
   background: var(--btn-soft-bg-hover);
   color: var(--btn-soft-text);
   border-color: var(--btn-soft-border-hover);
@@ -409,13 +407,14 @@
   filter: brightness(1.04);
 }
 
-.demos-btn-primary:active,
-.demos-btn-outline:active {
+.demos-btn-primary:active {
   background: var(--btn-soft-bg-active);
   box-shadow: var(--btn-soft-shadow-active);
   transform: translateY(0);
   filter: none;
 }
+
+/* .demos-btn-outline mint ghost lives in global.css */
 
 .demos-more-head {
   display: flex;

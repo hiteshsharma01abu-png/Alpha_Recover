@@ -207,36 +207,13 @@
   white-space: nowrap;
 }
 
-.hero-btn-primary {
-  background: linear-gradient(135deg, #F0D792 0%, #D9B56E 42%, #C49A45 100%);
-  color: #1A1408;
-  border: 1px solid transparent;
-  box-shadow: none;
-}
-
-.hero-btn-primary:hover {
-  background: linear-gradient(135deg, #F6E0A4 0%, #E4C47A 42%, #D0A852 100%);
-  color: #1A1408;
-  transform: translateY(-2px);
-  filter: brightness(1.04);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
-}
-
-.hero-btn-primary:active {
-  background: linear-gradient(135deg, #C9A85A 0%, #B8923E 100%);
-  color: #1A1408;
-  transform: translateY(0);
-  filter: none;
-  box-shadow: none;
-}
+/* Brass fill for .hero-btn-primary and soft fill for .hero-btn-ghost live in global.css */
 
 .hero-btn-primary span {
   font-size: 1.1em;
   line-height: 1;
   translate: 0 1px;
 }
-
-/* Soft hover for .hero-btn-ghost lives in global.css */
 
 .hero-play {
   display: inline-grid;
@@ -622,7 +599,7 @@
 .impact-section {
   position: relative;
   overflow: hidden;
-  background: #001a16;
+  background: var(--dark-band);
   padding-block: clamp(3.5rem, 7vw, 5.75rem);
 }
 
@@ -836,7 +813,7 @@
 }
 
 .section-alt {
-  background: #123128;
+  background: var(--bg);
   border-block: 1px solid var(--line);
 }
 
@@ -851,7 +828,7 @@
 .why-section {
   position: relative;
   overflow: hidden;
-  background: #051a14;
+  background: var(--surface-alt);
 }
 
 .why-deco {

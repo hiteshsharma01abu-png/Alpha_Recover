@@ -166,26 +166,7 @@
     box-shadow 0.2s ease;
 }
 
-/* Soft fill/hover for .tx-btn-primary lives in global.css */
-
-.tx-btn-outline {
-  background: #123128;
-  color: #F0EDE4;
-  border: 1px solid rgba(240, 237, 228, 0.55);
-}
-
-.tx-btn-outline:hover {
-  background: rgba(240, 237, 228, 0.1);
-  color: #F0EDE4;
-  border-color: rgba(240, 237, 228, 0.85);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
-}
-
-.tx-btn-outline:active {
-  transform: translateY(0);
-  box-shadow: none;
-}
+/* Soft fill for .tx-btn-primary and mint ghost for .tx-btn-outline live in global.css */
 
 .tx-visual {
   position: relative;
@@ -513,22 +494,3 @@
   }
 }
 
-/* Site button style on every page except the homepage (<html data-home> is set on '/'; see Layout.tsx) */
-:root:not([data-home]) .tx-btn-outline {
-  background: var(--btn-soft-bg);
-  color: var(--btn-soft-text);
-  border: 1px solid var(--btn-soft-border);
-  box-shadow: var(--btn-soft-shadow);
-}
-
-:root:not([data-home]) .tx-btn-outline:hover {
-  background: var(--btn-soft-bg-hover);
-  color: var(--btn-soft-text);
-  border-color: var(--btn-soft-border-hover);
-  box-shadow: var(--btn-soft-shadow-hover);
-}
-
-:root:not([data-home]) .tx-btn-outline:active {
-  background: var(--btn-soft-bg-active);
-  box-shadow: var(--btn-soft-shadow-active);
-}

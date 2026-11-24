@@ -2,7 +2,7 @@
   position: relative;
   z-index: 5;
   overflow: hidden;
-  background: #0F2821;
+  background: var(--surface-alt);
 }
 
 .training-deco {

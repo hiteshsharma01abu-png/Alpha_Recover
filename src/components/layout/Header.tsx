@@ -1,23 +1,62 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { brandLogo, company } from '../../data/content';
+import { brandLogo, company, type TrainingTrack } from '../../data/content';
 import { useAuth } from '../../lib/auth';
 import { useTrainingTracks } from '../../lib/catalog';
 import { useHydrated } from '../../lib/useHydrated';
 import './Header.css';
 
-const infoLinks = [
-  { to: '/blog', label: 'Blog', icon: 'blog' as const },
-  { to: '/services', label: 'Services', icon: 'services' as const },
-  { to: '/verify-certificate', label: 'Verify Certificate', icon: 'verify' as const },
-  { to: '/industries', label: 'Industries', icon: 'industries' as const },
+const resourceLinks = [
+  {
+    to: '/blog',
+    label: 'Blog',
+    icon: 'blog' as const,
+    description: 'Articles and recovery insights',
+  },
+  {
+    to: '/services',
+    label: 'Services',
+    icon: 'services' as const,
+    description: 'Professional recovery services',
+  },
+  {
+    to: '/verify-certificate',
+    label: 'Verify Certificate',
+    icon: 'verify' as const,
+    description: 'Check a certificate code',
+  },
+  {
+    to: '/industries',
+    label: 'Industries',
+    icon: 'industries' as const,
+    description: 'Who we train and serve',
+  },
 ];
 
-const primaryLinks = [
-  { to: '/pricing', label: 'Pricing', icon: 'pricing' as const },
-  { to: '/demos', label: 'Demo Videos', icon: 'demos' as const },
-  { to: '/contact', label: 'Contact', icon: 'contact' as const },
+/** Group map by track id — resolves against live catalog, not a duplicate course list. */
+const COURSE_GROUPS: { id: string; label: string; trackIds: string[] }[] = [
+  {
+    id: 'data-recovery',
+    label: 'Data Recovery',
+    trackIds: ['logical', 'electrical', 'mechanical'],
+  },
+  {
+    id: 'firmware',
+    label: 'Firmware Repair',
+    trackIds: ['firmware-basic', 'mrt'],
+  },
+  {
+    id: 'fundamentals',
+    label: 'Core Fundamentals',
+    trackIds: ['electronics', 'basics'],
+  },
+  {
+    id: 'specialized',
+    label: 'Specialized Recovery',
+    trackIds: ['media', 'bitlocker'],
+  },
 ];
 
 type IconName =
@@ -32,7 +71,27 @@ type IconName =
   | 'contact'
   | 'user'
   | 'chevron'
-  | 'close';
+  | 'close'
+  | 'chevronDown';
+
+type CourseGroupView = {
+  id: string;
+  label: string;
+  tracks: TrainingTrack[];
+};
+
+function groupCourses(tracks: TrainingTrack[]): { groups: CourseGroupView[]; extras: TrainingTrack[] } {
+  const used = new Set<string>();
+  const groups = COURSE_GROUPS.map((g) => {
+    const list = g.trackIds
+      .map((id) => tracks.find((t) => t.id === id))
+      .filter((t): t is TrainingTrack => Boolean(t));
+    list.forEach((t) => used.add(t.id));
+    return { id: g.id, label: g.label, tracks: list };
+  }).filter((g) => g.tracks.length > 0);
+  const extras = tracks.filter((t) => !used.has(t.id));
+  return { groups, extras };
+}
 
 function MenuIcon({ name }: { name: IconName }) {
   const common = {
@@ -122,6 +181,12 @@ function MenuIcon({ name }: { name: IconName }) {
           <path d="m9 6 5 6-5 6" />
         </svg>
       );
+    case 'chevronDown':
+      return (
+        <svg {...common} width={14} height={14}>
+          <path d="m6 9 6 5 6-5" />
+        </svg>
+      );
     case 'close':
       return (
         <svg {...common} width={18} height={18}>
@@ -164,48 +229,199 @@ function DrawerRow({
   );
 }
 
-function DesktopNavLinks() {
+type OpenMenu = null | 'courses' | 'resources';
+
+function NavDropdown({
+  id,
+  label,
+  open,
+  onToggle,
+  onClose,
+  panelClassName,
+  triggerClassName,
+  children,
+  triggerTo,
+}: {
+  id: string;
+  label: string;
+  open: boolean;
+  onToggle: () => void;
+  onClose: () => void;
+  panelClassName: string;
+  triggerClassName?: string;
+  children: ReactNode;
+  /** When set, the label is also a link (Courses → /training). */
+  triggerTo?: string;
+}) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const panelId = `${id}-panel`;
+
+  useEffect(() => {
+    if (!open) return;
+    function onPointerDown(event: PointerEvent) {
+      if (!wrapRef.current?.contains(event.target as Node)) onClose();
+    }
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') onClose();
+    }
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [open, onClose]);
+
+  return (
+    <div className={`nav-drop${open ? ' is-open' : ''}`} ref={wrapRef}>
+      {triggerTo ? (
+        <div className="nav-drop-split">
+          <NavLink to={triggerTo} className={`nav-drop-link ${triggerClassName ?? ''}`.trim()} onClick={onClose}>
+            {label}
+          </NavLink>
+          <button
+            type="button"
+            className="nav-drop-chevron"
+            aria-expanded={open}
+            aria-haspopup="true"
+            aria-controls={panelId}
+            aria-label={`${label} menu`}
+            onClick={onToggle}
+          >
+            <MenuIcon name="chevronDown" />
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          className={`nav-drop-btn${open ? ' is-open' : ''}`}
+          aria-expanded={open}
+          aria-haspopup="true"
+          aria-controls={panelId}
+          onClick={onToggle}
+        >
+          {label}
+          <span className="nav-drop-btn-chevron" aria-hidden>
+            <MenuIcon name="chevronDown" />
+          </span>
+        </button>
+      )}
+      <div id={panelId} className={panelClassName} hidden={!open} role="region" aria-label={label}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function DesktopNav() {
   const trainingTracks = useTrainingTracks();
   const { user } = useAuth();
+  const { pathname } = useLocation();
+  const uid = useId();
+  const [openMenu, setOpenMenu] = useState<OpenMenu>(null);
+  const { groups, extras } = useMemo(() => groupCourses(trainingTracks), [trainingTracks]);
+
+  const closeMenus = () => setOpenMenu(null);
+
+  useEffect(() => {
+    setOpenMenu(null);
+  }, [pathname]);
+
   return (
     <>
-      <NavLink to="/" end>
-        Home
-      </NavLink>
-
-      <div className="nav-drop">
-        <button type="button" className="nav-drop-btn">
-          Information
-        </button>
-        <div className="nav-menu">
-          {infoLinks.map((l) => (
-            <Link key={l.to} to={l.to}>
-              {l.label}
-            </Link>
-          ))}
-        </div>
-      </div>
-
-      <div className="nav-drop">
-        <NavLink to="/training" className="nav-drop-btn linkish">
-          Training
+      <div className="nav-primary">
+        <NavLink to="/" end onClick={closeMenus}>
+          Home
         </NavLink>
-        <div className="nav-menu nav-menu-wide">
-          {trainingTracks.map((t) => (
-            <Link key={t.id} to={`/training/${t.id}`}>
-              {t.title}
+
+        <NavDropdown
+          id={`${uid}-courses`}
+          label="Courses"
+          triggerTo="/training"
+          open={openMenu === 'courses'}
+          onToggle={() => setOpenMenu((m) => (m === 'courses' ? null : 'courses'))}
+          onClose={closeMenus}
+          panelClassName="nav-mega"
+        >
+          <div className="nav-mega-grid">
+            {groups.map((g) => (
+              <div key={g.id} className="nav-mega-col">
+                <p className="nav-mega-heading">{g.label}</p>
+                <ul className="nav-mega-list">
+                  {g.tracks.map((t) => (
+                    <li key={t.id}>
+                      <Link to={`/training/${t.id}`} onClick={closeMenus}>
+                        {t.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          {extras.length ? (
+            <div className="nav-mega-extras">
+              <p className="nav-mega-heading">Also available</p>
+              <ul className="nav-mega-extras-list">
+                {extras.map((t) => (
+                  <li key={t.id}>
+                    <Link to={`/training/${t.id}`} onClick={closeMenus}>
+                      {t.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+          <div className="nav-mega-foot">
+            <Link to="/training" className="nav-mega-all" onClick={closeMenus}>
+              View All Courses
+              <span aria-hidden>→</span>
+            </Link>
+          </div>
+        </NavDropdown>
+
+        <NavLink to="/demos" onClick={closeMenus}>
+          Demo Videos
+        </NavLink>
+
+        <NavDropdown
+          id={`${uid}-resources`}
+          label="Resources"
+          open={openMenu === 'resources'}
+          onToggle={() => setOpenMenu((m) => (m === 'resources' ? null : 'resources'))}
+          onClose={closeMenus}
+          panelClassName="nav-resources"
+        >
+          {resourceLinks.map((l) => (
+            <Link key={l.to} to={l.to} className="nav-resource-item" onClick={closeMenus}>
+              <span className="nav-resource-icon" aria-hidden>
+                <MenuIcon name={l.icon} />
+              </span>
+              <span className="nav-resource-copy">
+                <strong>{l.label}</strong>
+                <small>{l.description}</small>
+              </span>
             </Link>
           ))}
-        </div>
+        </NavDropdown>
+
+        <NavLink to="/pricing" onClick={closeMenus}>
+          Pricing
+        </NavLink>
       </div>
 
-      <NavLink to="/pricing">Pricing</NavLink>
-      <NavLink to="/demos">Demo Videos</NavLink>
-      <NavLink to="/contact">Contact</NavLink>
-      <NavLink to="/account" className="nav-cta">
-        {user ? 'My Account' : 'Register / Login'}
-        <span aria-hidden>→</span>
-      </NavLink>
+      <div className="nav-actions">
+        <NavLink to="/contact" className="nav-support" onClick={closeMenus}>
+          Expert Support
+        </NavLink>
+        <NavLink to="/account" className="nav-login" onClick={closeMenus}>
+          {user ? 'My Account' : 'Login'}
+        </NavLink>
+        <NavLink to="/pricing" className="nav-enroll" onClick={closeMenus}>
+          Enroll Now
+        </NavLink>
+      </div>
     </>
   );
 }
@@ -213,6 +429,22 @@ function DesktopNavLinks() {
 function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const trainingTracks = useTrainingTracks();
   const { user } = useAuth();
+  const { groups, extras } = useMemo(() => groupCourses(trainingTracks), [trainingTracks]);
+  const [accordion, setAccordion] = useState<null | 'courses' | 'resources'>(null);
+
+  useEffect(() => {
+    if (!open) setAccordion(null);
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') onClose();
+    }
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [open, onClose]);
+
   return (
     <div
       id="mobile-nav"
@@ -234,36 +466,91 @@ function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void })
       <nav className="drawer-scroll" aria-label="Mobile">
         <DrawerRow to="/" end label="Home" icon="home" onNavigate={onClose} />
 
-        <p className="drawer-section">Information</p>
-        {infoLinks.map((l) => (
-          <DrawerRow key={l.to} to={l.to} label={l.label} icon={l.icon} onNavigate={onClose} />
-        ))}
+        <button
+          type="button"
+          className={`drawer-acc-btn${accordion === 'courses' ? ' is-open' : ''}`}
+          aria-expanded={accordion === 'courses'}
+          onClick={() => setAccordion((a) => (a === 'courses' ? null : 'courses'))}
+        >
+          <span className="drawer-row-icon">
+            <MenuIcon name="training" />
+          </span>
+          <span className="drawer-row-label">Courses</span>
+          <span className="drawer-row-chevron">
+            <MenuIcon name="chevronDown" />
+          </span>
+        </button>
+        {accordion === 'courses' ? (
+          <div className="drawer-acc-panel">
+            {groups.map((g) => (
+              <div key={g.id} className="drawer-acc-group">
+                <p className="drawer-section">{g.label}</p>
+                {g.tracks.map((t) => (
+                  <DrawerRow
+                    key={t.id}
+                    to={`/training/${t.id}`}
+                    label={t.title}
+                    icon="training"
+                    onNavigate={onClose}
+                  />
+                ))}
+              </div>
+            ))}
+            {extras.length ? (
+              <div className="drawer-acc-group">
+                <p className="drawer-section">Also available</p>
+                {extras.map((t) => (
+                  <DrawerRow
+                    key={t.id}
+                    to={`/training/${t.id}`}
+                    label={t.title}
+                    icon="training"
+                    onNavigate={onClose}
+                  />
+                ))}
+              </div>
+            ) : null}
+            <DrawerRow to="/training" label="View All Courses" icon="training" onNavigate={onClose} />
+          </div>
+        ) : null}
 
-        <p className="drawer-section">Training</p>
-        {trainingTracks.map((t) => (
-          <DrawerRow
-            key={t.id}
-            to={`/training/${t.id}`}
-            label={t.title}
-            icon="training"
-            onNavigate={onClose}
-          />
-        ))}
+        <DrawerRow to="/demos" label="Demo Videos" icon="demos" onNavigate={onClose} />
 
-        {primaryLinks.map((l) => (
-          <DrawerRow key={l.to} to={l.to} label={l.label} icon={l.icon} onNavigate={onClose} />
-        ))}
+        <button
+          type="button"
+          className={`drawer-acc-btn${accordion === 'resources' ? ' is-open' : ''}`}
+          aria-expanded={accordion === 'resources'}
+          onClick={() => setAccordion((a) => (a === 'resources' ? null : 'resources'))}
+        >
+          <span className="drawer-row-icon">
+            <MenuIcon name="blog" />
+          </span>
+          <span className="drawer-row-label">Resources</span>
+          <span className="drawer-row-chevron">
+            <MenuIcon name="chevronDown" />
+          </span>
+        </button>
+        {accordion === 'resources' ? (
+          <div className="drawer-acc-panel">
+            {resourceLinks.map((l) => (
+              <DrawerRow key={l.to} to={l.to} label={l.label} icon={l.icon} onNavigate={onClose} />
+            ))}
+          </div>
+        ) : null}
+
+        <DrawerRow to="/pricing" label="Pricing" icon="pricing" onNavigate={onClose} />
+        <DrawerRow to="/contact" label="Expert Support" icon="contact" onNavigate={onClose} />
+        <DrawerRow
+          to="/account"
+          label={user ? 'My Account' : 'Login'}
+          icon="user"
+          onNavigate={onClose}
+        />
       </nav>
 
       <div className="drawer-foot">
-        <NavLink to="/account" className="drawer-cta" onClick={onClose}>
-          <span className="drawer-row-icon">
-            <MenuIcon name="user" />
-          </span>
-          <span className="drawer-row-label">{user ? 'My Account' : 'Register / Login'}</span>
-          <span className="drawer-row-chevron">
-            <MenuIcon name="chevron" />
-          </span>
+        <NavLink to="/pricing" className="drawer-enroll" onClick={onClose}>
+          Enroll Now
         </NavLink>
       </div>
     </div>
@@ -272,7 +559,6 @@ function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void })
 
 export function Header() {
   const location = useLocation();
-  // The page the menu was opened on: navigating anywhere else closes it, with no extra render.
   const [openOn, setOpenOn] = useState<string | null>(null);
   const open = openOn === location.pathname;
   const hydrated = useHydrated();
@@ -308,7 +594,7 @@ export function Header() {
           </button>
 
           <nav id="primary-nav" className="nav nav-desktop" aria-label="Primary">
-            <DesktopNavLinks />
+            <DesktopNav />
           </nav>
         </div>
       </div>
@@ -318,12 +604,7 @@ export function Header() {
           <>
             <MobileDrawer open={open} onClose={close} />
             {open ? (
-              <button
-                type="button"
-                className="nav-backdrop"
-                aria-label="Close menu"
-                onClick={close}
-              />
+              <button type="button" className="nav-backdrop" aria-label="Close menu" onClick={close} />
             ) : null}
           </>,
           document.body,

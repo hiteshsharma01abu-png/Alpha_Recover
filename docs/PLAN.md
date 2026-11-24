@@ -1,6 +1,6 @@
 # Alpha Recovery — Implementation Plan
 
-**Last reviewed:** 2026-11-24 · **Status:** For approval. Nothing is implemented yet.
+**Last reviewed:** 2026-11-25 · **Status:** For approval. Nothing is implemented yet.
 **Sizing:** S ≈ 1–2 dev-days, M ≈ 3–5, L ≈ 6–10, for one full-stack developer. Ranges assume decisions in [PRD.md](PRD.md) §6 are answered promptly.
 
 ---
@@ -69,7 +69,7 @@ Phase 7 QA & security hardening (continuous, gate before production launch)
 | Leads | `POST /leads` + Turnstile + honeypot + `lead_alert` / `lead_ack` emails | Wire Contact form and callback CTA; add a `name` to the consent checkbox; phone field on the callback form (required) |
 | Catalog schema + seed | `courses`, `course_modules`, `lessons` migration; seed from `content.ts` | — |
 | Catalog APIs | `GET /courses`, `GET /courses/:slug` | Training explorer, track pages, header dropdown read from the API (static fallback kept) |
-| Plans & promotions | `plans`, `plan_courses`, `promotions`; `GET /plans/:slug` with server price | Professional Plan section reads price/label; countdown uses `promotion.endsAt` |
+| Plans & promotions | `plans`, `plan_courses`, `promotions`; `GET /plans/:slug` with server price | Home Professional card + `/pricing` three-plan UI; countdown uses `promotion.endsAt` |
 | Demo videos | `demo_videos` + seed; list/featured/detail/view APIs; re-host thumbnails | Demos page uses server filter/search/pagination; play opens an embed |
 | Blog | `blog_posts` + seed; `GET /blog`, `GET /blog/:slug` | BlogPost renders Markdown |
 | Certificates verify | `certificates`, `certificate_sequences`; `GET /certificates/verify/:code` | Verify page shows the result |
@@ -80,7 +80,7 @@ Phase 7 QA & security hardening (continuous, gate before production launch)
 **Status**
 - [x] Leads: `leads` table, `POST /leads` (validation, phone normalization, honeypot, Turnstile, 5/hour rate limit), `lead_alert` + `lead_ack` emails via the outbox, recipients from `site_settings.lead_notification_emails` (seeded `info@alpharecover.com`). Contact form + callback form (now with required phone) wired; verified in a real browser
 - [x] Catalog: `courses` / `course_modules` / `lessons` (9 / 16 / 117, insert-only seed), `GET /courses[?include=outline]`, `GET /courses/:slug` (video ids never exposed). Header menus, Training explorer and track pages read the API with the static catalog as fallback; verified in the browser with and without the API
-- [x] Plans & promotions: `plans` / `plan_courses` / `promotions`, server-side pricing (`server/services/pricing.ts`), `GET /plans[/:slug]`. Professional Plan ₹5,999 with the Festival Sale at ₹2,500 until 30 Nov 2026 11:59 PM IST. Real countdown; at zero the sale hides and the price becomes ₹5,999 without a reload. Static fallback applies the same window. Browser-verified (live, expiry, fallback)
+- [x] Plans & promotions: `plans` / `plan_courses` / `promotions`, server-side pricing (`server/services/pricing.ts`), `GET /plans[/:slug]`. Seed publishes `essential` (₹999, logical/basics/electronics), `professional` (₹5,999 + Festival Sale ₹2,500 until 30 Nov 2026 11:59 PM IST), `expert` (₹4,999, Coming soon in UI). Home keeps the single Professional card; `/pricing` shows three cards, comparison, benefits and a static category FAQ (`PricingFaq`, content in `pricingPlans.ts`). Buy Now remains the checkout stub. Real countdown; at zero the sale hides without a reload. Static fallback via `usePlans()`. Browser-verified (live, expiry, fallback)
 - [x] Demo videos: `demo_videos` (one featured video enforced by the DB), insert-only seed of the 6 videos, `GET /demo-videos` (category, search, pagination, counts), `/featured`, `/:slug`, `POST /:slug/view` (1 per IP per 30 min). Demos page and Home preview read the API with static fallback; real view counts and upload dates. Browser-verified with and without the API
 - [x] Blog: `blog_posts` (insert-only seed of the 3 posts; bodies = excerpts until written), `GET /blog` (scheduling via `publishedAt`), `GET /blog/:slug`. Blog pages read the API with static fallback; safe Markdown renderer (no raw HTML, safe links) with article styles; post page sets title/meta description. Developer placeholder text removed. Browser-verified with and without the API
 - [x] Certificate verification: `certificates` + `certificate_sequences` (gap-free per-year codes, tested with 20 concurrent issues; column renamed to `last_number` since `last_value` is reserved in MySQL 8), `GET /certificates/verify/:code` (30/min, same 404 for unknown/malformed, no private data). Verify page shows valid/revoked/not found, supports `?code=` links, and says "temporarily unavailable" without the API. Browser-verified
@@ -135,14 +135,16 @@ Phase 7 QA & security hardening (continuous, gate before production launch)
 | Task | Detail |
 |---|---|
 | Orders & payments schema | `orders`, `payments`, `payment_webhook_events` |
-| Checkout | `POST /checkout/orders` (server price, reuse open order, block if enrolled) |
+| Checkout | `POST /checkout/orders` (server `priceFor(slug)`, reuse open order, block if enrolled). **Refuse `expert` until mentoring is operational** |
 | Client verify | `POST /checkout/verify` (signature + payment fetch) |
 | Webhooks | `POST /webhooks/razorpay`: signature, idempotency, `activateOrder()` transaction |
 | Emails | `order_receipt`, `enrollment_welcome`; GST invoice PDF once GSTIN exists |
 | Refunds | Admin refund → Razorpay API → `refund.processed` webhook → revoke per setting |
 | Reconciliation | `/internal/cron/maintenance` expires stale orders; admin "reconcile" re-checks Razorpay |
 | [FE] | Buy Now opens Razorpay Checkout (`checkout.js`); **new** `/checkout/success` and `/checkout/failed` pages; order history on the profile |
+| Plan upgrades | **Deferred** — document amounts later; no My Account upgrade UI / proration in this phase |
 | Coupons | **Deferred** (no UI). Schema extension documented |
+| Admin FAQ CMS | **Deferred (needs approval)** — no `faqs` table yet; `/pricing` FAQs stay static until an approved CMS ships |
 
 **Exit:** a live ₹1 test plan purchase activates access end to end; webhook replay is safe; refund revokes access.
 

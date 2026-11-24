@@ -1,6 +1,6 @@
 # Alpha Recovery — Product Requirements (PRD)
 
-**Last reviewed:** 2026-11-23 · **Status:** Draft for approval
+**Last reviewed:** 2026-11-25 · **Status:** Draft for approval
 **Related:** [ARCHITECTURE.md](ARCHITECTURE.md) · [DATABASE.md](DATABASE.md) · [API.md](API.md) · [SECURITY.md](SECURITY.md) · [TESTING.md](TESTING.md) · [PLAN.md](PLAN.md) · audit snapshot: [archive/2026-11-12-backend-audit.md](archive/2026-11-12-backend-audit.md)
 
 ---
@@ -43,9 +43,11 @@ Alpha Recovery sells **online data recovery training** (one-time purchase, lifet
 | `/training/:trackId` lesson list | Implemented, lesson click → alert | Access control, playback token, progress | `GET /courses/:slug`, `POST /lessons/:id/playback`, `PUT /me/progress/:lessonId` | `lessons`, `enrollments`, `lesson_progress` |
 | Lesson player page | **Not built** (frontend work) | Video delivery | `POST /lessons/:id/playback` | `lessons` |
 | Student dashboard / My courses | **Not built** (frontend work) | Enrolled courses + progress | `GET /me/dashboard` | `enrollments`, `lesson_progress` |
-| Professional Plan section (Home, `/pricing`) | Implemented, static price | Plan + active promotion, server-side price | `GET /plans`, `GET /plans/:slug` | `plans`, `promotions` |
+| Professional Plan section (Home) | Implemented; reads live plan | Plan + active promotion, server-side price | `GET /plans/professional` | `plans`, `promotions` |
+| `/pricing` three plans + FAQ | ✅ Essential / Professional / Expert (Coming soon CTA); comparison; static FAQ accordion | Live prices via `GET /plans`; Buy Now still stub | `GET /plans`, `GET /plans/:slug` | `plans`, `promotions` (FAQs static — no CMS yet) |
 | Sale countdown | ✅ Real countdown to `promotion.endsAt` (Phase 2); previously a fake timer that reset on every load | Real promotion end time | `GET /plans/:slug` (`promotion.endsAt`) | `promotions` |
-| Buy Now (`/pricing`) | Implemented, alert | Order creation, Razorpay checkout, verification | `POST /checkout/orders`, `POST /checkout/verify` | `orders`, `payments` |
+| Buy Now (`/pricing`) | Implemented, alert stub | Order creation, Razorpay checkout, verification; keep Expert non-purchasable until mentoring ships | `POST /checkout/orders`, `POST /checkout/verify` | `orders`, `payments` |
+| Plan upgrades (My Account) | **Not built** | Self-serve upgrade / proration | TBD with Phase 5+ | `orders`, `enrollments` |
 | Payment confirmation | **Not built** (success/failure pages) | Webhook processing, enrollment activation | `POST /webhooks/razorpay`, `GET /me/orders/:id` | `payments`, `payment_webhook_events`, `enrollments` |
 | Ask on WhatsApp / floating WhatsApp | Implemented (`wa.me`) | None (optional click tracking) | No | No |
 | Demo videos — home preview + `/demos` (filter, search, pagination, featured) | Implemented over 6 static items | Catalog, server-side filter/search/paging, playback, views | `GET /demo-videos`, `GET /demo-videos/:slug`, `POST /demo-videos/:id/view` | `demo_videos` |

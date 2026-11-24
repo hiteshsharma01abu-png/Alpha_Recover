@@ -44,8 +44,9 @@ describe.skipIf(!dbAvailable)('admin plans & promotions API (MySQL)', () => {
     await grantEnrollment(ctx.db, { userId: student.id, planId: pro.id, source: 'manual' });
     const content = await loginAs(ctx, 'content_manager');
     const { data } = await readJson(await getJson(ctx.app, '/admin/plans', content.jar));
-    expect(data).toHaveLength(1);
-    expect(data[0]).toMatchObject({ slug: 'professional', status: 'published', effectivePricePaise: pro.pricePaise, activeEnrollments: 1, nextPromotion: null });
+    expect(data).toHaveLength(3);
+    const proRow = data.find((p: { slug: string }) => p.slug === 'professional');
+    expect(proRow).toMatchObject({ slug: 'professional', status: 'published', effectivePricePaise: pro.pricePaise, activeEnrollments: 1, nextPromotion: null });
     expect((await postJson(ctx.app, '/admin/plans', newPlan(), content.jar)).status).toBe(403);
     expect((await sendJson(ctx, 'PATCH', `/admin/plans/${pro.id}`, { name: 'X' }, content.jar)).status).toBe(403);
   });
@@ -122,7 +123,9 @@ describe.skipIf(!dbAvailable)('admin plans & promotions API (MySQL)', () => {
     expect((await postJson(ctx.app, `/admin/plans/${pro.id}/promotions`, { ...sale, startsAt: ist(120), endsAt: ist(100) }, jar)).status).toBe(400);
     // A later, non-overlapping sale is fine and shows as scheduled.
     const later = await readJson(await postJson(ctx.app, `/admin/plans/${pro.id}/promotions`, { ...sale, label: 'New Year', startsAt: ist(100), endsAt: ist(120) }, jar));
-    const listed = (await readJson(await getJson(ctx.app, '/admin/plans', jar))).data[0];
+    const listed = (await readJson(await getJson(ctx.app, '/admin/plans', jar))).data.find(
+      (p: { slug: string }) => p.slug === 'professional',
+    );
     expect(listed.nextPromotion).toMatchObject({ id: later.data.id, state: 'scheduled' });
 
     // The plan price can't drop to or below a live sale price.

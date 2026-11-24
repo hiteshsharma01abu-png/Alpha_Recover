@@ -1,0 +1,500 @@
+/* /pricing three-plan layout (px- prefix). Home still uses ProfessionalPlanSection. */
+
+.px-page {
+  color: var(--text);
+}
+
+.px-hero {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(2.25rem, 5vw, 3.5rem) 0 clamp(1.75rem, 4vw, 2.5rem);
+  background: var(--dark-band);
+  border-bottom: 1px solid color-mix(in srgb, var(--mint) 12%, transparent);
+}
+
+.px-hero-inner {
+  max-width: 42rem;
+}
+
+.px-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0 0 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+
+.px-eyebrow::before {
+  content: '';
+  width: 1.5rem;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--brass);
+}
+
+.px-hero h1 {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.85rem, 4vw, 2.65rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.px-hero-lead {
+  margin: 0;
+  max-width: 40rem;
+  color: var(--content);
+  font-size: 1.02rem;
+  line-height: 1.55;
+}
+
+.px-sale {
+  padding: 1.25rem 0 0.25rem;
+  background: var(--surface);
+}
+
+.px-sale-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+  padding: 1rem 1.15rem;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--mint) 18%, transparent);
+  background:
+    radial-gradient(ellipse 70% 80% at 0% 50%, color-mix(in srgb, var(--mint) 10%, transparent), transparent 55%),
+    color-mix(in srgb, var(--surface-alt) 80%, #000);
+}
+
+.px-sale-copy {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.px-sale-kicker {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mint);
+}
+
+.px-sale-label {
+  margin: 0;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.px-countdown {
+  display: flex;
+  gap: 0.45rem;
+}
+
+.px-countdown-cell {
+  display: grid;
+  justify-items: center;
+  min-width: 3.1rem;
+  padding: 0.45rem 0.5rem;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--mint) 16%, transparent);
+  background: color-mix(in srgb, var(--dark-band) 70%, transparent);
+}
+
+.px-countdown-cell strong {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--mint);
+  line-height: 1;
+}
+
+.px-countdown-cell span {
+  margin-top: 0.2rem;
+  font-size: 0.65rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--content);
+}
+
+.px-plans {
+  padding: clamp(2rem, 5vw, 3.25rem) 0;
+  background: var(--surface);
+}
+
+.px-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.15rem;
+  align-items: stretch;
+}
+
+.px-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1.25rem 1.2rem 1.35rem;
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--mint) 16%, transparent);
+  background:
+    linear-gradient(165deg, color-mix(in srgb, var(--mint) 6%, transparent), transparent 40%),
+    color-mix(in srgb, var(--surface-alt) 88%, #000);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+}
+
+.px-card.is-recommended {
+  border-color: color-mix(in srgb, var(--brass) 55%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--brass) 28%, transparent),
+    0 20px 48px rgba(0, 0, 0, 0.35);
+}
+
+.px-card-badge {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 0.28rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brass-text);
+  background: linear-gradient(135deg, #f0d792 0%, var(--brass) 50%, #c49a45 100%);
+}
+
+.px-card h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.px-card-audience {
+  margin: 0;
+  color: var(--content);
+  font-size: 0.88rem;
+  line-height: 1.45;
+  min-height: 2.6em;
+}
+
+.px-price-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.45rem 0.75rem;
+}
+
+.px-price {
+  font-family: var(--font-display);
+  font-size: clamp(1.85rem, 3vw, 2.25rem);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.px-was {
+  color: var(--content);
+  text-decoration: line-through;
+  font-size: 0.95rem;
+}
+
+.px-off {
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 750;
+  color: var(--mint-ink);
+  background: color-mix(in srgb, var(--mint) 88%, #fff);
+}
+
+.px-once {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 650;
+  color: var(--content);
+}
+
+.px-features {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.45rem;
+  flex: 1;
+}
+
+.px-features li {
+  display: grid;
+  grid-template-columns: 1rem 1fr;
+  gap: 0.55rem;
+  align-items: start;
+  font-size: 0.84rem;
+  line-height: 1.4;
+  color: color-mix(in srgb, var(--text) 88%, transparent);
+}
+
+.px-features li::before {
+  content: '';
+  width: 0.45rem;
+  height: 0.45rem;
+  margin-top: 0.4rem;
+  border-radius: 50%;
+  background: var(--mint);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--mint) 50%, transparent);
+}
+
+.px-card-actions {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.35rem;
+}
+
+.px-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.65rem;
+  padding: 0.65rem 1rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font: inherit;
+  font-weight: 750;
+  font-size: 0.92rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.px-btn:focus-visible {
+  outline: 2px solid var(--mint);
+  outline-offset: 2px;
+}
+
+.px-btn-primary {
+  background: var(--btn-soft-bg);
+  color: var(--btn-soft-text);
+  border-color: var(--btn-soft-border);
+  box-shadow: var(--btn-soft-shadow);
+}
+
+.px-btn-primary:hover {
+  background: var(--btn-soft-bg-hover);
+  border-color: var(--btn-soft-border-hover);
+  box-shadow: var(--btn-soft-shadow-hover);
+  transform: translateY(-1px);
+}
+
+/* .px-btn-gold and .px-btn-ghost fills live in global.css (--btn-gold-* / --btn-ghost-mint-*) */
+
+.px-btn:disabled,
+.px-btn.is-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  pointer-events: none;
+}
+
+.px-trust {
+  padding: 0.5rem 0 2.5rem;
+  background: var(--surface);
+}
+
+.px-trust-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.px-trust-item {
+  display: grid;
+  gap: 0.35rem;
+  justify-items: center;
+  text-align: center;
+  padding: 0.9rem 0.65rem;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--mint) 12%, transparent);
+  background: color-mix(in srgb, var(--surface-alt) 70%, transparent);
+}
+
+.px-trust-item strong {
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.px-trust-item span {
+  font-size: 0.72rem;
+  color: var(--content);
+  line-height: 1.35;
+}
+
+.px-compare {
+  padding: clamp(2rem, 4vw, 3rem) 0;
+  background: var(--surface-alt);
+}
+
+.px-section-head {
+  max-width: 40rem;
+  margin: 0 auto 1.75rem;
+  text-align: center;
+}
+
+.px-section-head h2 {
+  margin: 0 0 0.55rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.55rem, 3vw, 2rem);
+  font-weight: 800;
+}
+
+.px-section-head p {
+  margin: 0;
+  color: var(--content);
+  line-height: 1.5;
+}
+
+.px-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--mint) 14%, transparent);
+  background: color-mix(in srgb, var(--surface) 92%, #000);
+}
+
+.px-table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.px-table th,
+.px-table td {
+  padding: 0.75rem 0.9rem;
+  text-align: left;
+  border-bottom: 1px solid color-mix(in srgb, var(--mint) 10%, transparent);
+  vertical-align: middle;
+}
+
+.px-table thead th {
+  font-size: 0.75rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mint);
+  background: color-mix(in srgb, var(--dark-band) 55%, transparent);
+}
+
+.px-table .px-cat {
+  font-weight: 750;
+  color: var(--brass);
+  background: color-mix(in srgb, var(--dark-band) 35%, transparent);
+}
+
+.px-yes {
+  color: var(--mint);
+  font-weight: 750;
+}
+
+.px-no {
+  color: color-mix(in srgb, var(--content) 55%, transparent);
+}
+
+.px-benefits {
+  padding: clamp(2rem, 4vw, 3rem) 0;
+  background: var(--dark-band);
+}
+
+.px-consult,
+.px-final {
+  padding: clamp(2rem, 4vw, 3rem) 0;
+}
+
+.px-consult {
+  background: var(--dark-band);
+}
+
+.px-final {
+  background: var(--surface-alt);
+}
+
+.px-consult-card,
+.px-final-card {
+  display: grid;
+  gap: 1rem;
+  justify-items: start;
+  padding: clamp(1.35rem, 3vw, 2rem);
+  border-radius: 20px;
+  border: 1px solid color-mix(in srgb, var(--mint) 18%, transparent);
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, color-mix(in srgb, var(--mint) 10%, transparent), transparent 55%),
+    linear-gradient(165deg, color-mix(in srgb, var(--surface) 90%, #000), color-mix(in srgb, var(--dark-band) 80%, #000));
+}
+
+.px-consult-card h2,
+.px-final-card h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+  font-weight: 800;
+}
+
+.px-consult-card p,
+.px-final-card p {
+  margin: 0;
+  color: var(--content);
+  max-width: 40rem;
+  line-height: 1.5;
+}
+
+.px-final-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+@media (max-width: 1024px) {
+  .px-plan-grid {
+    grid-template-columns: 1fr;
+    max-width: 28rem;
+    margin-inline: auto;
+  }
+
+  .px-card.is-recommended {
+    order: -1;
+  }
+
+  .px-trust-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .px-trust-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .px-btn {
+    width: 100%;
+  }
+
+  .px-final-actions {
+    width: 100%;
+  }
+
+  .px-final-actions .px-btn {
+    flex: 1 1 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .px-btn {
+    transition: none;
+  }
+}

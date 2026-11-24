@@ -2,7 +2,7 @@
 
 **Base URL:** `/api/v1` (same origin as the SPA; Node.js + Hono, host-portable: cPanel Node.js App, VPS, or Vercel during development)
 **Format:** JSON (UTF-8). Request bodies are validated with Zod schemas shared from `shared/schemas/`.
-**Last reviewed:** 2026-11-24 · **Status:** Proposal · Related: [DATABASE.md](DATABASE.md) · [SECURITY.md](SECURITY.md)
+**Last reviewed:** 2026-11-25 · **Status:** Proposal · Related: [DATABASE.md](DATABASE.md) · [SECURITY.md](SECURITY.md)
 
 ---
 
@@ -199,8 +199,16 @@ Side effect: when the lesson is complete and every published lesson of its cours
 
 | Method | Endpoint | Auth | Purpose |
 |---|---|---|---|
-| GET | `/plans` | public | Published plans with the effective price. **Implemented (Phase 2)** |
-| GET | `/plans/:slug` | public | One plan (Professional Plan section, countdown). **Implemented (Phase 2)** |
+| GET | `/plans` | public | Published plans with the effective price. **Implemented (Phase 2)** — seed publishes three slugs: `essential`, `professional`, `expert` |
+| GET | `/plans/:slug` | public | One plan (Home Professional card, `/pricing` cards, countdown). **Implemented (Phase 2)** |
+
+Published seed slugs (insert-only; see `seedPlans` + `src/data/pricingPlans.ts`):
+
+| slug | Marketing name | Base (paise) | Notes |
+|---|---|---|---|
+| `essential` | Essential | 99900 | `grantsAllCourses: false`; `plan_courses` → `logical`, `basics`, `electronics` |
+| `professional` | Professional Plan | 599900 | Festival promo → ₹2,500 while active; `grantsAllCourses: true` |
+| `expert` | Expert | 499900 | `grantsAllCourses: true`; marketing extras include mentoring (Coming soon). **Not purchasable in UI until mentoring is real** — Phase 5 checkout must refuse or omit it |
 
 `GET /plans/professional` response:
 ```json
@@ -210,7 +218,7 @@ Side effect: when the lesson is complete and every published lesson of its cours
   "features": ["20+ hours of self-study video training", "…"], "mobileFeatureOrder": [0, 2, 4, 6, 8, 10, 12, 14, 16],
   "accessDays": null } }
 ```
-`promotion` is `null` when none is active: the frontend then hides the kicker, countdown and sale line, and shows `comparePricePaise` (the struck-through price) only when it's set. A promotion applies while `is_active`, not deleted and `startsAt ≤ now < endsAt`. Prices come from `priceFor()` / `loadPlans()` in [`server/services/pricing.ts`](../server/services/pricing.ts), which checkout must reuse (never trust a client amount). Short cache (`s-maxage=60`) because the price changes the moment a sale starts or ends. *Planned (Phase 3+):* a `viewer: { enrolled }` field when the request has a session.
+`promotion` is `null` when none is active: the frontend then hides the kicker, countdown and sale line, and shows `comparePricePaise` (the struck-through price) only when it's set. A promotion applies while `is_active`, not deleted and `startsAt ≤ now < endsAt`. Prices come from `priceFor()` / `loadPlans()` in [`server/services/pricing.ts`](../server/services/pricing.ts), which checkout must reuse (never trust a client amount). Short cache (`s-maxage=60`) because the price changes the moment a sale starts or ends. *Planned (Phase 3+):* a `viewer: { enrolled }` field when the request has a session. There is **no** public FAQ API yet — `/pricing` FAQs are static in `src/data/pricingPlans.ts` (admin FAQ CMS deferred).
 
 ---
 
@@ -446,8 +454,8 @@ Templates: `verify_email`, `password_reset`, `staff_invite` (implemented), `orde
 | Request callback | `POST /leads` (`callback`) |
 | Services "Request service" | → `/contact` → `POST /leads` (`data_recovery_service`) |
 | Verify certificate submit | `GET /certificates/verify/:code` |
-| Buy Now (`/pricing`) | `POST /checkout/orders` → Razorpay Checkout → `POST /checkout/verify` (+ webhook) |
-| Price, sale label, countdown | `GET /plans/professional` |
+| Buy Now (`/pricing`) | `POST /checkout/orders` → Razorpay Checkout → `POST /checkout/verify` (+ webhook); UI still stub until Phase 5 |
+| Price, sale label, countdown | `GET /plans` / `GET /plans/:slug` (`essential` \| `professional` \| `expert`) |
 | Training explorer, track pages, header dropdown | `GET /courses`, `GET /courses/:slug` |
 | Lesson click | `POST /lessons/:id/playback` (new player page) |
 | Demo filters, search, pagination, featured | `GET /demo-videos`, `GET /demo-videos/featured` |

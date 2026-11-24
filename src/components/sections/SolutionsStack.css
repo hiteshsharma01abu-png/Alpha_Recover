@@ -7,6 +7,7 @@
 .solutions-stack-section {
   padding-block: var(--section-y);
   overflow: visible;
+  background: var(--surface);
 }
 
 .solutions-stack-section .section-head h2 em {

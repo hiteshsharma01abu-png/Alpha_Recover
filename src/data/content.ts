@@ -542,6 +542,7 @@ export const whyLearn = [
   },
 ];
 
+/** Professional Plan marketing + static sale window. Keep in sync with `PROFESSIONAL_SALE` / `pricingPlans` in pricingPlans.ts. */
 export const pricing = {
   name: 'Professional Plan',
   was: 5999,
@@ -573,6 +574,16 @@ export const pricing = {
     'Access anytime — no seat limits',
   ],
 };
+
+export {
+  pricingPlans,
+  pricingFaqs,
+  faqCategories,
+  ESSENTIAL_FEATURES,
+  PROFESSIONAL_FEATURES,
+  EXPERT_EXTRA_FEATURES,
+} from './pricingPlans';
+export type { StaticPlanDef, PricingFaqItem, FaqCategoryId } from './pricingPlans';
 
 export const services = [
   'CCTV / DVR drive data recovery',

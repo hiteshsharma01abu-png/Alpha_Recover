@@ -16,9 +16,9 @@ A dark, technical "lab" aesthetic: deep pine-green backgrounds, ivory text, bras
 | Token | Use for |
 |---|---|
 | `--bg` | Page background |
-| `--surface` | Cards, panels (recessed) |
+| `--surface` | Cards, panels; default non-hero section band |
 | `--surface-alt` | Alternate section bands |
-| `--dark-band` | Footer, pricing band, strongest contrast bands |
+| `--dark-band` | Footer, photo/heavy section bands (stats, pro training, pricing) |
 | `--text` | Headings, logo, high-emphasis text |
 | `--text-sub` | Subheadings |
 | `--content` | Body copy, muted text |
@@ -35,6 +35,7 @@ A dark, technical "lab" aesthetic: deep pine-green backgrounds, ivory text, bras
 - Contrast ratios are noted next to each token in `global.css`; keep text on `--bg`/`--surface` at the listed tokens to stay AA-compliant.
 - **Mint** is now the `--mint` token. Older CSS still repeats `#7DFFC0`; new code uses the token (mix it with `color-mix()` for borders and glows).
 - The **compat aliases** at the bottom of `:root` (`--bg-card`, `--heading`, `--cyan`…) exist for older CSS. Don't use them in new code; use the primary names above.
+- **Homepage section bands:** the hero keeps its own plate (`#002521` + `hero-bg.webp`). Every other homepage section root uses only `--surface`, `--surface-alt`, or `--dark-band` (photo overlays and mint glows stay). Do not invent new dark-green hex fills for section backgrounds.
 
 ## 3. Typography
 
@@ -51,7 +52,7 @@ Fonts load from Google Fonts at the top of `global.css`. Base body size is 16px,
 | Token / class | Use |
 |---|---|
 | `.container` | Centered content column, max width `--max`, with a mobile gutter |
-| `--header` | Fixed header height (used for sticky offsets) |
+| `--header` | Sticky marketing header height (80px desktop; mobile bar is 64px in `Header.css`) |
 | `.section` + `--section-y` / `--section-y-sm` | Vertical rhythm between bands (smaller on phones) |
 | `.section-head`, `--section-head-gap` | Section title block spacing |
 | `.page-hero` + `.breadcrumb` | Top band of inner pages (title + breadcrumb trail) |
@@ -62,13 +63,16 @@ Fonts load from Google Fonts at the top of `global.css`. Base body size is 16px,
 
 | Pattern | Where | Notes |
 |---|---|---|
-| Buttons | `.btn` + `.btn-primary` / `.btn-ghost` / `.btn-cyan`; section variants (`pp-btn-*`, `tx-btn-*`, `demos-btn-*`, …) | **One site button look**: the soft ivory → teal gradient (the hero "Demo Videos" pill), from the `--btn-soft-*` tokens in `global.css` (background, hover, active, text, border, shadow). New buttons use those tokens. **Homepage exception:** the homepage keeps its original buttons (brass "View Plan", outline buttons); page sections shared with other pages (pricing card, training explorer) switch to the site look only under `:root:not([data-home])` (`Layout.tsx` sets `data-home` on `/`). **Header / footer:** the marketing `Header` is on every public page, including logged-out `/account` and logged-out `/dashboard`. The footer and WhatsApp float are hidden on `/account` and `/dashboard`. Signed-in `/dashboard` and `/account/settings` use `LearnerShell` (`lrn-`) instead of the marketing header. Those screens still use `--btn-soft-*` for primary actions (not a mint fill) |
+| Buttons | Three roles via tokens in `global.css` | **Brass gold (conversion)** — hero "View Plan", header/drawer Enroll Now, Professional Buy/Enroll: `--btn-gold-*` + `.btn-gold` / `.hero-btn-primary` / `.pp-btn-gold` / `.px-btn-gold` / `.nav-enroll`. **Soft ivory→teal (default filled)** — Demo Videos and most site actions: `--btn-soft-*` + `.btn-primary` / `.btn-soft` / `.hero-btn-ghost` / `.footer-btn-solid` / `.px-btn-primary` / form submits. **Mint-border ghost (secondary)** — companion next to a primary (Ask on WhatsApp on plan cards, footer Request Callback, demos/training secondary): `--btn-ghost-mint-*` + `.btn-ghost-mint` / `.pp-btn-ghost` / `.px-btn-ghost` / `.footer-btn-outline` / `.demos-btn-outline` / `.tx-btn-outline`. Do **not** invent a solid mint primary. **Header / footer:** marketing `Header` on every public page (logged-out `/account` and `/dashboard` included): Home, Courses mega menu, Demo Videos, Resources, Pricing, Expert Support → `/contact`, Login or My Account, gold Enroll Now → `/pricing`. Footer WhatsApp float hidden on `/account` and `/dashboard`. Learner chrome uses soft primaries |
 | Form fields | `.field` (label + input/select/textarea), `.check` (checkbox row) | Account page uses its own `acc-*` field styling with leading icons |
 | Panels / cards | `.panel`, glass tokens (`--glass-bg`, `--glass-border`, `--glass-shadow`, `--glass-blur`) in `glass.css` | Use the glass tokens for new elevated cards |
 | Glass "orb" icons | `--glass-orb-*` tokens | Round 3D icon badges (pricing perks) |
 | Accent bar | `.why-accent-bar` / `.training-accent-bar` in `src/styles/sections.css` | Short gradient bar above section titles |
 | Sticky stacked cards | `stack-card*` in `components/sections/SolutionsStack.css` | Mobile/tablet sticky-sibling card stack used by three sections |
-| Tabs / filters | Account toggle, TrainingExplorer tracks, Demos filters | `role="tab"`, `aria-selected`, `is-active` class |
+| Tabs / filters | Account toggle, TrainingExplorer tracks, Demos filters, Pricing FAQ categories (`pfq-`) | `role="tab"`, `aria-selected`, `is-active` class |
+| Pricing FAQ accordion | `PricingFaq` (`src/components/sections/PricingFaq.tsx`, `pfq-`) | Category tabs + single-open accordion (`aria-expanded` / `aria-controls`); Escape closes; static Q&A from `pricingPlans.ts`; mint highlight on open; honour `prefers-reduced-motion` |
+| Marketing footer | `Footer` (`src/components/layout/Footer.tsx`, `footer-`) | Desktop: four columns (brand + social, services, information, get in touch + Quick Connect) with a trust strip under the grid. Mobile (≤980px): brand + trust first, then exclusive single-open accordions for Services / Information / Get in Touch; Quick Connect and social stay outside. Contact and social from `useSiteSettings()`; services from `content.ts`. Bottom bar clears WhatsApp + scroll-to-top floats |
+| `/pricing` three-plan layout | `Pricing.tsx` + `PricingPage.css` (`px-`) | Compact hero, Professional sale countdown, three cards (Expert disabled Coming soon), trust strip, comparison table (`overflow-x: auto` on small screens), benefits (reuses homepage `pp-perks` markup/styles), FAQ, WhatsApp consult, final enroll stub. Home still uses `pp-*` / `ProfessionalPlanSection` |
 | Form states | `.field-error`, `.form-error`, `.form-success`, `.hp-field` (honeypot), `.turnstile-box` in `global.css`; `.success` (page-scoped in `SimplePages.css`) | Use these for every API-backed form: errors in `--danger`, success in `--ok`. The `<Turnstile>` widget lives in `src/components/ui/Turnstile.tsx`; `submitLead()` / `formErrors()` in `src/lib/leads.ts` |
 | Floating actions | WhatsApp float, scroll-to-top | Bottom corners; keep new floating UI clear of them |
 | Inner-page hero | `<PageHero crumbs title sub art>` in `src/components/ui/PageHero.tsx` (`ph-`) | Breadcrumb, title, subtitle, optional chips (children) and a glowing illustration (`heroArt` in `src/data/pageContent.ts`); used by Services, Industries, Blog, Training track, Verify Certificate. The illustration hides below 760px |
@@ -112,7 +116,7 @@ Fonts load from Google Fonts at the top of `global.css`. Base body size is 16px,
 ## 10. CSS conventions
 
 - One CSS file next to each section/page component (`Foo.tsx` + `Foo.css`); shared primitives in `src/styles/`.
-- **BEM-ish kebab-case class names with a unique section prefix** (`hero-*`, `pp-*` pricing, `cta-*`, `dv-*` demo cards, `tx-*` training explorer). All CSS ships in one bundle, so prefixes prevent cross-file clashes.
+- **BEM-ish kebab-case class names with a unique section prefix** (`hero-*`, `pp-*` homepage Professional Plan, `px-*` `/pricing` three-plan page, `pfq-*` pricing FAQ accordion, `cta-*`, `dv-*` demo cards, `tx-*` training explorer). All CSS ships in one bundle, so prefixes prevent cross-file clashes.
 - Use tokens for colour, spacing and type; avoid new hard-coded hex values.
 - Accessibility: visible `:focus-visible` outlines (defined globally), labelled form fields, `aria-hidden` on decorative elements, `alt` text on meaningful images.
 - **Pre-render safe:** public pages are rendered to HTML at build time and hydrated (docs/ARCHITECTURE.md §5.1), so the first render must not read `window`, `document`, `localStorage`, screen size or the current time. Read them in effects, start from a fixed default (e.g. `useState(false)`, then sync in the effect), and gate browser-only markup such as portals with `useHydrated()`.
@@ -120,7 +124,7 @@ Fonts load from Google Fonts at the top of `global.css`. Base body size is 16px,
 ## 11. Building new screens (dashboard, player, admin)
 
 1. Start from `.page-hero` + `.breadcrumb` + `.container` + `.section` for marketing pages. Logged-out `/account` uses that same header. For `/dashboard` and `/account/settings`, start from `LearnerShell` and the `dsh-*` / `auth-*` / `acc-*` patterns already on those pages.
-2. Use glass panel tokens for cards, `.btn-primary` / `.btn-ghost` (or `.account-submit`) for actions — keep `--btn-soft-*`, do not invent a mint primary button.
+2. Use glass panel tokens for cards. Buttons: soft (`.btn-primary` / `--btn-soft-*`) for default filled actions; brass (`.btn-gold` / `--btn-gold-*`) only for enroll/buy/View Plan; mint ghost (`.btn-ghost-mint` / `--btn-ghost-mint-*`) for secondary companions. Do not invent a mint primary fill.
 3. Pick a new unique class prefix for the screen (e.g. `dsh-*`, `player-*`, `adm-*`, `lrn-*`).
 4. Use `--ok` / `--danger` for status; `--brass` sparingly for emphasis.
 5. Check all four target widths and reduced motion before merging.

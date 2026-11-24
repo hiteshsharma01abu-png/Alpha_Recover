@@ -1,6 +1,6 @@
 # Alpha Recovery — Database Schema
 
-**Last reviewed:** 2026-11-23 · Related: [ARCHITECTURE.md](ARCHITECTURE.md) · [API.md](API.md)
+**Last reviewed:** 2026-11-25 · Related: [ARCHITECTURE.md](ARCHITECTURE.md) · [API.md](API.md)
 
 **Database:** MySQL 8.0+ (MariaDB 10.6+ compatible subset) · **Engine:** InnoDB, `utf8mb4` · **ORM:** Drizzle (`mysql2`) · **Status:** Proposal, nothing created
 
@@ -188,13 +188,13 @@
 
 ## 9. `plans`
 
-> **Implemented (Phase 2)** with `plan_courses` and `promotions`. Seeded insert-only: the Professional Plan at ₹5,999, plus the Festival Sale promotion (₹2,500, 1 Nov – 30 Nov 2026 11:59 PM IST), created only together with a new plan so re-runs never duplicate it. The sale dates live in `pricing.saleStartsAt` / `saleEndsAt` in `src/data/content.ts`, which also drives the offline fallback.
+> **Implemented (Phase 2)** with `plan_courses` and `promotions`. Seeded insert-only from `pricingPlans` in `src/data/pricingPlans.ts`: **Essential** (₹999, `grants_all_courses=false`, links `logical` / `basics` / `electronics`), **Professional Plan** (₹5,999 + Festival Sale ₹2,500, 1 Nov – 30 Nov 2026 11:59 PM IST, created only with a new plan so re-runs never duplicate it), **Expert** (₹4,999, all courses; mentoring extras are marketing copy — UI shows Coming soon). Sale window also lives in `pricing.saleStartsAt` / `saleEndsAt` in `src/data/content.ts` for the offline fallback. No FAQ tables yet (static FAQs on `/pricing`).
 
 | Column | Type | Notes |
 |---|---|---|
 | id | char(36) | PK |
-| slug | varchar(64) | **unique**; `professional` |
-| name | varchar(120) | "Professional Plan" |
+| slug | varchar(64) | **unique**; `essential` \| `professional` \| `expert` |
+| name | varchar(120) | e.g. "Professional Plan" |
 | description | text | null |
 | price_paise | integer | not null, > 0 (base price; ₹5,999 = 599900) |
 | compare_at_paise | integer | null (strike-through "was" price when no promotion is active) |

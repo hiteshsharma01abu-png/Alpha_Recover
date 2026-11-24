@@ -11,12 +11,23 @@ import {
   company,
   demoVideos as staticDemoVideos,
   pricing,
+  pricingPlans,
   socialLinks,
   trainingTracks,
   type TrainingTrack,
 } from '../../src/data/content';
 import { createDb, type Database } from './index';
-import { blogPosts, courseModules, courses, demoVideos, lessons, plans, promotions, siteSettings } from './schema';
+import {
+  blogPosts,
+  courseModules,
+  courses,
+  demoVideos,
+  lessons,
+  planCourses,
+  plans,
+  promotions,
+  siteSettings,
+} from './schema';
 
 export async function seedCatalog(db: Database, tracks: TrainingTrack[] = trainingTracks) {
   const counts = { courses: 0, modules: 0, lessons: 0 };
@@ -61,36 +72,61 @@ export async function seedCatalog(db: Database, tracks: TrainingTrack[] = traini
 }
 
 /**
- * The Professional Plan at its regular price, plus the current sale as a promotion.
- * The promotion is created only together with a new plan, so re-runs never duplicate it.
+ * Essential / Professional / Expert plans. Insert-only by slug (admin edits survive re-runs).
+ * Professional sale promotion is created only when the Professional plan row is newly inserted.
+ * Essential links plan_courses to logical / basics / electronics when that plan is created.
  */
 export async function seedPlans(db: Database) {
-  const inserted = await db
-    .insert(plans)
-    .ignore()
-    .values({
-      slug: 'professional',
-      name: pricing.name,
-      pricePaise: pricing.was * 100,
-      currency: pricing.currency,
-      features: pricing.features,
-      mobileFeatureOrder: pricing.mobileFeatureOrder,
-      grantsAllCourses: true,
-      accessDays: null,
-      status: 'published',
-    });
-  const created = inserted[0].affectedRows === 1;
-  if (created) {
-    const [plan] = await db.select({ id: plans.id }).from(plans).where(eq(plans.slug, 'professional'));
-    await db.insert(promotions).values({
-      planId: plan.id,
-      label: pricing.saleLabel,
-      salePricePaise: pricing.now * 100,
-      startsAt: new Date(pricing.saleStartsAt),
-      endsAt: new Date(pricing.saleEndsAt),
-    });
+  let plansCreated = 0;
+  let promotionsCreated = 0;
+  let planCourseLinks = 0;
+
+  for (const def of pricingPlans) {
+    const inserted = await db
+      .insert(plans)
+      .ignore()
+      .values({
+        slug: def.slug,
+        name: def.name,
+        description: def.audience,
+        pricePaise: def.priceInr * 100,
+        compareAtPaise: def.compareInr && def.compareInr > def.priceInr ? def.compareInr * 100 : null,
+        currency: pricing.currency,
+        features: def.features,
+        mobileFeatureOrder: def.mobileFeatureOrder,
+        grantsAllCourses: def.grantsAllCourses,
+        accessDays: null,
+        status: 'published',
+        sortOrder: def.sortOrder,
+      });
+    const created = inserted[0].affectedRows === 1;
+    if (created) plansCreated += 1;
+
+    const [plan] = await db.select({ id: plans.id }).from(plans).where(eq(plans.slug, def.slug));
+    if (!plan) continue;
+
+    if (created && def.slug === 'professional') {
+      await db.insert(promotions).values({
+        planId: plan.id,
+        label: pricing.saleLabel,
+        salePricePaise: pricing.now * 100,
+        startsAt: new Date(pricing.saleStartsAt),
+        endsAt: new Date(pricing.saleEndsAt),
+      });
+      promotionsCreated += 1;
+    }
+
+    if (created && def.courseSlugs?.length) {
+      for (const courseSlug of def.courseSlugs) {
+        const [course] = await db.select({ id: courses.id }).from(courses).where(eq(courses.slug, courseSlug));
+        if (!course) continue;
+        const link = await db.insert(planCourses).ignore().values({ planId: plan.id, courseId: course.id });
+        planCourseLinks += link[0].affectedRows;
+      }
+    }
   }
-  return { plans: created ? 1 : 0, promotions: created ? 1 : 0 };
+
+  return { plans: plansCreated, promotions: promotionsCreated, planCourses: planCourseLinks };
 }
 
 /** "18:24" → 1104 seconds. */
@@ -175,12 +211,19 @@ if (isEntry) {
     process.exit(1);
   }
   const { db, pool } = createDb(url);
-  Promise.all([seedCatalog(db), seedPlans(db), seedDemoVideos(db), seedBlogPosts(db), seedSettings(db)])
-    .then(([c, p, v, b, s]) =>
+  // Catalog before plans so Essential plan_courses can resolve course slugs.
+  seedCatalog(db)
+    .then(async (c) => {
+      const [p, v, b, s] = await Promise.all([
+        seedPlans(db),
+        seedDemoVideos(db),
+        seedBlogPosts(db),
+        seedSettings(db),
+      ]);
       console.log(
-        `Seeded (new rows): ${c.courses} courses, ${c.modules} modules, ${c.lessons} lessons, ${p.plans} plans, ${p.promotions} promotions, ${v.demoVideos} demo videos, ${b.blogPosts} blog posts, ${s.settings} settings`,
-      ),
-    )
+        `Seeded (new rows): ${c.courses} courses, ${c.modules} modules, ${c.lessons} lessons, ${p.plans} plans, ${p.promotions} promotions, ${p.planCourses} plan_courses, ${v.demoVideos} demo videos, ${b.blogPosts} blog posts, ${s.settings} settings`,
+      );
+    })
     .catch((err: unknown) => {
       console.error(err);
       process.exitCode = 1;

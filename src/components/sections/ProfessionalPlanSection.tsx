@@ -105,15 +105,6 @@ function WhatsAppIcon() {
   return <img src={icons.whatsapp} alt="" width={16} height={16} decoding="async" aria-hidden />;
 }
 
-function LockIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden>
-      <rect x="5" y="10" width="14" height="10" rx="2" />
-      <path d="M8 10V7.5a4 4 0 0 1 8 0V10" />
-    </svg>
-  );
-}
-
 type ProfessionalPlanSectionProps = {
   buyMode?: 'link' | 'checkout';
   hideHead?: boolean;
@@ -156,18 +147,30 @@ export function ProfessionalPlanSection({
 
   const buyButton =
     buyMode === 'checkout' ? (
-      <button type="button" className="pp-btn pp-btn-primary" onClick={onBuy}>
+      <button type="button" className="pp-btn pp-btn-gold" onClick={onBuy}>
         <CartIcon />
         Buy Now
         <span aria-hidden>›</span>
       </button>
     ) : (
-      <Link className="pp-btn pp-btn-primary" to="/pricing">
+      <Link className="pp-btn pp-btn-gold" to="/pricing">
         <CartIcon />
         Buy Now
         <span aria-hidden>›</span>
       </Link>
     );
+
+  const promoStrip = plan.promotion ? (
+    <div className="pp-sale-strip">
+      <div className="pp-sale-copy">
+        <p className="pp-kicker">Limited time · Professional Plan</p>
+        <p className="pp-sale">
+          <SaleLabel label={plan.promotion.label} />
+        </p>
+      </div>
+      <Countdown endsAt={plan.promotion.endsAt} onExpire={endSale} />
+    </div>
+  ) : null;
 
   return (
     <Reveal as="section" className="section pp-section" id="pricing">
@@ -191,23 +194,7 @@ export function ProfessionalPlanSection({
                 Complete training, real case workflows, and lifetime access to become a data recovery
                 expert.
               </p>
-              {plan.promotion ? (
-                <>
-                  <p className="pp-kicker">
-                    <span className="pp-kicker-bolt" aria-hidden>
-                      ⚡
-                    </span>
-                    Limited time offer
-                  </p>
-                  <Countdown endsAt={plan.promotion.endsAt} onExpire={endSale} />
-                  <p className="pp-sale">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden>
-                      <path d="M21.4 11.6 12.4 2.6a2 2 0 0 0-2.8 0L2.6 9.6a2 2 0 0 0 0 2.8l9 9a2 2 0 0 0 2.8 0l7-7a2 2 0 0 0 0-2.8ZM7.5 11a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z" />
-                    </svg>
-                    <SaleLabel label={plan.promotion.label} />
-                  </p>
-                </>
-              ) : null}
+              {promoStrip}
             </div>
             <div className="pp-hero-visual">
               <img
@@ -220,50 +207,28 @@ export function ProfessionalPlanSection({
               />
             </div>
           </div>
-        ) : plan.promotion ? (
+        ) : promoStrip ? (
           <div className="pp-hero pp-hero-compact">
-            <div className="pp-hero-copy">
-              {plan.promotion ? (
-                <>
-                  <p className="pp-kicker">
-                    <span className="pp-kicker-bolt" aria-hidden>
-                      ⚡
-                    </span>
-                    Limited time offer
-                  </p>
-                  <Countdown endsAt={plan.promotion.endsAt} onExpire={endSale} />
-                  <p className="pp-sale">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden>
-                      <path d="M21.4 11.6 12.4 2.6a2 2 0 0 0-2.8 0L2.6 9.6a2 2 0 0 0 0 2.8l9 9a2 2 0 0 0 2.8 0l7-7a2 2 0 0 0 0-2.8ZM7.5 11a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z" />
-                    </svg>
-                    <SaleLabel label={plan.promotion.label} />
-                  </p>
-                </>
-              ) : null}
-            </div>
+            <div className="pp-hero-copy">{promoStrip}</div>
           </div>
         ) : null}
 
         <div className="pp-main">
           <div className="pp-price-card">
-            <span className="pp-plan-badge">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden>
-                <path d="M5 16.5h14l-1.15-7.6L14.4 11.5 12 6.2 9.6 11.5 6.15 8.9 5 16.5Z" />
-                <path d="M5 16.5h14v2.2a1.3 1.3 0 0 1-1.3 1.3H6.3A1.3 1.3 0 0 1 5 18.7v-2.2Z" />
-              </svg>
-              {plan.name}
-            </span>
-            <div className="pp-price">
-              {plan.comparePricePaise ? <s>{formatInr(plan.comparePricePaise)}</s> : null}
-              <div className="pp-price-row">
-                <strong>{formatInr(plan.effectivePricePaise)}</strong>
-                {plan.discountPct > 0 ? <span className="pp-off">{plan.discountPct}% OFF</span> : null}
-              </div>
+            <span className="pp-recommended-badge">Recommended</span>
+            <h3 className="pp-plan-name">{plan.name.replace(/ Plan$/, '')}</h3>
+            <div className="pp-price-row">
+              <strong className="pp-price">{formatInr(plan.effectivePricePaise)}</strong>
+              {plan.comparePricePaise ? (
+                <span className="pp-was">{formatInr(plan.comparePricePaise)}</span>
+              ) : null}
+              {plan.discountPct > 0 ? <span className="pp-off">{plan.discountPct}% OFF</span> : null}
             </div>
+            <p className="pp-once">One-time payment · lifetime access</p>
             <div className="pp-actions">
               {buyButton}
               <a
-                className="pp-btn pp-btn-outline"
+                className="pp-btn pp-btn-ghost"
                 href={company.whatsapp}
                 target="_blank"
                 rel="noreferrer"
@@ -271,10 +236,6 @@ export function ProfessionalPlanSection({
                 <WhatsAppIcon />
                 Ask on WhatsApp
               </a>
-              <p className="pp-note">
-                <LockIcon />
-                Get Lifetime Access &amp; Updates
-              </p>
             </div>
           </div>
 

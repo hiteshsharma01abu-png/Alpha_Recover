@@ -1,6 +1,7 @@
 import { blogPosts, company, trainingTracks } from './content';
 import { legalPages } from './legal';
 import { blogPage, industriesPage, servicesPage, verifyPage } from './pageContent';
+import { pricingFaqs } from './pricingPlans';
 
 /** Public site origin for canonical URLs, sitemap and share cards (set VITE_SITE_URL to the real domain at launch). */
 export const SITE_URL = ((import.meta.env.VITE_SITE_URL as string | undefined) || 'https://alpharecovery-training.vercel.app').replace(/\/+$/, '');
@@ -45,8 +46,18 @@ const STATIC_PAGES: Record<string, Omit<PageSeo, 'path'>> = {
     description: `Every ${company.name} training track: logical recovery, PCB and electrical repair, mechanical recovery, firmware, MRT, BitLocker and more, with full lesson lists.`,
   },
   '/pricing': {
-    title: withBrand('Pricing: Professional Plan'),
-    description: 'One plan with lifetime access to every data recovery course, future updates and certificates. See what is included and the current price.',
+    title: withBrand('Pricing: Essential, Professional & Expert'),
+    description:
+      'Compare Essential, Professional and Expert data recovery training plans — one-time payment, lifetime course access, Festival Sale on Professional, and answers in the pricing FAQ.',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: pricingFaqs.map((item) => ({
+        '@type': 'Question',
+        name: item.question,
+        acceptedAnswer: { '@type': 'Answer', text: item.answer.replace('/refund-policy', `${SITE_URL}/refund-policy`) },
+      })),
+    },
   },
   '/demos': {
     title: withBrand('Demo Videos'),

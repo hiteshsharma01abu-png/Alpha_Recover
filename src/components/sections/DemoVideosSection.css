@@ -4,7 +4,7 @@
   z-index: 4;
   /* visible so sticky stack cards can pin (same as pro-grid) */
   overflow: visible;
-  background: #050d0b;
+  background: var(--surface);
   padding-block: clamp(2.5rem, 5vw, 4.25rem);
 }
 

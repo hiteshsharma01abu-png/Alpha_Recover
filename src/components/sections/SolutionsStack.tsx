@@ -55,7 +55,7 @@ export function SolutionsStack() {
                 <div className="stack-card-body">
                   <h3>{card.title}</h3>
                   <p>{card.text}</p>
-                  <Link className="btn btn-cyan" to={card.to}>
+                  <Link className="btn btn-gold" to={card.to}>
                     <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden>
                       <path d="M8 6.5v11l9-5.5-9-5.5Z" />
                     </svg>

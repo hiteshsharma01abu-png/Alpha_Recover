@@ -81,7 +81,7 @@ The pages don't call the API yet: auth, payments, leads and the training portal 
 | `/` | Home |
 | `/training` | Training solutions |
 | `/training/:trackId` | Training track (modules + lessons) |
-| `/pricing` | Professional Plan |
+| `/pricing` | Essential / Professional / Expert plans + FAQ (Buy Now stub) |
 | `/demos` | Demo videos |
 | `/contact` | Contact |
 | `/account` | Login / Register |

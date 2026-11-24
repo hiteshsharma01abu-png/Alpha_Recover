@@ -4,7 +4,7 @@
   z-index: 4;
   /* visible so sticky stack cards can pin (same as solutions-stack) */
   overflow: visible;
-  background: #002521;
+  background: var(--dark-band);
   padding-block: clamp(2.5rem, 5vw, 4.25rem);
 }
 

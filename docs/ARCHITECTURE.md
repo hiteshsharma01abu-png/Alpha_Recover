@@ -1,6 +1,6 @@
 # Alpha Recovery — Architecture
 
-**Last reviewed:** 2026-11-24
+**Last reviewed:** 2026-11-25
 **Scope:** how the system is built: the current frontend, the planned backend, hosting and repository layout. Product scope and requirements live in [PRD.md](PRD.md); the visual system lives in [DESIGN.md](DESIGN.md).
 
 ---
@@ -54,7 +54,7 @@ public/
 | `/` | Home | Hero, solutions, training explorer, pro training, demo videos, Professional Plan, contact CTA |
 | `/training` | TrainingIndex | Training explorer + pro training |
 | `/training/:trackId` | TrainingTrack | Track modules and lessons; each lesson links to the player |
-| `/pricing` | Pricing | Professional Plan with Buy Now (checkout stub) |
+| `/pricing` | Pricing | Three plans (Essential / Professional / Expert Coming soon), comparison, static FAQ; Buy Now is still the Phase 5 checkout stub. Home keeps the single Professional card |
 | `/demos` | Demos | Filter, search, pagination over demo videos |
 | `/contact` | Contact | Contact form (stub) |
 | `/account` | Account | Login, register, forgot password. A signed-in visit redirects to `/dashboard` |
@@ -149,7 +149,7 @@ shared/permissions.ts ✓ roles + permission matrix (API and admin UI)
 
 **Vercel staging adapter:** `server/vercel.ts` wraps the same app (`server/bootstrap.ts`, shared with `server/index.ts`) as one Node function; `scripts/build-vercel.mjs` emits it with the static site in Build Output API format. There's no top-level `api/` folder, so Vercel's own per-file function builder isn't involved. It needs a managed MySQL and env vars ([DEPLOYMENT.md](DEPLOYMENT.md) §9) and doesn't replace the cPanel/VPS target.
 
-**API data with static fallback:** every page with API-backed content renders the bundled data from `content.ts` immediately and switches to the API response when it arrives: `useTrainingTracks()` (`src/lib/catalog.ts`), `usePlan()` (`plans.ts`), `useDemoVideos()` (`demoVideos.ts`), `useBlogPosts()` / `useBlogPost()` (`blog.ts`), `useSiteSettings()` (`settings.ts`). The site therefore works unchanged on static hosting with no API, and reflects admin edits once the API is live. Pages that only make sense live (forms, certificate lookup) show a clear error when the API is unreachable.
+**API data with static fallback:** every page with API-backed content renders the bundled data from `content.ts` / `pricingPlans.ts` immediately and switches to the API response when it arrives: `useTrainingTracks()` (`src/lib/catalog.ts`), `usePlan()` / `usePlans()` (`plans.ts`), `useDemoVideos()` (`demoVideos.ts`), `useBlogPosts()` / `useBlogPost()` (`blog.ts`), `useSiteSettings()` (`settings.ts`). The site therefore works unchanged on static hosting with no API, and reflects admin edits once the API is live. Pages that only make sense live (forms, certificate lookup) show a clear error when the API is unreachable.
 
 **Local development:** `npm run dev` (Vite, :5173) proxies `/api` to `npm run dev:api` (:8787), so the browser sees one origin, just like production.
 
