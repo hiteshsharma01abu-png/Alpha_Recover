@@ -1,6 +1,6 @@
 # Alpha Recovery — Architecture
 
-**Last reviewed:** 2026-11-20
+**Last reviewed:** 2026-11-24
 **Scope:** how the system is built: the current frontend, the planned backend, hosting and repository layout. Product scope and requirements live in [PRD.md](PRD.md); the visual system lives in [DESIGN.md](DESIGN.md).
 
 ---
@@ -11,10 +11,10 @@
 |---|---|
 | Stack | Vite 8 · React 19 · TypeScript 6 (`noUnusedLocals`, `noUnusedParameters`, `verbatimModuleSyntax`, `erasableSyntaxOnly`) · React Router 7 · plain CSS (no UI kit, no Tailwind). Node 24 for tooling |
 | Runtime dependencies | `react`, `react-dom`, `react-router-dom` only |
-| Rendering | Client-side SPA; `BrowserRouter`; all routes eagerly imported in `src/App.tsx`, nested under `<Layout/>`; unknown paths redirect to `/` |
+| Rendering | React SPA (`BrowserRouter`; all routes eagerly imported in `src/App.tsx`, nested under `<Layout/>`; unknown paths redirect to `/`) whose **public pages are pre-rendered to static HTML at build time** for SEO and hydrated in the browser (§5.1). Signed-in pages and the admin panel render client-side only |
 | State | Local `useState` only; no global store or data-fetching library |
 | Data | All copy and data in `src/data/content.ts` (no API yet) |
-| Build | `tsc -b && vite build` → static `dist/` (one JS + one CSS bundle) |
+| Build | `tsc -b && vite build && node scripts/prerender.mjs` → static `dist/`: one JS + one CSS bundle, a pre-rendered `index.html` per public page, `app.html` shell, `sitemap.xml`, `robots.txt` |
 | Lint | `oxlint` (`.oxlintrc.json`) |
 | Hosting (temporary) | Vercel, deployed manually (`npx vercel --prod`): static SPA plus a staging API function built by `npm run build:vercel` ([DEPLOYMENT.md](DEPLOYMENT.md) §9). Production host undecided (see §3) |
 
@@ -22,10 +22,11 @@
 
 ```
 src/
-  main.tsx              BrowserRouter + global.css
+  main.tsx              BrowserRouter + global.css; hydrates pre-rendered pages, else renders from scratch
+  entry-server.ts       Build-time render of one page (StaticRouter + renderToString), used by scripts/prerender.mjs
   App.tsx               All routes, nested under <Layout/>; unknown paths → "/"
   components/
-    layout/             App shell on every page: Layout (Header, <Outlet/>, Footer, ScrollToTop,
+    layout/             App shell on every page: Layout (PageMeta, Header, <Outlet/>, Footer, ScrollToTop,
                         WhatsAppFloat, RouteScrollReset)
     sections/           Big page sections reused across routes (Home, /pricing, /demos, /training,
                         /contact), each *.tsx with its colocated *.css. SolutionsStack.css also holds
@@ -36,6 +37,7 @@ src/
   pages/                One file per route; CSS colocated (Home.css = Home-only: hero, global stats, why-learn)
   data/content.ts       ALL copy/data: company, stats, trainingTracks, demoVideos, pricing, services, industries, blogPosts
   data/sectionMedia.ts  Section → /assets image maps
+  data/seo.ts           Per-page title, description, canonical, share card and JSON-LD; the pre-render page list
   lib/icons.ts          Local SVG icon resolver (see DESIGN.md)
   styles/global.css     Design tokens (:root vars), base, buttons, container
   styles/glass.css      Glass/blur surface styles
@@ -98,7 +100,7 @@ Because every route is eagerly imported, **all CSS ships in one bundle**: class 
 | Audit trail | `activity_logs` table for every admin mutation and security event | Accountability for refunds, enrollments, revocations | — |
 | Backups | Host daily backups (cPanel/VPS snapshots) **plus** our own nightly `mysqldump` (cron) uploaded to Bunny Storage, 30-day retention | Don't rely on the host alone | Managed DB with point-in-time restore (on a VPS/cloud) |
 | PDF generation | `pdf-lib` + `qrcode` in-process | Pure JS; no headless browser (not possible on shared hosting) | Puppeteer (too heavy) |
-| Frontend hosting | Static `dist/` served by the host's web server (Apache/LiteSpeed via `.htaccess` on cPanel, Nginx on VPS), with SPA fallback, cache and security headers | Same build output on every host | — |
+| Frontend hosting | Static `dist/` served by the host's web server (Apache/LiteSpeed via `.htaccess` on cPanel, Nginx on VPS): pre-rendered pages from their folder's `index.html`, every other path from `app.html`, plus cache and security headers | Same build output on every host | — |
 | Deployment | GitHub Actions: lint → typecheck → test → build SPA + bundle API (esbuild) → upload over **SSH/rsync** (FTP fallback) → run migrations → restart app | Repeatable, no manual uploads | cPanel Git Version Control (manual pull) |
 
 ## 3. Hosting requirements checklist (use this when choosing a host)
@@ -112,7 +114,7 @@ Because every route is eagerly imported, **all CSS ships in one bundle**: class 
 | Free SSL (AutoSSL / Let's Encrypt) | HTTPS is mandatory for login and payments | ✓ | ✓ |
 | Outbound HTTPS allowed | Razorpay, Bunny, Postmark, Sentry, Turnstile APIs | Usually ✓ | ✓ |
 | ≥ 1 GB RAM for the Node app, ≥ 2 processes | Stable API under sale traffic | Plan-dependent | ✓ |
-| `.htaccess` (Apache/LiteSpeed) | SPA routing and headers | ✓ | n/a (Nginx config) |
+| `.htaccess` (Apache/LiteSpeed) | Page routing (pre-rendered pages + `app.html` fallback) and headers | ✓ | n/a (Nginx config) |
 | Daily backups | Disaster recovery | Usually ✓ | Snapshot add-on |
 | India/Asia data centre | Latency for Indian users | Choose at signup | Choose at signup |
 
@@ -154,7 +156,7 @@ shared/permissions.ts ✓ roles + permission matrix (API and admin UI)
 ## 5. Request flow
 ```
 Browser ── https://alpharecover.com ──> Web server (Apache/LiteSpeed or Nginx)
-  ├─ /, /training, /pricing …   → static dist/ (SPA fallback to index.html)
+  ├─ /, /training, /pricing …   → static dist/<path>/index.html (pre-rendered); other paths → dist/app.html
   └─ /api/v1/*                  → Node app (Hono)   [cPanel: Node.js App mounted at /api; VPS: Nginx proxy]
         ├─ middleware: requestId → logger → rateLimit → session → RBAC → zod validate
         ├─ services → Drizzle → MySQL
@@ -163,3 +165,11 @@ Browser ── https://alpharecover.com ──> Web server (Apache/LiteSpeed or 
         └─ notification_jobs outbox ← cron (curl every minute) → Postmark / WhatsApp BSP
 ```
 SPA and API share one domain, so session cookies are first-party and no CORS is needed.
+
+### 5.1 Pre-rendering (SEO)
+- **Why not Next.js:** the same SEO result (real HTML, per-page meta, sitemap) with plain static files: no Node process for the frontend on cPanel, and no rewrite of the router, pages or admin.
+- **Build:** `scripts/prerender.mjs` runs after `vite build`. It builds `src/entry-server.ts` for Node, renders every path from `prerenderPaths()` (`src/data/seo.ts`: the fixed public pages, each training track, each blog post in `content.ts`) and writes `dist/<path>/index.html` with that page's head tags from `pageSeo()`. It also writes `app.html` (empty shell, `noindex`), `sitemap.xml` and `robots.txt`.
+- **Data:** pages render from the bundled `content.ts` data (see "API data with static fallback" above); the API refresh happens after hydration. Blog posts written in the admin panel aren't pre-rendered yet: they load client-side and `BlogPost` applies their head tags. Prices and promotions in the HTML are as of the build; the API corrects them on load.
+- **Head tags on navigation:** `PageMeta` (in `Layout`) re-applies `pageSeo(pathname)` on every route change.
+- **Hydration rule:** the first render must be identical at build time and in the browser. No `window`/`document`/`localStorage`/`Date.now()` during render (effects are fine); browser-only markup such as portals waits for `useHydrated()` (`src/lib/useHydrated.ts`).
+- **Site URL:** `VITE_SITE_URL` (build-time) sets canonical, sitemap and share-card URLs; it defaults to the Vercel staging URL.

@@ -1,6 +1,4 @@
-import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { company } from '../data/content';
 import { legalPages, legalUpdated, type LegalPageKey } from '../data/legal';
 import './SimplePages.css';
 import './Legal.css';
@@ -14,14 +12,6 @@ const OTHER_PAGES: { key: LegalPageKey; to: string }[] = [
 /** Privacy Policy, Terms & Conditions, Refund & Cancellation: text lives in src/data/legal.ts. */
 export function LegalPage({ page }: { page: LegalPageKey }) {
   const { title, intro, sections } = legalPages[page];
-
-  useEffect(() => {
-    const previous = document.title;
-    document.title = `${title} | ${company.name}`;
-    return () => {
-      document.title = previous;
-    };
-  }, [title]);
 
   return (
     <div>

@@ -38,7 +38,8 @@ function useIsNarrow(maxWidth = 980) {
 /** Counts down to the promotion's real end time; calls onExpire once it reaches zero. */
 function Countdown({ endsAt, onExpire }: { endsAt: string; onExpire: () => void }) {
   const end = Date.parse(endsAt);
-  const [left, setLeft] = useState(() => Math.max(0, end - Date.now()));
+  // null until mounted: the page is pre-rendered at build time, so the first render can't know the current time.
+  const [left, setLeft] = useState<number | null>(null);
 
   useEffect(() => {
     const tick = () => {
@@ -54,7 +55,7 @@ function Countdown({ endsAt, onExpire }: { endsAt: string; onExpire: () => void 
     return () => window.clearInterval(id);
   }, [end, onExpire]);
 
-  const total = Math.floor(left / 1000);
+  const total = Math.floor((left ?? 0) / 1000);
   const days = Math.floor(total / 86400);
   const hrs = Math.floor((total % 86400) / 3600);
   const min = Math.floor((total % 3600) / 60);
@@ -70,7 +71,7 @@ function Countdown({ endsAt, onExpire }: { endsAt: string; onExpire: () => void 
     <div className="pp-countdown" aria-label="Sale countdown">
       {cells.map((c) => (
         <div key={c.label} className="pp-countdown-cell">
-          <strong>{String(c.value).padStart(2, '0')}</strong>
+          <strong>{left === null ? '--' : String(c.value).padStart(2, '0')}</strong>
           <span>{c.label}</span>
         </div>
       ))}

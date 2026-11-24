@@ -16,7 +16,7 @@ The frontend is complete, but its forms are still **UI stubs** (`alert()` / `set
 npm run dev        # Vite dev server → http://localhost:5173 (proxies /api → :8787)
 npm run dev:api    # API server (needs .env + MySQL: npm run db:up && npm run db:migrate && npm run db:seed)
 npm run dev:all    # both of the above in one terminal (Ctrl+C stops both)
-npm run build      # tsc -b (app + server) && vite build — use this to verify changes
+npm run build      # tsc -b (app + server) && vite build && pre-render public pages — use this to verify changes
 npm run build:api  # API bundle → dist-server/
 npm run build:vercel  # Vercel staging: site + API function → .vercel/output/ (Vercel runs it; docs/DEPLOYMENT.md §9)
 npm run lint       # oxlint (.oxlintrc.json), covers src/ and server/
@@ -54,6 +54,7 @@ Verify with `npm run build` + `npm run lint` + `npm test`; for visual changes, r
 - Styles live next to their component (`Foo.tsx` + `Foo.css`) with a **unique class prefix**: all CSS ships in one bundle. Use tokens from `src/styles/global.css`, never new hex values. Details: [docs/DESIGN.md](docs/DESIGN.md).
 - Assets: everything lives in `public/assets/`: `brand/` (logos, favicons), `icons/` (local SVGs, used only via `icons.*` / `iconSrc()` in `src/lib/icons.ts`), `images/backgrounds|sections|illustrations|stat-icons/` (optimized `.webp`). Don't add assets elsewhere.
 - Animations: wrap in `<Reveal>` and honour `prefers-reduced-motion`.
+- Public pages are pre-rendered at build time and hydrated (`scripts/prerender.mjs`, docs/ARCHITECTURE.md §5.1): never read `window`/`document`/`localStorage`/`Date.now()` during render (effects only; portals behind `useHydrated()`), and give every new public route an entry in `src/data/seo.ts`. `npm run build` must print "pre-rendered N pages"; check the browser console for hydration errors on changed pages.
 
 ### Backend conventions (`server/`)
 

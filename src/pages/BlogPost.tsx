@@ -1,24 +1,18 @@
 import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Markdown } from '../components/ui/Markdown';
+import { blogPostSeo } from '../data/seo';
 import { useBlogPost } from '../lib/blog';
+import { applyPageMeta } from '../lib/pageMeta';
 import './SimplePages.css';
 
 export function BlogPost() {
   const { slug } = useParams();
   const { post, settled } = useBlogPost(slug);
 
+  // Posts written in the admin panel aren't pre-rendered: once loaded, give them their own title and share card.
   useEffect(() => {
-    if (!post) return;
-    const previous = document.title;
-    document.title = `${post.seoTitle || post.title} | Alpha Recovery`;
-    const meta = document.querySelector<HTMLMetaElement>('meta[name="description"]');
-    const previousDescription = meta?.content;
-    if (meta) meta.content = post.seoDescription || post.excerpt;
-    return () => {
-      document.title = previous;
-      if (meta && previousDescription !== undefined) meta.content = previousDescription;
-    };
+    if (post) applyPageMeta(blogPostSeo(post));
   }, [post]);
 
   if (!post && !settled) return <div className="section container" aria-busy="true" />;

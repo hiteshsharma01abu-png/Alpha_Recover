@@ -10,7 +10,7 @@
 
 | Piece | Built with | Output | Served by |
 |---|---|---|---|
-| Frontend | `npm run build` | `dist/` (static files) | Apache/LiteSpeed (cPanel) or Nginx (VPS) |
+| Frontend | `npm run build` (set `VITE_SITE_URL` to the real domain) | `dist/` (static files: a pre-rendered `index.html` per public page, `app.html`, `sitemap.xml`, `robots.txt`) | Apache/LiteSpeed (cPanel) or Nginx (VPS) |
 | API | `npm run build:api` | `dist-server/index.mjs` (+ `migrate.mjs`, `seed.mjs`, `create-admin.mjs`, `migrations/`) | Node.js 20+ (cPanel Node.js App / Passenger, or PM2) |
 | Database | `node dist-server/migrate.mjs`, then `node dist-server/seed.mjs` | schema changes; seed inserts missing catalog rows (never overwrites) | MySQL 8.0+ / MariaDB 10.6+ |
 | Scheduled jobs | host cron | — | `curl` → `/api/v1/internal/cron/*` |
@@ -35,7 +35,7 @@ Set these in the cPanel Node.js App's environment settings, or in a `chmod 600` 
 | `BUNNY_STREAM_API_KEY` | optional until staff upload videos: the Stream **library** API key (Bunny → Stream → library → API), used to create videos and sign TUS uploads |
 | `TURNSTILE_SECRET_KEY` | required in production (Cloudflare Turnstile secret for the site) |
 
-**Frontend build variable:** `VITE_TURNSTILE_SITE_KEY` (the public site key) must be set when running `npm run build`, otherwise the forms render without the security check and the API rejects them in production.
+**Frontend build variables:** `VITE_TURNSTILE_SITE_KEY` (the public site key) must be set when running `npm run build`, otherwise the forms render without the security check and the API rejects them in production. `VITE_SITE_URL` (e.g. `https://alpharecover.com`, no trailing slash) is the public origin baked into canonical URLs, share cards and `sitemap.xml`; it defaults to the Vercel staging URL, so set it for the production build.
 
 ## 3. cPanel (shared hosting with Node.js support)
 
@@ -89,7 +89,9 @@ Set these in the cPanel Node.js App's environment settings, or in a `chmod 600` 
 ```bash
 curl -fsS https://alpharecover.com/api/v1/health          # {"data":{"status":"ok","db":"ok",...}}
 curl -fsS https://alpharecover.com/api/v1/auth/session    # {"data":{"user":null}}
-curl -fsSI https://alpharecover.com/training/logical | head -1   # 200 (SPA fallback works)
+curl -fsS https://alpharecover.com/training/logical | grep -o '<title>[^<]*'   # the track's own title (pre-rendered page served)
+curl -fsSI https://alpharecover.com/dashboard | head -1          # 200 (app.html fallback works)
+curl -fsS https://alpharecover.com/sitemap.xml | head -3          # canonical URLs use the real domain
 ```
 Then watch Sentry and the app log for 30 minutes.
 
@@ -106,6 +108,8 @@ Then watch Sentry and the app log for 30 minutes.
 | App won't start; log says `Invalid environment configuration` | A required variable is missing or too short; the message lists each one |
 | `/api/v1/health` returns 503 | Wrong `DATABASE_URL`, MySQL down, or the user lacks privileges |
 | Every route returns `index.html`, even `/api/...` | `.htaccess` is missing the `RewriteRule ^api/ - [L]` line, or the Node app URL isn't `/api` |
+| `/pricing` redirects to `/pricing/`, or a page shows the homepage | The old SPA `.htaccess` is still in place: copy the current [`deploy/htaccess.example`](../deploy/htaccess.example) (`DirectorySlash Off`, pre-rendered pages, `app.html` fallback) |
+| Canonical/sitemap URLs show the Vercel domain | `VITE_SITE_URL` wasn't set when `npm run build` ran; rebuild with it |
 | POST requests get 403 "Cross-origin request rejected" | `APP_URL` doesn't match the site's real origin (`https://` vs `http://`, `www` vs bare domain) |
 | Emails never arrive | Cron isn't running (Admin → Email Log shows a red warning when due emails have waited over 30 minutes; or check `notification_jobs.status = 'pending'`), `POSTMARK_SERVER_TOKEN` is wrong, or the sender domain isn't verified in Postmark |
 | Jobs stuck in `dead` | Read `notification_jobs.last_error`; fix the cause, then reset `status = 'pending', attempts = 0` |
@@ -116,7 +120,7 @@ Then watch Sentry and the app log for 30 minutes.
 
 For testing logins and the admin panel online before the real host is chosen. Not for production: no host cron (queued emails don't drain), and the database is a free-tier managed MySQL.
 
-**How it works:** Vercel runs `npm run build:vercel` (set in `vercel.json`). After the normal build, [`scripts/build-vercel.mjs`](../scripts/build-vercel.mjs) writes `.vercel/output/` in Vercel's [Build Output API](https://vercel.com/docs/build-output-api/v3) format: `dist/` as static files, the whole API bundled into one Node function ([`server/vercel.ts`](../server/vercel.ts)), and routing (real files first, `/api/*` → the function, everything else → `index.html`). Vercel uses that folder instead of `dist/`. `TRUSTED_PROXY_HEADER` defaults to `x-real-ip` there. Keep routing and cache headers in that script, not in `vercel.json`: rewrites there are applied first and send `/api/*` to `index.html`.
+**How it works:** Vercel runs `npm run build:vercel` (set in `vercel.json`). After the normal build, [`scripts/build-vercel.mjs`](../scripts/build-vercel.mjs) writes `.vercel/output/` in Vercel's [Build Output API](https://vercel.com/docs/build-output-api/v3) format: `dist/` as static files, the whole API bundled into one Node function ([`server/vercel.ts`](../server/vercel.ts)), and routing (real files first, `/api/*` → the function, each pre-rendered page (`/pricing`, `/pricing/`) → its `index.html`, everything else → `app.html`). Vercel uses that folder instead of `dist/`. `TRUSTED_PROXY_HEADER` defaults to `x-real-ip` there. Keep routing and cache headers in that script, not in `vercel.json`: rewrites there are applied first and send `/api/*` to `index.html`.
 
 **Deploying:** the Vercel project isn't connected to GitHub, so pushes don't deploy. Run `npx vercel --prod --scope hiteshbuster` from the repo (or connect it once with `npx vercel git connect`). The only public URL is **https://alpharecovery-training.vercel.app** — do not recreate `recova-sand.vercel.app`. After deploy, confirm that alias is on the new production deployment (`npx vercel alias set <deployment-url> alpharecovery-training.vercel.app --scope hiteshbuster` if it isn't).
 

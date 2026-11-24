@@ -2,10 +2,11 @@
 // Writes the Build Output API layout (https://vercel.com/docs/build-output-api/v3):
 //   static/              ← dist/ (the website)
 //   functions/api.func/  ← the whole API bundled into one Node function
-//   config.json          ← routing: real files first, /api/* → the function, everything else → index.html
+//   config.json          ← routing: real files first, /api/* → the function, pre-rendered pages → their
+//                           index.html (scripts/prerender.mjs), everything else → app.html (the empty shell)
 // Usage: node scripts/build-vercel.mjs [outDir]   (default .vercel/output; pass a scratch dir to inspect locally)
 import { build } from 'esbuild';
-import { cp, rm, writeFile } from 'node:fs/promises';
+import { cp, readdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const out = process.argv[2] ?? '.vercel/output';
@@ -35,6 +36,12 @@ await writeFile(
   JSON.stringify({ runtime: 'nodejs22.x', handler: 'index.mjs', launcherType: 'Nodejs', shouldAddHelpers: false, maxDuration: 30 }, null, 2),
 );
 
+// dist/pricing/index.html → serve it for /pricing and /pricing/
+const prerendered = (await readdir('dist', { recursive: true }))
+  .filter((f) => f.endsWith('index.html') && !f.startsWith('assets'))
+  .map((f) => '/' + f.split(path.sep).slice(0, -1).join('/'));
+const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const immutable = { 'Cache-Control': 'public, max-age=31536000, immutable' };
 await writeFile(
   path.join(out, 'config.json'),
@@ -46,7 +53,8 @@ await writeFile(
         { src: '^/assets/[^/]+-[A-Za-z0-9_-]{8}\\.(js|css)$', headers: immutable, continue: true },
         { handle: 'filesystem' },
         { src: '^/api(/.*)?$', dest: '/api' },
-        { src: '^/(.*)$', dest: '/index.html' },
+        ...prerendered.map((p) => ({ src: p === '/' ? '^/$' : `^${escapeRe(p)}/?$`, dest: p === '/' ? '/index.html' : `${p}/index.html` })),
+        { src: '^/(.*)$', dest: '/app.html' },
       ],
     },
     null,

@@ -46,7 +46,7 @@ Without a `POSTMARK_SERVER_TOKEN`, emails are printed to the API log instead of 
 | Command | Description |
 |---------|-------------|
 | `npm run dev` | Local Vite dev server |
-| `npm run build` | Typecheck + production build |
+| `npm run build` | Typecheck + production build, then pre-render the public pages to static HTML + `sitemap.xml` / `robots.txt` (`scripts/prerender.mjs`; set `VITE_SITE_URL` for the real domain) |
 | `npm run preview` | Preview the production build |
 | `npm run lint` | Oxlint |
 | `npm run dev:api` | API server with reload (`server/`) |
@@ -62,7 +62,7 @@ Without a `POSTMARK_SERVER_TOKEN`, emails are printed to the API log instead of 
 
 ## Stack
 
-- Frontend: Vite + React + TypeScript, React Router, custom CSS (no UI kit)
+- Frontend: Vite + React + TypeScript, React Router, custom CSS (no UI kit); public pages pre-rendered to static HTML for SEO
 - API (Phase 1 foundation): Node.js + Hono, MySQL + Drizzle, Better Auth. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
 The pages don't call the API yet: auth, payments, leads and the training portal are still UI stubs. Progress is tracked in [docs/PLAN.md](docs/PLAN.md).

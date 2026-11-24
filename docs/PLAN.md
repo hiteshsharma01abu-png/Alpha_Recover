@@ -212,7 +212,7 @@ Roughly **10–12 weeks** for backend plus the required new frontend screens. Wi
 | Account sharing on a lifetime product | Revenue leakage | 2-session limit, admin session revoke, login anomaly logging |
 | Missed or duplicated webhooks | Paid users without access, or double grants | Idempotent `activateOrder`, unique constraints, client verify + webhook, reconcile cron/admin action |
 | Client-trusted prices | Fraud | Server-side pricing only; amount check on verify |
-| SPA blog has weak SEO | Low organic traffic | Prerender blog/course routes at build (e.g. `vite-plugin-prerender` or a small static export step) in a later iteration |
+| SPA blog has weak SEO | Low organic traffic | **Done (2026-11-24):** public pages, training tracks and the bundled blog posts are pre-rendered at build with per-page meta, JSON-LD, `sitemap.xml` and `robots.txt` (ARCHITECTURE.md §5.1), instead of migrating to Next.js. Remaining: pre-render admin-written blog posts by reading the API at build time |
 | Serverless cold starts / timeouts | Slow first request | Hono + Drizzle are light; keep heavy work (PDF) small; outbox for retries |
 | Shared hosting limits (no Node.js support, low RAM/process caps, cron ≥ 5 min) | API can't run, or degrades during sales | Pick the host with the [ARCHITECTURE.md](ARCHITECTURE.md) §3 checklist; the app stays portable, so moving to a VPS later means no code changes |
 | Concurrent editing (Cursor + Claude) on the same repo | Lost or overwritten work | Work on feature branches with PRs; one tool per branch |

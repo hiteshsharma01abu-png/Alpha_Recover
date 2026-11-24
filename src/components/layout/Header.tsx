@@ -4,6 +4,7 @@ import { NavLink, Link, useLocation } from 'react-router-dom';
 import { brandLogo, company } from '../../data/content';
 import { useAuth } from '../../lib/auth';
 import { useTrainingTracks } from '../../lib/catalog';
+import { useHydrated } from '../../lib/useHydrated';
 import './Header.css';
 
 const infoLinks = [
@@ -274,6 +275,7 @@ export function Header() {
   // The page the menu was opened on: navigating anywhere else closes it, with no extra render.
   const [openOn, setOpenOn] = useState<string | null>(null);
   const open = openOn === location.pathname;
+  const hydrated = useHydrated();
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
@@ -311,7 +313,7 @@ export function Header() {
         </div>
       </div>
 
-      {typeof document !== 'undefined' &&
+      {hydrated &&
         createPortal(
           <>
             <MobileDrawer open={open} onClose={close} />

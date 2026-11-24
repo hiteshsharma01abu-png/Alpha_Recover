@@ -1,6 +1,6 @@
 # Alpha Recovery — Design System
 
-**Last reviewed:** 2026-11-20
+**Last reviewed:** 2026-11-24
 **Scope:** how the UI looks and how to build new screens that match it (student dashboard, lesson player, checkout pages, admin). How the code is organized lives in [ARCHITECTURE.md](ARCHITECTURE.md).
 
 > **Source of truth:** token values live in [`src/styles/global.css`](../src/styles/global.css) (`:root`). This doc explains *what to use when*. It deliberately doesn't copy values, so it can't drift from the CSS.
@@ -75,6 +75,7 @@ Fonts load from Google Fonts at the top of `global.css`. Base body size is 16px,
 | Icon cards | `<IconCard item>` in `.ic-grid` (`src/components/ui/IconCard.tsx`, `ic-`) | Icon tile + title + text + mint pill link; 3 / 2 / 1 columns |
 | Feature strip | `<FeatureStrip items>` (`src/components/ui/FeatureStrip.tsx`, `fs-`) | Bordered row of icon highlights at the bottom of inner pages; 4 → 2 → 1 columns |
 | Article content | `.prose` (in `SimplePages.css`) + `<Markdown source>` from `src/components/ui/Markdown.tsx` | Headings (`#`/`##` → h2), lists, quotes (brass left border), code blocks (`--dark-band`), inline code (`--chip`), brass underlined links |
+| Page title & meta | `src/data/seo.ts` (`pageSeo()`), applied by `<PageMeta/>` in `Layout` | Every public page's `<title>`, description, canonical, share card (`/assets/brand/og-image.jpg`, 1200×630) and JSON-LD. A new public route needs an entry there (it's then pre-rendered and listed in the sitemap). Don't set `document.title` in pages; a page with API-only content can refine it with `applyPageMeta()` (see `BlogPost`) |
 
 ## 6. Icons
 
@@ -113,6 +114,7 @@ Fonts load from Google Fonts at the top of `global.css`. Base body size is 16px,
 - **BEM-ish kebab-case class names with a unique section prefix** (`hero-*`, `pp-*` pricing, `cta-*`, `dv-*` demo cards, `tx-*` training explorer). All CSS ships in one bundle, so prefixes prevent cross-file clashes.
 - Use tokens for colour, spacing and type; avoid new hard-coded hex values.
 - Accessibility: visible `:focus-visible` outlines (defined globally), labelled form fields, `aria-hidden` on decorative elements, `alt` text on meaningful images.
+- **Pre-render safe:** public pages are rendered to HTML at build time and hydrated (docs/ARCHITECTURE.md §5.1), so the first render must not read `window`, `document`, `localStorage`, screen size or the current time. Read them in effects, start from a fixed default (e.g. `useState(false)`, then sync in the effect), and gate browser-only markup such as portals with `useHydrated()`.
 
 ## 11. Building new screens (dashboard, player, admin)
 

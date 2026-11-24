@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { WhatsAppFloat } from './WhatsAppFloat';
+import { PageMeta } from './PageMeta';
 import { RouteScrollReset } from './RouteScrollReset';
 import { ScrollToTop } from './ScrollToTop';
 import '../../styles/glass.css';
@@ -19,6 +20,7 @@ export function Layout() {
 
   return (
     <>
+      <PageMeta />
       <RouteScrollReset />
       <Header />
       <main className="page">

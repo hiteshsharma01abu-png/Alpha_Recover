@@ -4,6 +4,8 @@
 
 Options -Indexes
 DirectoryIndex index.html
+# /pricing serves pricing/index.html directly (no redirect to /pricing/, which would fight the canonical URL)
+DirectorySlash Off
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
@@ -20,11 +22,19 @@ DirectoryIndex index.html
   # Leave the API to the Node.js app
   RewriteRule ^api/ - [L]
 
-  # SPA fallback: real files are served, every other path gets index.html
-  RewriteCond %{REQUEST_FILENAME} -f [OR]
-  RewriteCond %{REQUEST_FILENAME} -d
+  # Real files are served as-is
+  RewriteCond %{REQUEST_FILENAME} -f
   RewriteRule ^ - [L]
-  RewriteRule ^ index.html [L]
+
+  # Homepage (pre-rendered)
+  RewriteRule ^$ index.html [L]
+
+  # Pre-rendered public pages: /pricing or /pricing/ → pricing/index.html
+  RewriteCond %{DOCUMENT_ROOT}/$1/index.html -f
+  RewriteRule ^(.+?)/?$ $1/index.html [L]
+
+  # Everything else (dashboard, account, admin, lessons, unknown paths) gets the empty app shell
+  RewriteRule ^ app.html [L]
 </IfModule>
 
 <IfModule mod_headers.c>
