@@ -222,7 +222,7 @@ function ReportBody({ type, r }: { type: ReportType; r: ReportData }) {
       <div className="adm-report-grid">
         {b.demoViews ? <BreakdownBars title="Most-watched demo videos" items={b.demoViews} label={(k) => k} /> : null}
         {b.demoViewsByCategory ? <BreakdownBars title="Demo views by category" items={b.demoViewsByCategory} label={(k) => CATEGORY_LABEL[k as keyof typeof CATEGORY_LABEL] ?? k} /> : null}
-        {b.lessonsWithVideo ? <BreakdownBars title="Lessons with video, per track" items={b.lessonsWithVideo} label={(k) => k} note="Videos are added once video hosting (Bunny) is set up." /> : null}
+        {b.lessonsWithVideo ? <BreakdownBars title="Lessons with video, per track" items={b.lessonsWithVideo} label={(k) => k} note="Count of published lessons that have a Bunny video attached." /> : null}
       </div>
     </>
   );

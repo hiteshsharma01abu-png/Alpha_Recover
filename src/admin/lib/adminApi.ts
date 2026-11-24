@@ -448,6 +448,17 @@ export const adminApi = {
       api.post<{ id: string; slug: string }>(`/admin/modules/${moduleId}/lessons`, body).then((r) => r.data),
     updateLesson: (id: string, body: Partial<LessonInput>) => api.patch<{ ok: true; changed: string[] }>(`/admin/lessons/${id}`, body).then((r) => r.data),
     removeLesson: (id: string) => api.delete<{ ok: true }>(`/admin/lessons/${id}`).then((r) => r.data),
+    /** Create a Bunny video + short-lived TUS headers (library API key never leaves the server). */
+    requestUploadUrl: (title: string) =>
+      api
+        .post<{
+          videoId: string;
+          upload: { endpoint: string; headers: Record<string, string>; expiresAt: number };
+        }>('/admin/videos/upload-url', { title })
+        .then((r) => r.data),
+    attachLessonVideo: (id: string, videoId: string) =>
+      api.put<{ ok: true; hasVideo: true }>(`/admin/lessons/${id}/video`, { videoId }).then((r) => r.data),
+    clearLessonVideo: (id: string) => api.delete<{ ok: true; hasVideo: false }>(`/admin/lessons/${id}/video`).then((r) => r.data),
   },
   reports: {
     get: (type: ReportType, params: Record<string, string | undefined>) => api.get<ReportData>(`/admin/reports/${type}${qs(params)}`).then((r) => r.data),

@@ -21,7 +21,7 @@ import './LessonPlayer.css';
 type Playback = { status: 'loading' } | { status: 'ready'; url: string } | { status: 'error'; message: string };
 type FlatLesson = OutlineLesson & { moduleSlug: string; moduleTitle: string };
 
-const BUNNY_ORIGIN = 'https://iframe.mediadelivery.net';
+const BUNNY_ORIGIN = 'https://player.mediadelivery.net';
 const SAVE_EVERY_MS = 15_000;
 const clock = (s: number | null) => (s ? `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}` : '');
 
@@ -55,9 +55,15 @@ function Player({ courseSlug }: { courseSlug: string }) {
   useEffect(() => {
     if (!userId) return;
     let live = true;
+    // On failure, use an empty progress object so free-preview lessons can still play
+    // (a null progress while logged in would leave the player stuck on a blank loading panel).
     getCourseProgress(courseSlug)
       .then((p) => live && setProgress(p))
-      .catch(() => live && setProgress(null));
+      .catch(
+        () =>
+          live &&
+          setProgress({ enrolled: false, lessons: {}, lessonsTotal: 0, lessonsCompleted: 0, progressPct: 0 }),
+      );
     return () => {
       live = false;
     };
@@ -358,6 +364,9 @@ function BunnyFrame({
       src={src}
       title={title}
       loading="lazy"
+      // Token auth is the real lock. If Bunny "Allowed referrers" is set without localhost, a Referer gets 403;
+      // empty referrer still plays when "Block direct URL access" is off (common while developing).
+      referrerPolicy="no-referrer"
       allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen"
       allowFullScreen
     />

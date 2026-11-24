@@ -1,5 +1,5 @@
 import { and, eq, isNull } from 'drizzle-orm';
-import { afterAll, beforeAll, beforeEach, describe, expect, inject, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, inject, it, vi } from 'vitest';
 import { activityLogs, courseModules, courses, lessons } from './db/schema';
 import { seedCatalog } from './db/seed';
 import { createTestContext, getJson, loginAs, postJson, readJson, resetTables, sendJson } from './test/helpers';
@@ -107,6 +107,72 @@ describe.skipIf(!dbAvailable)('admin courses API (MySQL)', () => {
 
     // A stale or partial order is refused.
     expect((await sendJson(ctx, 'PUT', `/admin/courses/${course.id}/order`, { modules: order.modules.slice(1) }, jar)).status).toBe(409);
+  });
+
+  it('creates a Bunny upload URL, attaches and clears a lesson video without leaking the id', async () => {
+    const { jar } = await loginAs(ctx, 'content_manager');
+    const [course] = await ctx.db.select().from(courses).limit(1);
+    const o = await outline(jar, course.id);
+    const lesson = o.modules[0].lessons[0];
+
+    expect((await postJson(ctx.app, '/admin/videos/upload-url', { title: 'Intro' }, jar)).status).toBe(503);
+
+    const bunny = createTestContext({
+      BUNNY_STREAM_LIBRARY_ID: '12345',
+      BUNNY_STREAM_API_KEY: 'library-api-key-secret',
+      BUNNY_STREAM_TOKEN_KEY: 'token-key',
+    });
+    await resetTables(bunny.db);
+    await seedCatalog(bunny.db);
+    const { jar: bunnyJar } = await loginAs(bunny, 'content_manager');
+    const [bunnyCourse] = await bunny.db.select().from(courses).limit(1);
+    const bunnyOutline = (await readJson(await getJson(bunny.app, `/admin/courses/${bunnyCourse.id}`, bunnyJar))).data;
+    const bunnyLesson = bunnyOutline.modules[0].lessons[0];
+
+    const spy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.includes('video.bunnycdn.com/library/') && url.endsWith('/videos')) {
+        return new Response(JSON.stringify({ guid: 'vid-guid-abc123' }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+      }
+      return new Response('unexpected', { status: 500 });
+    });
+    try {
+      const up = await postJson(bunny.app, '/admin/videos/upload-url', { title: 'Intro lesson' }, bunnyJar);
+      expect(up.status).toBe(200);
+      const body = await readJson(up);
+      expect(body.data.videoId).toBe('vid-guid-abc123');
+      expect(body.data.upload.endpoint).toBe('https://video.bunnycdn.com/tusupload');
+      expect(body.data.upload.headers.LibraryId).toBe('12345');
+      expect(body.data.upload.headers.VideoId).toBe('vid-guid-abc123');
+      expect(JSON.stringify(body)).not.toContain('library-api-key-secret');
+      expect(spy).toHaveBeenCalled();
+
+      const attach = await sendJson(bunny, 'PUT', `/admin/lessons/${bunnyLesson.id}/video`, { videoId: 'vid-guid-abc123' }, bunnyJar);
+      expect(attach.status).toBe(200);
+      const detailText = await (await getJson(bunny.app, `/admin/courses/${bunnyCourse.id}`, bunnyJar)).text();
+      expect(detailText).toContain('"hasVideo":true');
+      expect(detailText).not.toContain('vid-guid-abc123');
+
+      expect((await sendJson(bunny, 'DELETE', `/admin/lessons/${bunnyLesson.id}/video`, {}, bunnyJar)).status).toBe(200);
+      const after = (await readJson(await getJson(bunny.app, `/admin/courses/${bunnyCourse.id}`, bunnyJar))).data;
+      expect(after.modules[0].lessons[0].hasVideo).toBe(false);
+
+      const actions = (await bunny.db.select({ a: activityLogs.action }).from(activityLogs)).map((r) => r.a);
+      expect(actions).toEqual(
+        expect.arrayContaining(['videos.upload_url', 'courses.lesson_video_attach', 'courses.lesson_video_clear']),
+      );
+
+      // Finance cannot upload or attach.
+      const { jar: finance } = await loginAs(bunny, 'finance_manager');
+      expect((await postJson(bunny.app, '/admin/videos/upload-url', { title: 'Nope' }, finance)).status).toBe(403);
+      expect((await sendJson(bunny, 'PUT', `/admin/lessons/${bunnyLesson.id}/video`, { videoId: 'vid-guid-abc123' }, finance)).status).toBe(403);
+    } finally {
+      spy.mockRestore();
+      await bunny.close();
+    }
+
+    // Baseline ctx lesson untouched by the bunny context.
+    expect(lesson.hasVideo).toBe(false);
   });
 
   it('reorders courses; deletes only empty modules and courses', async () => {

@@ -35,7 +35,7 @@ export function CoursesPage() {
   return (
     <div>
       <div className="adm-plans-bar">
-        <p className="adm-muted">Tracks appear on the Training pages in this order. Lessons get their videos once video hosting (Bunny) is set up.</p>
+        <p className="adm-muted">Tracks appear on the Training pages in this order. Open a track to edit lessons and upload videos.</p>
         {can('courses.add') ? (
           <button type="button" className="adm-btn adm-btn-primary" onClick={() => setCreating(true)}>
             + New track

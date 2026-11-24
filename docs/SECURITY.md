@@ -1,6 +1,6 @@
 # Alpha Recovery — Security, Authentication & Permissions
 
-**Last reviewed:** 2026-11-18 · **Status:** Proposal · Related: [API.md](API.md) · [DATABASE.md](DATABASE.md)
+**Last reviewed:** 2026-11-24 · **Status:** Proposal · Related: [API.md](API.md) · [DATABASE.md](DATABASE.md)
 
 ---
 

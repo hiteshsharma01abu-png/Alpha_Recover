@@ -118,6 +118,39 @@
   margin: 0.5rem 0.7rem 0.7rem 2rem;
 }
 
+.adm-course-video {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--adm-border);
+}
+
+.adm-course-video-progress {
+  position: relative;
+  height: 1.5rem;
+  border-radius: var(--adm-radius);
+  background: var(--adm-surface-2);
+  overflow: hidden;
+}
+
+.adm-course-video-progress > span {
+  display: block;
+  height: 100%;
+  background: var(--adm-accent);
+  transition: width 0.15s ease;
+}
+
+.adm-course-video-progress > em {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-style: normal;
+  font-size: 0.8rem;
+  color: var(--adm-text);
+}
+
 @media (max-width: 640px) {
   .adm-course-lessons li {
     padding-left: 0.7rem;

@@ -92,6 +92,7 @@ export function bunnyEmbedUrl(env: Pick<Env, 'BUNNY_STREAM_LIBRARY_ID' | 'BUNNY_
   if (!env.BUNNY_STREAM_LIBRARY_ID || !env.BUNNY_STREAM_TOKEN_KEY) return null;
   const expires = Math.floor(now.getTime() / 1000) + PLAYBACK_TTL_SECONDS;
   const token = createHash('sha256').update(`${env.BUNNY_STREAM_TOKEN_KEY}${videoId}${expires}`).digest('hex');
-  const url = `https://iframe.mediadelivery.net/embed/${encodeURIComponent(env.BUNNY_STREAM_LIBRARY_ID)}/${encodeURIComponent(videoId)}?token=${token}&expires=${expires}`;
+  // Bunny's current embed host is player.mediadelivery.net (iframe.mediadelivery.net still resolves but can 403 with token auth).
+  const url = `https://player.mediadelivery.net/embed/${encodeURIComponent(env.BUNNY_STREAM_LIBRARY_ID)}/${encodeURIComponent(videoId)}?token=${token}&expires=${expires}`;
   return { url, expiresAt: new Date(expires * 1000) };
 }

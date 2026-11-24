@@ -6,6 +6,7 @@ export const heroArt = {
   hdd: { src: '/assets/images/illustrations/page-hdd.webp', width: 722, height: 582 },
   laptop: { src: '/assets/images/illustrations/page-laptop.webp', width: 826, height: 558 },
   certificate: { src: '/assets/images/illustrations/page-certificate.webp', width: 670, height: 484 },
+  account: { src: '/assets/images/illustrations/page-account.webp', width: 747, height: 438 },
 };
 export type HeroArt = (typeof heroArt)[keyof typeof heroArt];
 

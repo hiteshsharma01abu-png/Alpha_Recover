@@ -157,7 +157,7 @@ describe.skipIf(!dbAvailable)('learning: playback, progress, dashboard (MySQL)',
         expect(res.status).toBe(200);
         const { data } = await readJson(res);
         const url = new URL(data.embedUrl);
-        expect(url.origin + url.pathname).toBe('https://iframe.mediadelivery.net/embed/12345/vid-1');
+        expect(url.origin + url.pathname).toBe('https://player.mediadelivery.net/embed/12345/vid-1');
         const expires = url.searchParams.get('expires')!;
         expect(url.searchParams.get('token')).toBe(createHash('sha256').update(`secret-keyvid-1${expires}`).digest('hex'));
         expect(data.resumeAt).toBe(312);

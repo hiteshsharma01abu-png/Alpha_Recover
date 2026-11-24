@@ -8,6 +8,7 @@ import { PUBLISH_STATUSES, courseModules, courses, lessons } from '../../db/sche
 import { AppError } from '../../lib/errors';
 import { siteImageUrl } from '../../lib/inputs';
 import { validate } from '../../lib/validate';
+import { bunnyTusCredentials, createBunnyVideo } from '../../services/bunnyStream';
 import type { AppEnv } from '../../types';
 
 const idParam = z.object({ id: z.uuid() });
@@ -35,6 +36,15 @@ const lessonFields = z.object({
   isPreview: z.boolean(),
   status: z.enum(PUBLISH_STATUSES),
 });
+const uploadUrlBody = z.object({ title: z.string().trim().min(2, 'Enter a title').max(200) }).strict();
+/** Bunny Stream video GUID (never returned on reads). */
+const bunnyVideoId = z
+  .string()
+  .trim()
+  .min(8, 'Enter the video id')
+  .max(128)
+  .regex(/^[A-Za-z0-9_-]+$/, 'Invalid video id');
+const attachVideoBody = z.object({ videoId: bunnyVideoId }).strict();
 
 /** "Hard Disk Firmware Basics!" → "hard-disk-firmware-basics" (max 64, never empty). */
 function slugify(title: string) {
@@ -101,7 +111,8 @@ function diff<T extends Record<string, unknown>>(input: Partial<T>, row: T) {
 
 /**
  * Courses admin module (docs/admin/NAVIGATION.md §3): tracks → modules → lessons. Slugs are made
- * from titles on create and never change (the site uses them in URLs). Videos attach in Phase 4.
+ * from titles on create and never change (the site uses them in URLs). Videos: Bunny create + TUS,
+ * then attach/clear on the lesson (video ids never returned on reads).
  */
 export const adminCourseRoutes = new Hono<AppEnv>()
   .get('/courses', requireStaff('courses.view'), async (c) => {
@@ -400,4 +411,47 @@ export const adminCourseRoutes = new Hono<AppEnv>()
     await db.update(lessons).set({ deletedAt: new Date(), status: 'archived' }).where(eq(lessons.id, lesson.id));
     await logActivity(c, { action: 'courses.lesson_delete', entityType: 'lesson', entityId: lesson.id, metadata: { courseId: lesson.courseId, slug: lesson.slug, title: lesson.title } });
     return c.json({ data: { ok: true } });
+  })
+
+  /** Create a Bunny Stream video and return short-lived TUS credentials (API key stays on the server). */
+  .post('/videos/upload-url', requireStaff('courses.edit'), validate('json', uploadUrlBody), async (c) => {
+    const { env } = c.get('deps');
+    const { title } = c.req.valid('json');
+    const { videoId } = await createBunnyVideo(env, title);
+    const upload = bunnyTusCredentials(env, videoId);
+    await logActivity(c, { action: 'videos.upload_url', entityType: 'video', entityId: videoId, metadata: { title } });
+    return c.json({
+      data: {
+        videoId,
+        upload: { endpoint: upload.endpoint, headers: upload.headers, expiresAt: upload.expiresAt },
+      },
+    });
+  })
+
+  .put('/lessons/:id/video', requireStaff('courses.edit'), validate('param', idParam), validate('json', attachVideoBody), async (c) => {
+    const { db } = c.get('deps');
+    const lesson = await loadLesson(db, c.req.valid('param').id);
+    const { videoId } = c.req.valid('json');
+    await db.update(lessons).set({ videoId, videoProvider: 'bunny' }).where(eq(lessons.id, lesson.id));
+    await logActivity(c, {
+      action: 'courses.lesson_video_attach',
+      entityType: 'lesson',
+      entityId: lesson.id,
+      metadata: { courseId: lesson.courseId, hadVideo: Boolean(lesson.videoId) },
+    });
+    return c.json({ data: { ok: true, hasVideo: true } });
+  })
+
+  .delete('/lessons/:id/video', requireStaff('courses.edit'), validate('param', idParam), async (c) => {
+    const { db } = c.get('deps');
+    const lesson = await loadLesson(db, c.req.valid('param').id);
+    if (!lesson.videoId) return c.json({ data: { ok: true, hasVideo: false } });
+    await db.update(lessons).set({ videoId: null, videoProvider: null }).where(eq(lessons.id, lesson.id));
+    await logActivity(c, {
+      action: 'courses.lesson_video_clear',
+      entityType: 'lesson',
+      entityId: lesson.id,
+      metadata: { courseId: lesson.courseId },
+    });
+    return c.json({ data: { ok: true, hasVideo: false } });
   });

@@ -1,6 +1,6 @@
 # Alpha Recovery — Admin Panel Navigation & Modules
 
-**Last reviewed:** 2026-11-23 · **Status:** Proposal · built so far: Dashboard, Leads & Inquiries, Students, Enrollments, Certificates, Courses, Plans & Offers, Demo Videos, Blog, Reports, Activity Log, Team & Access, Email Log, Settings
+**Last reviewed:** 2026-11-24 · **Status:** Proposal · built so far: Dashboard, Leads & Inquiries, Students, Enrollments, Certificates, Courses, Plans & Offers, Demo Videos, Blog, Reports, Activity Log, Team & Access, Email Log, Settings
 **Related:** [ARCHITECTURE.md](ARCHITECTURE.md) · [AUTH_AND_RBAC.md](AUTH_AND_RBAC.md) (permission strings) · [UI_UX.md](UI_UX.md) (sidebar behaviour) · [../API.md](../API.md) §10–14
 
 ## 1. How the proposed list was finalized against the real project
@@ -65,7 +65,7 @@ Footer of the sidebar: the signed-in user, their role badge, and **View website 
 | `/admin/students` · `/admin/students/:id` | Students · detail (**built** as one page: profile, course access, certificates, devices; orders arrive with Phase 5) | `students.view` |
 | `/admin/enrollments` | Enrollments (**built**: status tabs, filters in the query string, grant / change end / revoke dialogs, also used on the student page) | `enrollments.view` |
 | `/admin/certificates` | Certificates (**built**: look up, manual issue, correct name, revoke, export; PDFs in Phase 4) | `certificates.view` |
-| `/admin/courses` · `/admin/courses/:id` | Tracks · editor (**built**: modules, lessons, reorder, move; video upload waits for Bunny) | `courses.view` |
+| `/admin/courses` · `/admin/courses/:id` | Tracks · editor (**built**: modules, lessons, reorder, move; Bunny lesson video upload) | `courses.view` |
 | `/admin/plans` · `/admin/plans/new` · `/admin/plans/:id` | Plans · editor (**built**; promotions are a panel on the editor page, not a separate route) | `plans.view` (`plans.add` for new) |
 | `/admin/demo-videos` · `?video=:id` / `?video=new` (drawer) | Demo videos (**built**; uploads wait for Bunny) | `demos.view` |
 | `/admin/blog` · `/admin/blog/new` · `/admin/blog/:id` | Posts · editor (**built**; cover uploads wait for Bunny) | `blog.view` (`blog.add` for new) |
@@ -114,7 +114,7 @@ Backend dependencies refer to [../PLAN.md](../PLAN.md) phases. "Exists" = live t
 | **Students** | Find a learner; support their account | StudentsPage, StudentDetailPage (tabs), SuspendDialog | `GET /students`, `GET/PATCH /students/:id`, suspend/unsuspend, revoke sessions, password-reset | users, sessions, (enrollments, orders, certificates) | `students.view/edit/delete` | Foundation; data grows with Phases 3–5 | **P0** |
 | **Team & Access** | Invite staff, assign roles, enforce 2FA | TeamPage, InviteDialog, RoleChangeDialog (step-up), RolesPage (matrix) | `GET/POST /team`, `PATCH /team/:id/role`, `POST /team/:id/deactivate` | users, sessions | `team.view/add/edit` (`admins.manage`) | Foundation | **P0** |
 | **Activity Log** | Who did what, when | ActivityLogPage (filters), entry drawer (before/after JSON) | `GET /activity` | activity_logs (exists) | `audit.view` | Foundation (every module writes to it) | **P0** |
-| **Courses & Training** | Edit tracks, modules, lessons; attach videos; preview flag | CoursesPage, CourseEditorPage (drag-reorder), LessonDrawer, VideoUploader | `/courses`, `/courses/:id`, `/modules/:id`, `/lessons/:id`, `PUT /courses/:id/order`, `POST /videos/upload-url` | courses, course_modules, lessons (exist) | `courses.view/add/edit/delete` | Foundation; uploads need Bunny (Phase 4) | **P1** |
+| **Courses & Training** | Edit tracks, modules, lessons; attach videos; preview flag | CoursesPage, CourseEditorPage (drag-reorder), LessonDialog + Bunny TUS upload | `/courses`, `/courses/:id`, `/modules/:id`, `/lessons/:id`, `PUT /courses/:id/order`, `POST /videos/upload-url`, `PUT`/`DELETE /lessons/:id/video` | courses, course_modules, lessons (exist) | `courses.view/add/edit/delete` | Foundation; lesson video upload implemented | **P1** |
 | **Plans & Offers** | Price, features, sale windows (drives the countdown) | PlansPage, PlanEditorPage, PromotionsTab, PromotionDialog (overlap check, IST times) | `/plans`, `/plans/:id`, `/plans/:id/promotions`, `/promotions/:id` | plans, promotions (exist) | `plans.view/add/edit/delete` | Foundation | **P1** |
 | **Demo Videos** | Manage the public demo catalog | DemoVideosPage, DemoVideoDrawer, featured toggle, thumbnail upload | `/demo-videos`, `/demo-videos/:id`, `/media/upload-url` | demo_videos (exists) | `demos.view/add/edit/delete` | Foundation; upload needs Bunny | **P1** |
 | **Blog** | Write, schedule, publish articles | BlogListPage, BlogEditorPage (MarkdownEditor + preview, SEO, schedule) | `/blog`, `/blog/:id`, publish/unpublish, `/media/upload-url` | blog_posts (exists) | `blog.view/add/edit/delete/publish` | Foundation | **P1** |

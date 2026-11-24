@@ -2,7 +2,7 @@
 
 **Base URL:** `/api/v1` (same origin as the SPA; Node.js + Hono, host-portable: cPanel Node.js App, VPS, or Vercel during development)
 **Format:** JSON (UTF-8). Request bodies are validated with Zod schemas shared from `shared/schemas/`.
-**Last reviewed:** 2026-11-23 · **Status:** Proposal · Related: [DATABASE.md](DATABASE.md) · [SECURITY.md](SECURITY.md)
+**Last reviewed:** 2026-11-24 · **Status:** Proposal · Related: [DATABASE.md](DATABASE.md) · [SECURITY.md](SECURITY.md)
 
 ---
 
@@ -363,7 +363,10 @@ The featured video is excluded from the list and from `counts` (matching current
 | POST | `/admin/courses/:id/modules` | `courses.add` | `{ title }` → 201 `{ id, slug }`; slug generated from the title (unique within the track), appended last. Audit |
 | PATCH / DELETE | `/admin/modules/:id` | `courses.edit` / `courses.delete` | Rename; delete only when empty (422). Audit |
 | POST | `/admin/modules/:id/lessons` | `courses.add` | `{ title, status, description?, durationSeconds?, isPreview? }` → 201 `{ id, slug }`; slug generated (unique within the module), appended last. Audit |
-| PATCH / DELETE | `/admin/lessons/:id` | `courses.edit` / `courses.delete` | Edit title, description, duration, free preview, status (slug and video fixed here; videos attach in Phase 4); soft delete. Audit |
+| PATCH / DELETE | `/admin/lessons/:id` | `courses.edit` / `courses.delete` | Edit title, description, duration, free preview, status (slug fixed; video via the routes below); soft delete. Audit |
+| POST | `/admin/videos/upload-url` | `courses.edit` | **Implemented.** `{ title }` → create a Bunny Stream video + short-lived TUS credentials `{ videoId, upload: { endpoint, headers, expiresAt } }`. Library API key never leaves the server. 503 until `BUNNY_STREAM_LIBRARY_ID` / `BUNNY_STREAM_API_KEY` are set. Audit `videos.upload_url` |
+| PUT | `/admin/lessons/:id/video` | `courses.edit` | **Implemented.** `{ videoId }` → set `video_provider=bunny` and attach. Reads still return only `hasVideo` (never `videoId`). Audit `courses.lesson_video_attach` |
+| DELETE | `/admin/lessons/:id/video` | `courses.edit` | **Implemented.** Clears the lesson’s video fields (Bunny object left in place). Audit `courses.lesson_video_clear` |
 | GET | `/admin/reports/:type` | `reports.view` + the module | **Implemented.** `type` = `leads` (`leads.view`), `students` (`students.view`), `enrollments` (`enrollments.view`), `learning` (`students.view` or `courses.view`), `content` (`courses.view` or `demos.view`); else 403. `?from&to` (IST days, default last 30, max 2 years) `&interval=day\|week\|month` (weeks start Monday). Returns `{ range, totals, series: { label, points: [{ bucket, count }] }, breakdowns: { <name>: [{ key, count, of? }] } }` with empty buckets filled. Leads: series excludes spam; totals leads/converted/conversionPct/spam; by source, reason, status. Students: sign-ups, verified %, top 8 countries + other. Enrollments: grants by source, revoked in range, active now. Learning (students only, published lessons): lessons completed per bucket, active learners (any progress in range), certificates issued in range; all time: course completion (`count` finished every lesson `of` started), and lessons started but not finished ("where learners stop"); top 10 lessons completed in range. Content (no range: running totals): top demo videos by views, views by category, lessons with video per published track. Grouping uses India days (UTC + 5:30 in SQL) |
 | GET | `/admin/reports/:type/export.csv` | `reports.export` + the module | Same data as CSV: totals, the series, then each breakdown as `section,key,count`. Audit `reports.export` |
 | GET | `/admin/team` | `team.view` | **Implemented.** Staff accounts with `roleLabel`, `status`, `invitePending` (never signed in), live `sessions` count |
@@ -382,7 +385,7 @@ Every admin mutation writes `activity_logs`. Lists support `page`, `pageSize`, `
 | Method | Endpoint | Permission | Purpose / filters |
 |---|---|---|---|
 | GET | `/admin/dashboard` | `dashboard.view` | KPIs: revenue (today/7d/30d), orders, new students, new leads by status, conversion, top demo videos |
-| POST | `/admin/videos/upload-url` | `courses.write` / `demos.write` | Create a Bunny video + direct-upload (TUS) credentials; returns `videoId` |
+| POST | `/admin/videos/upload-url` (demos) | `demos.edit` | Same as courses upload; demo attach still planned |
 | GET | `/admin/orders` | `orders.read` | `?status&from&to&q(orderNumber/email)` |
 | GET | `/admin/orders/:id` | `orders.read` | Order + payments + webhook events |
 | POST | `/admin/orders/:id/refund` | `orders.refund` | `{ amountPaise?, reason }` → Razorpay refund API |

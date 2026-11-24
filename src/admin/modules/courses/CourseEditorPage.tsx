@@ -8,6 +8,7 @@ import { Dialog } from '../../components/Dialog';
 import { EmptyState, ErrorState, Skeleton } from '../../components/States';
 import { adminApi } from '../../lib/adminApi';
 import type { AdminLesson, AdminModule, CourseDetail, CourseInput, LessonInput, PublishStatus } from '../../lib/adminApi';
+import { tusUpload } from '../../lib/tusUpload';
 import { useResource } from '../../lib/useResource';
 import { mmss, parseMmss } from '../demos/demoDisplay';
 import { PUBLISH_LABEL, PUBLISH_STATUSES, PUBLISH_TONE } from '../plans/planDisplay';
@@ -201,7 +202,7 @@ function CourseView({ c, reload, setData }: { c: CourseDetail; reload: () => voi
                             <span className="adm-badges">
                               {l.status !== 'published' ? <StatusBadge tone={PUBLISH_TONE[l.status]}>{PUBLISH_LABEL[l.status]}</StatusBadge> : null}
                               {l.isPreview ? <StatusBadge tone="info">Free preview</StatusBadge> : null}
-                              {l.hasVideo ? null : <StatusBadge tone="muted">No video</StatusBadge>}
+                              {l.hasVideo ? <StatusBadge tone="success">Video</StatusBadge> : <StatusBadge tone="muted">No video</StatusBadge>}
                             </span>
                           </span>
                           <span className="adm-muted adm-small">{l.durationSeconds ? mmss(l.durationSeconds) : '—'}</span>
@@ -400,7 +401,9 @@ function LessonDialog({ moduleId, lesson, onClose, onDone }: { moduleId: string;
   const [duration, setDuration] = useState(lesson?.durationSeconds ? mmss(lesson.durationSeconds) : '');
   const [isPreview, setIsPreview] = useState(lesson?.isPreview ?? false);
   const [status, setStatus] = useState<PublishStatus>(lesson?.status ?? 'draft');
+  const [hasVideo, setHasVideo] = useState(lesson?.hasVideo ?? false);
   const [busy, setBusy] = useState(false);
+  const [uploadPct, setUploadPct] = useState<number | null>(null);
   const [error, setError] = useState('');
 
   const confirm = () => {
@@ -414,23 +417,62 @@ function LessonDialog({ moduleId, lesson, onClose, onDone }: { moduleId: string;
       .finally(() => setBusy(false));
   };
 
+  const uploadVideo = (file: File | undefined) => {
+    if (!lesson || !file) return;
+    setBusy(true);
+    setError('');
+    setUploadPct(0);
+    adminApi.courses
+      .requestUploadUrl(title.trim() || lesson.title)
+      .then(async (creds) => {
+        await tusUpload({
+          endpoint: creds.upload.endpoint,
+          headers: creds.upload.headers,
+          file,
+          onProgress: (r) => setUploadPct(Math.round(r * 100)),
+        });
+        await adminApi.courses.attachLessonVideo(lesson.id, creds.videoId);
+        setHasVideo(true);
+        setUploadPct(null);
+        onDone('Video uploaded and attached.');
+      })
+      .catch((err: unknown) => {
+        setUploadPct(null);
+        setError(errText(err, 'The video could not be uploaded.'));
+      })
+      .finally(() => setBusy(false));
+  };
+
+  const removeVideo = () => {
+    if (!lesson) return;
+    setBusy(true);
+    setError('');
+    adminApi.courses
+      .clearLessonVideo(lesson.id)
+      .then(() => {
+        setHasVideo(false);
+        onDone('Video removed from this lesson.');
+      }, (err: unknown) => setError(errText(err)))
+      .finally(() => setBusy(false));
+  };
+
   return (
     <Dialog open title={lesson ? 'Edit lesson' : 'New lesson'} confirmLabel={lesson ? 'Save lesson' : 'Add lesson'} busy={busy} error={error} onCancel={onClose} onConfirm={confirm}>
       <label>
         Title
-        <input required minLength={2} maxLength={200} value={title} onChange={(e) => setTitle(e.target.value)} />
+        <input required minLength={2} maxLength={200} value={title} onChange={(e) => setTitle(e.target.value)} disabled={busy} />
       </label>
       <label>
         Description (optional)
-        <textarea rows={3} maxLength={5000} value={description} onChange={(e) => setDescription(e.target.value)} />
+        <textarea rows={3} maxLength={5000} value={description} onChange={(e) => setDescription(e.target.value)} disabled={busy} />
       </label>
       <label>
         Length (mm:ss, optional)
-        <input inputMode="numeric" placeholder="12:34" value={duration} onChange={(e) => setDuration(e.target.value)} />
+        <input inputMode="numeric" placeholder="12:34" value={duration} onChange={(e) => setDuration(e.target.value)} disabled={busy} />
       </label>
       <label>
         Status
-        <select value={status} onChange={(e) => setStatus(e.target.value as PublishStatus)}>
+        <select value={status} onChange={(e) => setStatus(e.target.value as PublishStatus)} disabled={busy}>
           {PUBLISH_STATUSES.map((s) => (
             <option key={s} value={s}>
               {PUBLISH_LABEL[s]}
@@ -439,10 +481,43 @@ function LessonDialog({ moduleId, lesson, onClose, onDone }: { moduleId: string;
         </select>
       </label>
       <label className="adm-enr-check">
-        <input type="checkbox" checked={isPreview} onChange={(e) => setIsPreview(e.target.checked)} />
-        Free preview (anyone can watch it once videos are live)
+        <input type="checkbox" checked={isPreview} onChange={(e) => setIsPreview(e.target.checked)} disabled={busy} />
+        Free preview (anyone can watch without enrolling)
       </label>
-      {lesson && !lesson.hasVideo ? <p className="adm-small">No video yet: it shows as “coming soon”. Uploads arrive with video hosting (Bunny).</p> : null}
+      {lesson ? (
+        <div className="adm-course-video">
+          <p className="adm-small">{hasVideo ? 'A video is attached. Students can play it when the lesson is published.' : 'No video yet: the player shows “coming soon”.'}</p>
+          {uploadPct !== null ? (
+            <div className="adm-course-video-progress" role="progressbar" aria-valuenow={uploadPct} aria-valuemin={0} aria-valuemax={100}>
+              <span style={{ width: `${uploadPct}%` }} />
+              <em>Uploading… {uploadPct}%</em>
+            </div>
+          ) : null}
+          <div className="adm-course-row-actions">
+            <label className="adm-btn">
+              {hasVideo ? 'Replace video' : 'Upload video'}
+              <input
+                type="file"
+                accept="video/*"
+                hidden
+                disabled={busy}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  e.target.value = '';
+                  uploadVideo(file);
+                }}
+              />
+            </label>
+            {hasVideo ? (
+              <button type="button" className="adm-btn" disabled={busy} onClick={removeVideo}>
+                Remove video
+              </button>
+            ) : null}
+          </div>
+        </div>
+      ) : (
+        <p className="adm-small">Save the lesson first, then open it again to upload a video.</p>
+      )}
     </Dialog>
   );
 }
