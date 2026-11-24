@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { asc, eq } from 'drizzle-orm';
-import { afterAll, beforeAll, beforeEach, describe, expect, inject, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, inject, it, vi } from 'vitest';
 import { activityLogs, certificates, courseModules, courses, lessonProgress, lessons, notificationJobs, plans, siteSettings, users } from './db/schema';
 import { renderCertificatePdf } from './services/certificatePdf';
 import { seedCatalog, seedPlans } from './db/seed';
@@ -167,6 +167,36 @@ describe.skipIf(!dbAvailable)('learning: playback, progress, dashboard (MySQL)',
         expect(anon.status).toBe(200);
         expect((await readJson(anon)).data.resumeAt).toBe(0);
       } finally {
+        await bunny.close();
+      }
+    });
+
+    it('fills in a missing lesson length from Bunny once the video has finished encoding', async () => {
+      const bunny = createTestContext({ BUNNY_STREAM_LIBRARY_ID: '12345', BUNNY_STREAM_TOKEN_KEY: 'secret-key', BUNNY_STREAM_API_KEY: 'api-key' });
+      let encoded = false;
+      const spy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+        if (String(input) !== 'https://video.bunnycdn.com/library/12345/videos/vid-1') return new Response('unexpected', { status: 500 });
+        return Response.json(encoded ? { status: 4, length: 741 } : { status: 3, length: 0 });
+      });
+      try {
+        const [lesson] = await lessonsOf('logical');
+        await setLesson(lesson.id, { videoId: 'vid-1', videoProvider: 'bunny', durationSeconds: null });
+        await enroll();
+        const length = async () => (await ctx.db.select({ d: lessons.durationSeconds }).from(lessons).where(eq(lessons.id, lesson.id)))[0].d;
+
+        expect((await postJson(bunny.app, `/lessons/${lesson.id}/playback`, {}, jar)).status).toBe(200);
+        expect(await length()).toBeNull(); // still encoding
+        encoded = true;
+        expect((await postJson(bunny.app, `/lessons/${lesson.id}/playback`, {}, jar)).status).toBe(200);
+        expect(await length()).toBe(741);
+        spy.mockClear();
+        await postJson(bunny.app, `/lessons/${lesson.id}/playback`, {}, jar);
+        expect(spy).not.toHaveBeenCalled(); // known length: no more Bunny calls
+
+        // 90% of 741 s = 667 s watched completes the lesson
+        expect((await readJson(await put(lesson.id, { positionSeconds: 670, watchedSeconds: 670 }))).data.completedAt).not.toBeNull();
+      } finally {
+        spy.mockRestore();
         await bunny.close();
       }
     });

@@ -55,3 +55,22 @@ export function bunnyTusCredentials(env: BunnyStreamEnv, videoId: string, now = 
     },
   };
 }
+
+/** Bunny's encode status for a finished video. */
+const BUNNY_FINISHED = 4;
+
+/** Length in seconds of an encoded Bunny video, or null while it is still processing or Bunny can't be reached. */
+export async function bunnyVideoLength(env: BunnyStreamEnv, videoId: string, fetchImpl: typeof fetch = fetch): Promise<number | null> {
+  if (!env.BUNNY_STREAM_LIBRARY_ID || !env.BUNNY_STREAM_API_KEY) return null;
+  try {
+    const res = await fetchImpl(
+      `https://video.bunnycdn.com/library/${encodeURIComponent(env.BUNNY_STREAM_LIBRARY_ID)}/videos/${encodeURIComponent(videoId)}`,
+      { headers: { AccessKey: env.BUNNY_STREAM_API_KEY, Accept: 'application/json' }, signal: AbortSignal.timeout(5000) },
+    );
+    if (!res.ok) return null;
+    const body = (await res.json()) as { status?: number; length?: number };
+    return body.status === BUNNY_FINISHED && typeof body.length === 'number' && body.length > 0 ? Math.round(body.length) : null;
+  } catch {
+    return null;
+  }
+}

@@ -178,10 +178,11 @@ Response:
 **Never includes `videoId`.** Errors: 404.
 
 ### `POST /lessons/:id/playback`
-Response `200`: `{ "data": { "embedUrl": "https://iframe.mediadelivery.net/embed/…?token=…&expires=…", "expiresAt": "…", "resumeAt": 312 } }`
+Response `200`: `{ "data": { "embedUrl": "https://player.mediadelivery.net/embed/…?token=…&expires=…", "expiresAt": "…", "resumeAt": 312 } }`
 Logic: lesson published → if `isPreview` allow; else require a session, and an active enrollment granting the lesson's course. Sign a Bunny token URL (TTL 2h, optionally bound to the client IP).
 Errors: 401 `UNAUTHENTICATED`, 403 `NOT_ENROLLED`, 404, 409 `CONFLICT` (published but no video yet: "coming soon"), 503 `SERVICE_UNAVAILABLE` (Bunny not configured: `BUNNY_STREAM_LIBRARY_ID` / `BUNNY_STREAM_TOKEN_KEY`). Token = `sha256(tokenKey + videoId + expires)` (Bunny embed token authentication). `EMAIL_NOT_VERIFIED` is planned, if the setting is enabled.
-DB: read `lessons`, `course_modules`, `enrollments`, `plan_courses`, `lesson_progress`.
+Lesson length: when a Bunny lesson has no duration yet (uploads don't know it), the route asks the Bunny API (`BUNNY_STREAM_API_KEY`) and saves the length once encoding has finished, so the 90 % auto-complete works. A failed or slow lookup (5 s timeout) never blocks playback.
+DB: read `lessons`, `course_modules`, `enrollments`, `plan_courses`, `lesson_progress`; may write `lessons.duration_seconds`.
 
 ### `PUT /me/progress/:lessonId`
 Request: `{ "positionSeconds": 312, "watchedSeconds": 300, "completed": false }`

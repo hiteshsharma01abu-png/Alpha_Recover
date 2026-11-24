@@ -42,6 +42,7 @@ export async function findPublishedLesson(db: Database, lessonId: string) {
       id: lessons.id,
       title: lessons.title,
       videoId: lessons.videoId,
+      videoProvider: lessons.videoProvider,
       durationSeconds: lessons.durationSeconds,
       isPreview: lessons.isPreview,
       courseId: courses.id,

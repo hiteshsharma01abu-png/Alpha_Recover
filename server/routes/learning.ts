@@ -3,10 +3,11 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 import { logActivity } from '../audit';
 import { getUser, requireUser } from '../auth/middleware';
-import { certificates, courses, enrollments, lessonProgress } from '../db/schema';
+import { certificates, courses, enrollments, lessonProgress, lessons } from '../db/schema';
 import { AppError } from '../lib/errors';
 import { validate } from '../lib/validate';
 import { enqueueEmail } from '../notifications/outbox';
+import { bunnyVideoLength } from '../services/bunnyStream';
 import { renderCertificatePdf } from '../services/certificatePdf';
 import { CERTIFICATE_CODE, issueCourseCertificateIfComplete } from '../services/certificates';
 import { accessibleCourseIds, canAccessCourse, liveEnrollment } from '../services/enrollments';
@@ -47,6 +48,11 @@ export const learningRoutes = new Hono<AppEnv>()
     if (!lesson.videoId) throw new AppError('CONFLICT', 'This lesson’s video is coming soon');
     const signed = bunnyEmbedUrl(env, lesson.videoId);
     if (!signed) throw new AppError('SERVICE_UNAVAILABLE', 'Video playback is not set up yet');
+    if (lesson.durationSeconds === null && lesson.videoProvider === 'bunny') {
+      // Uploads don't know their length until Bunny finishes encoding; fill it in so the 90% auto-complete works.
+      const length = await bunnyVideoLength(env, lesson.videoId);
+      if (length) await db.update(lessons).set({ durationSeconds: length }).where(and(eq(lessons.id, lesson.id), isNull(lessons.durationSeconds)));
+    }
     const resumeAt = user ? ((await progressFor(db, user.id, [lesson.id])).get(lesson.id)?.positionSeconds ?? 0) : 0;
     c.header('Cache-Control', 'no-store');
     return c.json({ data: { embedUrl: signed.url, expiresAt: signed.expiresAt.toISOString(), resumeAt } });
