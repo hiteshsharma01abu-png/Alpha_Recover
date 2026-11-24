@@ -385,12 +385,11 @@ a.demos-view-all:active,
   fill: currentColor;
 }
 
-/* Brass gold conversion pill — hero View Plan / Enroll / Buy / footer Request Callback */
+/* Brass gold conversion pill — hero View Plan / Enroll / Buy */
 .btn-gold,
 .btn.hero-btn-primary,
 .pp-btn.pp-btn-gold,
-.px-btn.px-btn-gold,
-.footer-btn.footer-btn-gold {
+.px-btn.px-btn-gold {
   border-radius: 999px;
   background: var(--btn-gold-bg);
   color: var(--btn-gold-text);
@@ -405,9 +404,7 @@ a.pp-btn.pp-btn-gold:hover,
 button.pp-btn.pp-btn-gold:hover,
 .px-btn.px-btn-gold:hover,
 a.px-btn.px-btn-gold:hover,
-button.px-btn.px-btn-gold:hover,
-.footer-btn.footer-btn-gold:hover,
-a.footer-btn.footer-btn-gold:hover {
+button.px-btn.px-btn-gold:hover {
   background: var(--btn-gold-bg-hover);
   color: var(--btn-gold-text);
   border-color: var(--btn-gold-border);
@@ -422,9 +419,7 @@ a.pp-btn.pp-btn-gold:active,
 button.pp-btn.pp-btn-gold:active,
 .px-btn.px-btn-gold:active,
 a.px-btn.px-btn-gold:active,
-button.px-btn.px-btn-gold:active,
-.footer-btn.footer-btn-gold:active,
-a.footer-btn.footer-btn-gold:active {
+button.px-btn.px-btn-gold:active {
   background: var(--btn-gold-bg-active);
   color: var(--btn-gold-text);
   transform: translateY(0);
@@ -435,6 +430,7 @@ a.footer-btn.footer-btn-gold:active {
 .btn-ghost-mint,
 .pp-btn.pp-btn-ghost,
 .px-btn.px-btn-ghost,
+.footer-btn.footer-btn-outline,
 .demos-btn.demos-btn-outline,
 .tx-btn.tx-btn-outline {
   background: var(--btn-ghost-mint-bg);
@@ -448,6 +444,8 @@ a.footer-btn.footer-btn-gold:active {
 a.pp-btn.pp-btn-ghost:hover,
 .px-btn.px-btn-ghost:hover,
 a.px-btn.px-btn-ghost:hover,
+.footer-btn.footer-btn-outline:hover,
+a.footer-btn.footer-btn-outline:hover,
 .demos-btn.demos-btn-outline:hover,
 a.demos-btn.demos-btn-outline:hover,
 .tx-btn.tx-btn-outline:hover,
@@ -461,6 +459,7 @@ a.tx-btn.tx-btn-outline:hover {
 .btn-ghost-mint:active,
 .pp-btn.pp-btn-ghost:active,
 .px-btn.px-btn-ghost:active,
+.footer-btn.footer-btn-outline:active,
 .demos-btn.demos-btn-outline:active,
 .tx-btn.tx-btn-outline:active {
   transform: translateY(0);

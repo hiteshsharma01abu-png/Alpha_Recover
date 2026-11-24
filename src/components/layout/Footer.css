@@ -310,7 +310,7 @@ button.footer-heading[aria-expanded='true'] .footer-acc-chevron {
   flex-shrink: 0;
 }
 
-/* Soft fill for .footer-btn-solid and brass for .footer-btn-gold live in global.css */
+/* Soft fill for .footer-btn-solid and mint ghost for .footer-btn-outline live in global.css */
 
 .footer-social {
   display: flex;

@@ -95,7 +95,7 @@ function QuickConnect({ whatsapp }: { whatsapp: string }) {
         Chat on WhatsApp
         <span aria-hidden>›</span>
       </a>
-      <Link className="footer-btn footer-btn-gold" to="/contact">
+      <Link className="footer-btn footer-btn-outline" to="/contact">
         <img src={icons.phone} alt="" width={16} height={16} decoding="async" />
         Request Callback
         <span aria-hidden>→</span>
