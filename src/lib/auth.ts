@@ -9,6 +9,8 @@ export type AuthUser = {
   role: string;
   status: 'active' | 'suspended';
   emailVerified: boolean;
+  /** Profile photo CDN URL when set. */
+  image: string | null;
 };
 
 type AuthState = {
@@ -46,8 +48,9 @@ const setState = (patch: Partial<AuthState>) => {
 };
 const signedIn = (user: AuthUser) => {
   writeFlag(true);
-  setState({ user, loaded: true, unavailable: false, signedOutElsewhere: false });
-  return user;
+  const next = { ...user, image: user.image ?? null };
+  setState({ user: next, loaded: true, unavailable: false, signedOutElsewhere: false });
+  return next;
 };
 
 let checking: Promise<void> | null = null;

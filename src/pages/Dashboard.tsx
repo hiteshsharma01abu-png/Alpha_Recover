@@ -1,10 +1,26 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { AuthTopBar, LearnerShell } from '../components/layout/LearnerShell';
 import { useAuth } from '../lib/auth';
 import { certificateDownloadUrl, getDashboard, lessonPath, type Dashboard as DashboardData } from '../lib/learning';
 import { courseThumb, learnerAssets } from '../lib/learnerAssets';
 import './Dashboard.css';
+
+type DashTab = 'learning' | 'courses' | 'progress' | 'certificates';
+
+function dashTabFromHash(hash: string): DashTab {
+  if (hash === '#courses') return 'courses';
+  if (hash === '#progress') return 'progress';
+  if (hash === '#certificates') return 'certificates';
+  return 'learning';
+}
+
+const TAB_TITLE: Record<DashTab, string> = {
+  learning: 'My Learning',
+  courses: 'My Courses',
+  progress: 'My Progress',
+  certificates: 'Certificates',
+};
 
 /** "2026-10-02T…" → "2 October 2026" */
 const longDate = (iso: string) =>
@@ -47,6 +63,8 @@ function ProgressRing({ pct }: { pct: number }) {
 /** /dashboard: the signed-in student's courses, progress, "continue learning" and certificates. */
 export function Dashboard() {
   const auth = useAuth();
+  const { hash } = useLocation();
+  const tab = dashTabFromHash(hash);
   const userId = auth.user?.id;
   const [data, setData] = useState<{ for: string; value: DashboardData | 'error' } | null>(null);
 
@@ -108,8 +126,11 @@ export function Dashboard() {
     );
   }
 
+  const shellTitle =
+    tab === 'learning' ? `Welcome back, ${auth.user.firstName} 👋` : TAB_TITLE[tab];
+
   return (
-    <LearnerShell title="My Learning" showUpgrade={showUpgrade}>
+    <LearnerShell title={shellTitle} showUpgrade={showUpgrade}>
       {dash === null ? (
         <div aria-busy="true" className="dsh-loading" />
       ) : dash === 'error' ? (
@@ -133,189 +154,198 @@ export function Dashboard() {
         </div>
       ) : (
         <div className="dsh">
-          <article className="dsh-hero account-glass">
-            <div className="dsh-hero-copy">
-              <p className="dsh-kicker">Welcome back</p>
-              <h2>Welcome Back, {auth.user.firstName} 👋</h2>
-              <p className="dsh-muted">
-                {dash.continue
-                  ? `Pick up “${dash.continue.lessonTitle}” where you left off.`
-                  : 'Your courses, progress and certificates are ready.'}
-              </p>
-              {dash.continue ? (
-                <Link
-                  className="btn btn-primary dsh-hero-cta"
-                  to={lessonPath(dash.continue.courseSlug, dash.continue.moduleSlug, dash.continue.lessonSlug)}
-                >
-                  {continueLabel(dash)} <span aria-hidden>→</span>
-                </Link>
-              ) : (
-                <a className="btn btn-primary dsh-hero-cta" href="#courses">
-                  View Courses <span aria-hidden>→</span>
-                </a>
-              )}
-            </div>
-            <img className="dsh-hero-art" src={learnerAssets.hardDrive} alt="" width={280} height={200} />
-          </article>
-
-          <div className="dsh-stats">
-            <div className="dsh-stat account-glass">
-              <img src={learnerAssets.iconCourses} alt="" width={22} height={22} />
-              <div>
-                <strong>{stats.enrolled}</strong>
-                <span>Enrolled Courses</span>
-              </div>
-            </div>
-            <div className="dsh-stat account-glass">
-              <img src={learnerAssets.iconProgress} alt="" width={22} height={22} />
-              <div>
-                <strong>{stats.inProgress}</strong>
-                <span>In Progress</span>
-              </div>
-            </div>
-            <div className="dsh-stat account-glass">
-              <img src={learnerAssets.iconCheck} alt="" width={22} height={22} />
-              <div>
-                <strong>{stats.completed}</strong>
-                <span>Completed</span>
-              </div>
-            </div>
-            <div className="dsh-stat account-glass">
-              <img src={learnerAssets.iconCertificate} alt="" width={22} height={22} />
-              <div>
-                <strong>{stats.certificates}</strong>
-                <span>Certificates</span>
-              </div>
-            </div>
-          </div>
-
-          <section id="courses" className="dsh-section">
-            <div className="dsh-section-head">
-              <h2 className="dsh-heading">My Courses</h2>
-              <a className="dsh-view-all" href="#courses">
-                View All
-              </a>
-            </div>
-            <div className="dsh-grid">
-              {dash.courses.map((c, i) => (
-                <article key={c.slug} className="dsh-course account-glass">
-                  <img className="dsh-course-thumb" src={courseThumb(i)} alt="" width={72} height={72} />
-                  <div className="dsh-course-body">
-                    <h3>
-                      <Link to={`/training/${c.slug}`}>{c.title}</Link>
-                    </h3>
-                    <span
-                      className="dsh-bar"
-                      role="progressbar"
-                      aria-valuenow={c.progressPct}
-                      aria-valuemin={0}
-                      aria-valuemax={100}
-                      aria-label={`${c.title} progress`}
-                    >
-                      <span style={{ width: `${c.progressPct}%` }} />
-                    </span>
-                    <p className="dsh-muted">
-                      {c.lessonsCompleted} of {c.lessonsTotal} lessons · {c.progressPct}%
-                    </p>
-                  </div>
-                  {c.next ? (
+          {tab === 'learning' ? (
+            <>
+              <article className="dsh-hero account-glass">
+                <div className="dsh-hero-copy">
+                  <p className="dsh-kicker">Welcome back</p>
+                  <h2>Welcome Back, {auth.user.firstName} 👋</h2>
+                  <p className="dsh-muted">
+                    {dash.continue
+                      ? `Pick up “${dash.continue.lessonTitle}” where you left off.`
+                      : 'Your courses, progress and certificates are ready.'}
+                  </p>
+                  {dash.continue ? (
                     <Link
-                      className="dsh-play"
-                      to={lessonPath(c.slug, c.next.moduleSlug, c.next.lessonSlug)}
-                      aria-label={`${c.lessonsCompleted ? 'Continue' : 'Start'} ${c.title}`}
+                      className="btn btn-primary dsh-hero-cta"
+                      to={lessonPath(dash.continue.courseSlug, dash.continue.moduleSlug, dash.continue.lessonSlug)}
                     >
-                      <img src={learnerAssets.iconPlay} alt="" width={22} height={22} />
+                      {continueLabel(dash)} <span aria-hidden>→</span>
                     </Link>
                   ) : (
-                    <Link className="dsh-play" to={`/training/${c.slug}`} aria-label={`Review ${c.title}`}>
-                      <img src={learnerAssets.iconCheck} alt="" width={22} height={22} />
+                    <Link className="btn btn-primary dsh-hero-cta" to="/dashboard#courses">
+                      View Courses <span aria-hidden>→</span>
                     </Link>
                   )}
-                </article>
-              ))}
-            </div>
-          </section>
+                </div>
+                <img className="dsh-hero-art" src={learnerAssets.hardDrive} alt="" width={280} height={200} />
+              </article>
 
-          <section id="progress" className="dsh-section dsh-progress-block account-glass">
-            <h2 className="dsh-heading">My Progress</h2>
-            <div className="dsh-progress-row">
-              <ProgressRing pct={stats.ringPct} />
-              <div className="dsh-progress-stats">
-                <div>
-                  <strong>{stats.inProgress}</strong>
-                  <span>Courses In Progress</span>
+              <div className="dsh-stats">
+                <div className="dsh-stat account-glass">
+                  <img src={learnerAssets.iconCourses} alt="" width={22} height={22} />
+                  <div>
+                    <strong>{stats.enrolled}</strong>
+                    <span>Enrolled Courses</span>
+                  </div>
                 </div>
-                <div>
-                  <strong>{stats.completed}</strong>
-                  <span>Courses Completed</span>
+                <div className="dsh-stat account-glass">
+                  <img src={learnerAssets.iconProgress} alt="" width={22} height={22} />
+                  <div>
+                    <strong>{stats.inProgress}</strong>
+                    <span>In Progress</span>
+                  </div>
                 </div>
-                <div>
-                  <strong>
-                    {stats.lessonsCompleted ?? 0}/{stats.lessonsTotal ?? 0}
-                  </strong>
-                  <span>Lessons Completed</span>
+                <div className="dsh-stat account-glass">
+                  <img src={learnerAssets.iconCheck} alt="" width={22} height={22} />
+                  <div>
+                    <strong>{stats.completed}</strong>
+                    <span>Completed</span>
+                  </div>
+                </div>
+                <div className="dsh-stat account-glass">
+                  <img src={learnerAssets.iconCertificate} alt="" width={22} height={22} />
+                  <div>
+                    <strong>{stats.certificates}</strong>
+                    <span>Certificates</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </section>
+            </>
+          ) : null}
 
-          {(() => {
-            const focus =
-              dash.continue != null
-                ? dash.courses.find((c) => c.slug === dash.continue!.courseSlug)
-                : dash.courses.find((c) => c.progressPct > 0 && c.progressPct < 100) ?? dash.courses[0];
-            if (!focus || focus.progressPct >= 100) return null;
-            const remaining = Math.max(0, focus.lessonsTotal - focus.lessonsCompleted);
-            return (
-              <aside className="dsh-milestone account-glass">
-                <img src={learnerAssets.iconTrophy} alt="" width={28} height={28} />
-                <div className="dsh-milestone-copy">
-                  <p className="dsh-kicker">Your Next Milestone</p>
-                  <p>
-                    Complete {remaining} more lesson{remaining === 1 ? '' : 's'} in <strong>{focus.title}</strong> toward
-                    your certificate.
-                  </p>
-                  <span
-                    className="dsh-bar"
-                    role="progressbar"
-                    aria-valuenow={focus.progressPct}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                  >
-                    <span style={{ width: `${focus.progressPct}%` }} />
-                  </span>
-                </div>
-                <span className="dsh-milestone-pct">{focus.progressPct}%</span>
-              </aside>
-            );
-          })()}
-
-          <section id="certificates" className="dsh-section">
-            <h2 className="dsh-heading">Certificates</h2>
-            {dash.certificates.length ? (
-              <ul className="dsh-certs">
-                {dash.certificates.map((cert) => (
-                  <li key={cert.code} className="account-glass">
-                    <img src={learnerAssets.iconCertificate} alt="" width={28} height={28} />
-                    <span>
-                      <strong>{cert.programTitle}</strong>
-                      <small>
-                        {cert.code} · issued {longDate(cert.issuedAt)}
-                      </small>
-                    </span>
-                    <span className="dsh-cert-actions">
-                      <a className="btn btn-primary dsh-cert-download" href={certificateDownloadUrl(cert.code)} download>
-                        Download PDF
-                      </a>
-                      <Link to={`/verify-certificate?code=${cert.code}`}>Verify</Link>
-                    </span>
-                  </li>
+          {tab === 'courses' ? (
+            <section id="courses" className="dsh-section">
+              <div className="dsh-section-head">
+                <h2 className="dsh-heading">My Courses</h2>
+              </div>
+              <div className="dsh-grid">
+                {dash.courses.map((c, i) => (
+                  <article key={c.slug} className="dsh-course account-glass">
+                    <img className="dsh-course-thumb" src={courseThumb(i)} alt="" width={72} height={72} />
+                    <div className="dsh-course-body">
+                      <h3>
+                        <Link to={`/training/${c.slug}`}>{c.title}</Link>
+                      </h3>
+                      <span
+                        className="dsh-bar"
+                        role="progressbar"
+                        aria-valuenow={c.progressPct}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-label={`${c.title} progress`}
+                      >
+                        <span style={{ width: `${c.progressPct}%` }} />
+                      </span>
+                      <p className="dsh-muted">
+                        {c.lessonsCompleted} of {c.lessonsTotal} lessons · {c.progressPct}%
+                      </p>
+                    </div>
+                    {c.next ? (
+                      <Link
+                        className="dsh-play"
+                        to={lessonPath(c.slug, c.next.moduleSlug, c.next.lessonSlug)}
+                        aria-label={`${c.lessonsCompleted ? 'Continue' : 'Start'} ${c.title}`}
+                      >
+                        <img src={learnerAssets.iconPlay} alt="" width={22} height={22} />
+                      </Link>
+                    ) : (
+                      <Link className="dsh-play" to={`/training/${c.slug}`} aria-label={`Review ${c.title}`}>
+                        <img src={learnerAssets.iconCheck} alt="" width={22} height={22} />
+                      </Link>
+                    )}
+                  </article>
                 ))}
-              </ul>
-            ) : (
-              <p className="dsh-muted">Certificates appear here when you complete a training program.</p>
-            )}
-          </section>
+              </div>
+            </section>
+          ) : null}
+
+          {tab === 'progress' ? (
+            <>
+              <section id="progress" className="dsh-section dsh-progress-block account-glass">
+                <h2 className="dsh-heading">My Progress</h2>
+                <div className="dsh-progress-row">
+                  <ProgressRing pct={stats.ringPct} />
+                  <div className="dsh-progress-stats">
+                    <div>
+                      <strong>{stats.inProgress}</strong>
+                      <span>Courses In Progress</span>
+                    </div>
+                    <div>
+                      <strong>{stats.completed}</strong>
+                      <span>Courses Completed</span>
+                    </div>
+                    <div>
+                      <strong>
+                        {stats.lessonsCompleted ?? 0}/{stats.lessonsTotal ?? 0}
+                      </strong>
+                      <span>Lessons Completed</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {(() => {
+                const focus =
+                  dash.continue != null
+                    ? dash.courses.find((c) => c.slug === dash.continue!.courseSlug)
+                    : dash.courses.find((c) => c.progressPct > 0 && c.progressPct < 100) ?? dash.courses[0];
+                if (!focus || focus.progressPct >= 100) return null;
+                const remaining = Math.max(0, focus.lessonsTotal - focus.lessonsCompleted);
+                return (
+                  <aside className="dsh-milestone account-glass">
+                    <img src={learnerAssets.iconTrophy} alt="" width={28} height={28} />
+                    <div className="dsh-milestone-copy">
+                      <p className="dsh-kicker">Your Next Milestone</p>
+                      <p>
+                        Complete {remaining} more lesson{remaining === 1 ? '' : 's'} in <strong>{focus.title}</strong>{' '}
+                        toward your certificate.
+                      </p>
+                      <span
+                        className="dsh-bar"
+                        role="progressbar"
+                        aria-valuenow={focus.progressPct}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                      >
+                        <span style={{ width: `${focus.progressPct}%` }} />
+                      </span>
+                    </div>
+                    <span className="dsh-milestone-pct">{focus.progressPct}%</span>
+                  </aside>
+                );
+              })()}
+            </>
+          ) : null}
+
+          {tab === 'certificates' ? (
+            <section id="certificates" className="dsh-section">
+              <h2 className="dsh-heading">Certificates</h2>
+              {dash.certificates.length ? (
+                <ul className="dsh-certs">
+                  {dash.certificates.map((cert) => (
+                    <li key={cert.code} className="account-glass">
+                      <img src={learnerAssets.iconCertificate} alt="" width={28} height={28} />
+                      <span>
+                        <strong>{cert.programTitle}</strong>
+                        <small>
+                          {cert.code} · issued {longDate(cert.issuedAt)}
+                        </small>
+                      </span>
+                      <span className="dsh-cert-actions">
+                        <a className="btn btn-primary dsh-cert-download" href={certificateDownloadUrl(cert.code)} download>
+                          Download PDF
+                        </a>
+                        <Link to={`/verify-certificate?code=${cert.code}`}>Verify</Link>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="dsh-muted">Certificates appear here when you complete a training program.</p>
+              )}
+            </section>
+          ) : null}
         </div>
       )}
     </LearnerShell>

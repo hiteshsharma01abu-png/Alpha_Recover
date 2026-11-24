@@ -1,13 +1,24 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { REGISTER_COUNTRIES, type CountryCode } from '../../shared/countries';
 import { AuthTopBar, LearnerShell } from '../components/layout/LearnerShell';
 import { refreshSession, useAuth } from '../lib/auth';
 import { timeAgo } from '../lib/demoVideos';
 import { formErrors } from '../lib/leads';
 import { getDashboard } from '../lib/learning';
-import { changePassword, getProfile, listDevices, signOutDevice, updateProfile, type Device, type Profile } from '../lib/profile';
+import { learnerAssets } from '../lib/learnerAssets';
+import {
+  changePassword,
+  clearAvatar,
+  getProfile,
+  listDevices,
+  signOutDevice,
+  updateProfile,
+  uploadAvatar,
+  type Device,
+  type Profile,
+} from '../lib/profile';
 import './SimplePages.css';
 import './Dashboard.css';
 
@@ -41,6 +52,8 @@ function Status({ state }: { state: FormState }) {
 }
 
 function ProfileForm({ profile, onSaved }: { profile: Profile; onSaved: (p: Profile) => void }) {
+  const fileId = useId();
+  const fileRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
     firstName: profile.firstName,
     lastName: profile.lastName ?? '',
@@ -50,7 +63,42 @@ function ProfileForm({ profile, onSaved }: { profile: Profile; onSaved: (p: Prof
     whatsappOptIn: profile.whatsappOptIn,
   });
   const [state, run] = useFormAction();
+  const [avatarBusy, setAvatarBusy] = useState(false);
+  const [avatarNote, setAvatarNote] = useState<{ ok?: string; error?: string }>({});
   const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) => setForm((f) => ({ ...f, [k]: v }));
+
+  async function onAvatarFile(file: File | undefined) {
+    if (!file || avatarBusy || state.busy) return;
+    setAvatarBusy(true);
+    setAvatarNote({});
+    try {
+      const saved = await uploadAvatar(file);
+      onSaved(saved);
+      await refreshSession();
+      setAvatarNote({ ok: 'Photo updated.' });
+    } catch (err) {
+      setAvatarNote({ error: formErrors(err).message });
+    } finally {
+      setAvatarBusy(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  }
+
+  async function onRemoveAvatar() {
+    if (avatarBusy || state.busy || !profile.image) return;
+    setAvatarBusy(true);
+    setAvatarNote({});
+    try {
+      const saved = await clearAvatar();
+      onSaved(saved);
+      await refreshSession();
+      setAvatarNote({ ok: 'Photo removed.' });
+    } catch (err) {
+      setAvatarNote({ error: formErrors(err).message });
+    } finally {
+      setAvatarBusy(false);
+    }
+  }
 
   function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -73,6 +121,48 @@ function ProfileForm({ profile, onSaved }: { profile: Profile; onSaved: (p: Prof
   return (
     <form className="panel settings-panel" onSubmit={onSubmit}>
       <h2>Profile</h2>
+      <div className="settings-avatar">
+        <img
+          className="settings-avatar-img"
+          src={profile.image || learnerAssets.avatar}
+          alt=""
+          width={72}
+          height={72}
+        />
+        <div className="settings-avatar-actions">
+          <input
+            ref={fileRef}
+            id={fileId}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            hidden
+            onChange={(e) => void onAvatarFile(e.target.files?.[0])}
+          />
+          <label
+            className={`btn btn-ghost settings-avatar-upload${avatarBusy || state.busy ? ' is-disabled' : ''}`}
+            htmlFor={avatarBusy || state.busy ? undefined : fileId}
+            aria-disabled={avatarBusy || state.busy}
+          >
+            {avatarBusy ? 'Uploading…' : 'Upload photo'}
+          </label>
+          {profile.image ? (
+            <button type="button" className="btn btn-ghost" disabled={avatarBusy || state.busy} onClick={() => void onRemoveAvatar()}>
+              Remove
+            </button>
+          ) : null}
+          <span className="settings-hint">JPEG, PNG or WebP, up to 2 MB.</span>
+          {avatarNote.error ? (
+            <p className="form-error" role="alert">
+              {avatarNote.error}
+            </p>
+          ) : null}
+          {avatarNote.ok ? (
+            <p className="form-success" role="status">
+              {avatarNote.ok}
+            </p>
+          ) : null}
+        </div>
+      </div>
       <div className="settings-grid">
         <div className="field">
           <label htmlFor="p-first">First name</label>
@@ -255,14 +345,6 @@ export function AccountSettings() {
   const body = (
     <div className="settings-stack">
       {!auth.loaded ? <div className="panel" aria-busy="true" /> : null}
-      {auth.loaded && !auth.user ? (
-        <div className="panel account-glass">
-          <p>Please log in to manage your account.</p>
-          <Link className="btn btn-primary" to="/account">
-            Log in
-          </Link>
-        </div>
-      ) : null}
       {loadError ? <p className="form-error">{loadError}</p> : null}
       {auth.user && profile ? (
         <div className="settings-forms">
@@ -276,13 +358,17 @@ export function AccountSettings() {
     </div>
   );
 
-  if (!auth.loaded || !auth.user) {
+  if (!auth.loaded) {
     return (
       <div className="dsh-gate">
         <AuthTopBar />
         <section className="dsh-gate-body">{body}</section>
       </div>
     );
+  }
+
+  if (!auth.user) {
+    return <Navigate to="/account" replace />;
   }
 
   return (

@@ -543,6 +543,49 @@ a.contact-info-card:hover {
   padding: 1.05rem 1.1rem 1.1rem;
 }
 
+.settings-avatar {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin: 0 0 0.85rem;
+}
+
+.settings-avatar-img {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid color-mix(in srgb, var(--mint) 22%, transparent);
+  background: color-mix(in srgb, var(--surface) 80%, #000);
+  flex-shrink: 0;
+}
+
+.settings-avatar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.65rem;
+  min-width: 0;
+}
+
+.btn.settings-avatar-upload {
+  cursor: pointer;
+  margin: 0;
+}
+
+.btn.settings-avatar-upload.is-disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.settings-avatar-actions .settings-hint,
+.settings-avatar-actions .form-error,
+.settings-avatar-actions .form-success {
+  flex: 1 0 100%;
+  margin: 0;
+}
+
 .settings-panel h2 {
   margin: 0 0 0.65rem;
   font-size: 1.1rem;

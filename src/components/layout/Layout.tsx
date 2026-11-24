@@ -8,19 +8,20 @@ import { RouteScrollReset } from './RouteScrollReset';
 import { ScrollToTop } from './ScrollToTop';
 import '../../styles/glass.css';
 
-/** /account, /account/settings and /dashboard use their own chrome (AuthTopBar / LearnerShell). */
+/** /account/settings and /dashboard use learner chrome. Logged-out /account keeps the homepage header. */
 function isLearnerChrome(pathname: string) {
-  return pathname === '/account' || pathname === '/account/settings' || pathname === '/dashboard';
+  return pathname === '/account/settings' || pathname === '/dashboard';
 }
 
 export function Layout() {
   const { pathname } = useLocation();
   const isHome = pathname === '/';
   const learner = isLearnerChrome(pathname);
+  const account = pathname === '/account';
 
   // <html data-home> on the homepage: sections shared with other pages (pricing card, training
-  // explorer) keep their original homepage buttons there (docs/DESIGN.md §5). The header and
-  // footer are identical on every page except learner chrome routes (docs/DESIGN.md §5).
+  // explorer) keep their original homepage buttons there (docs/DESIGN.md §5). The header is the
+  // same on every page except learner chrome; the footer is hidden on /account as well.
   useLayoutEffect(() => {
     document.documentElement.toggleAttribute('data-home', isHome);
   }, [isHome]);
@@ -33,7 +34,7 @@ export function Layout() {
       <main className={learner ? 'page page-learner' : 'page'}>
         <Outlet />
       </main>
-      {learner ? null : (
+      {learner || account ? null : (
         <>
           <Footer />
           <ScrollToTop />

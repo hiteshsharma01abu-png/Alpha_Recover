@@ -87,7 +87,7 @@ DB: insert `users`, `accounts`, `sessions`, `verifications`; enqueue `notificati
 
 ### `POST /auth/login`
 Request: `{ "email": "…", "password": "…", "remember": true }`
-Response `200`: `{ "data": { "user": { "id", "email", "firstName", "role", "status", "emailVerified" } } }`, cookie set. `remember: true` → 30-day session refreshed daily; otherwise a 24-hour session with a browser-session cookie that is never extended (Better Auth's standard behaviour).
+Response `200`: `{ "data": { "user": { "id", "email", "firstName", "role", "status", "emailVerified", "image" } } }` (`image` is the CDN URL or null), cookie set. `remember: true` → 30-day session refreshed daily; otherwise a 24-hour session with a browser-session cookie that is never extended (Better Auth's standard behaviour).
 Errors: 401 `UNAUTHENTICATED` (same message for a wrong password and an unknown email), 403 `FORBIDDEN` (suspended; no session is left behind), 429 after **5 failed** attempts per IP + email in 15 minutes (successful logins don't count, so normal use never locks anyone out).
 DB: verify scrypt hash; insert `sessions`; evict the oldest if over `max_student_sessions`; update `users.last_login_at`; log `auth.login` or `auth.login_failed`.
 
@@ -133,8 +133,10 @@ Response `200`:
 
 | Method | Endpoint | Auth | Purpose |
 |---|---|---|---|
-| GET | `/me` | user | Profile: id, email, firstName, lastName, certificateName, phone, country, role, emailVerified, whatsappOptIn, createdAt. **Implemented (Phase 3)** |
-| PATCH | `/me` | user | Update firstName, lastName, certificateName, phone (E.164), country, whatsappOptIn (consent timestamp kept from the first opt-in). Strict schema: email/role/status are rejected. Audit `user.update_profile`. **Implemented (Phase 3)** |
+| GET | `/me` | user | Profile: id, email, firstName, lastName, certificateName, phone, country, role, emailVerified, whatsappOptIn, image (CDN URL or null), createdAt. **Implemented (Phase 3)** |
+| PATCH | `/me` | user | Update firstName, lastName, certificateName, phone (E.164), country, whatsappOptIn (consent timestamp kept from the first opt-in). Strict schema: email/role/status/image are rejected. Audit `user.update_profile`. **Implemented (Phase 3)** |
+| POST | `/me/avatar` | user | Multipart field `file`: JPEG / PNG / WebP, max 2 MB. Relays to Bunny Storage under `avatars/{userId}/…`, sets `users.image` to the CDN URL, returns the profile. 503 until storage env is set. Audit `user.avatar_upload`. **Implemented** |
+| DELETE | `/me/avatar` | user | Clears `users.image` and best-effort deletes the prior Bunny object. Audit `user.avatar_clear`. **Implemented** |
 | GET | `/me/dashboard` | student | Enrolled courses with progress %, "continue learning" lesson, certificates. **Implemented (Phase 4)** |
 | GET | `/me/enrollments` | student | Your enrollments, newest first: status (active / revoked / expired, computed from the end date), source, plan slug and name, start and end. **Implemented (Phase 3)** |
 | GET | `/me/orders` | user | Order history |

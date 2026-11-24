@@ -19,6 +19,8 @@ export type SessionUser = {
   role: UserRole;
   status: 'active' | 'suspended';
   emailVerified: boolean;
+  /** Profile photo CDN URL, or null when using the placeholder. */
+  image: string | null;
 };
 
 export type AppEnv = {

@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, Navigate, useSearchParams } from 'react-router-dom';
 import { REGISTER_COUNTRIES, type CountryCode } from '../../shared/countries';
-import { AuthTopBar, LearnerShell } from '../components/layout/LearnerShell';
 import { Turnstile } from '../components/ui/Turnstile';
 import { company } from '../data/content';
 import {
@@ -10,12 +9,9 @@ import {
   login,
   register,
   requestPasswordReset,
-  resendVerification,
   useAuth,
 } from '../lib/auth';
-import { icons } from '../lib/icons';
 import { formErrors } from '../lib/leads';
-import { getDashboard } from '../lib/learning';
 import { learnerAssets } from '../lib/learnerAssets';
 import './Account.css';
 
@@ -118,23 +114,6 @@ export function Account() {
   const [regPass2, setRegPass2] = useState('');
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
-  const [hasActiveEnrollment, setHasActiveEnrollment] = useState(false);
-
-  const userId = auth.user?.id;
-  useEffect(() => {
-    if (!userId) return;
-    let live = true;
-    getDashboard()
-      .then((d) => {
-        if (live) setHasActiveEnrollment(d.hasActiveEnrollment);
-      })
-      .catch(() => {
-        if (live) setHasActiveEnrollment(false);
-      });
-    return () => {
-      live = false;
-    };
-  }, [userId]);
 
   function switchMode(next: Mode) {
     setMode(next);
@@ -195,13 +174,6 @@ export function Account() {
     );
   }
 
-  function onResend() {
-    void run(
-      () => resendVerification(),
-      () => setNote(`We've sent a new verification link to ${auth.user?.email}.`),
-    );
-  }
-
   const alerts = (
     <div className="account-alerts">
       {auth.signedOutElsewhere ? (
@@ -231,72 +203,16 @@ export function Account() {
     </div>
   );
 
-  if (auth.user) {
+  if (!auth.loaded) {
     return (
-      <LearnerShell title={`Hi, ${auth.user.firstName} 👋`} showUpgrade={!hasActiveEnrollment}>
-        {alerts}
-        <div className="account-signed">
-          <div className="account-glass account-profile">
-            <div className="account-profile-head">
-              <p>{auth.user.email}</p>
-            </div>
-
-            {auth.user.emailVerified ? (
-              <div className="account-verified">
-                <img src={icons.shieldCheck} alt="" width={18} height={18} />
-                <span>Your email address is verified</span>
-              </div>
-            ) : (
-              <div className="account-verify">
-                <p>
-                  Please verify your email address. We sent a link to <strong>{auth.user.email}</strong>.
-                </p>
-                <button type="button" className="account-link" onClick={onResend} disabled={busy}>
-                  Resend verification email
-                </button>
-              </div>
-            )}
-
-            <div className="account-nav-links">
-              <Link className="account-nav-link" to="/dashboard">
-                <img src={icons.school} alt="" width={20} height={20} />
-                <span>My learning: courses, progress and certificates</span>
-                <img src={icons.chevronRight} alt="" width={16} height={16} />
-              </Link>
-              <Link className="account-nav-link" to="/account/settings">
-                <img src={icons.settings} alt="" width={20} height={20} />
-                <span>Account settings: profile, password and devices</span>
-                <img src={icons.chevronRight} alt="" width={16} height={16} />
-              </Link>
-            </div>
-          </div>
-
-          <div className="account-side">
-            <Link className="account-glass account-side-card" to="/dashboard">
-              <span className="account-side-icon">
-                <img src={icons.school} alt="" width={20} height={20} />
-              </span>
-              <strong>Continue Learning</strong>
-              <img src={icons.chevronRight} alt="" width={18} height={18} />
-            </Link>
-            <Link className="account-glass account-side-card" to="/dashboard#progress">
-              <span className="account-side-icon">
-                <img src={learnerAssets.iconProgress} alt="" width={20} height={20} />
-              </span>
-              <strong>Track Progress</strong>
-              <img src={icons.chevronRight} alt="" width={18} height={18} />
-            </Link>
-            <Link className="account-glass account-side-card" to="/pricing">
-              <span className="account-side-icon">
-                <img src={icons.infinity} alt="" width={20} height={20} />
-              </span>
-              <strong>Lifetime Access</strong>
-              <img src={icons.chevronRight} alt="" width={18} height={18} />
-            </Link>
-          </div>
-        </div>
-      </LearnerShell>
+      <div className="auth-page" aria-busy="true">
+        <div className="auth-bg" aria-hidden />
+      </div>
     );
+  }
+
+  if (auth.user) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   const brandPanel =
@@ -316,7 +232,6 @@ export function Account() {
             </li>
           ))}
         </ul>
-        <img className="auth-brand-art" src={learnerAssets.hardDrive} alt="" width={420} height={280} />
       </div>
     ) : (
       <div className="auth-brand">
@@ -342,42 +257,16 @@ export function Account() {
             ))}
           </ul>
         ) : null}
-        <img className="auth-brand-art" src={learnerAssets.hardDrive} alt="" width={420} height={280} />
       </div>
     );
 
   return (
     <div className="auth-page">
       <div className="auth-bg" aria-hidden />
-      <AuthTopBar />
 
       <div className="auth-mobile-head">
         <h1>My Account</h1>
         <p>Access your account or create a new one to continue your data recovery learning journey.</p>
-        {mode !== 'forgot' ? (
-          <div className="account-hero-ctas" role="tablist" aria-label="Account mode">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={mode === 'login'}
-              className={`account-cta account-cta-primary${mode === 'login' ? ' is-active' : ''}`}
-              onClick={() => switchMode('login')}
-            >
-              <img src={learnerAssets.iconUser} alt="" width={18} height={18} />
-              Login
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={mode === 'register'}
-              className={`account-cta account-cta-ghost${mode === 'register' ? ' is-active' : ''}`}
-              onClick={() => switchMode('register')}
-            >
-              <img src={learnerAssets.iconUserPlus} alt="" width={18} height={18} />
-              Create Account
-            </button>
-          </div>
-        ) : null}
       </div>
 
       <section className="auth-split">

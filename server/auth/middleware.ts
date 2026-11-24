@@ -9,7 +9,15 @@ export async function getUser(c: Context<AppEnv>): Promise<SessionUser | null> {
   const cached = c.get('user');
   if (cached !== undefined) return cached;
   const session = await c.get('deps').auth.api.getSession({ headers: c.req.raw.headers });
-  const u = session?.user as (Record<string, unknown> & { id: string; email: string; name: string; emailVerified: boolean }) | undefined;
+  const u = session?.user as
+    | (Record<string, unknown> & {
+        id: string;
+        email: string;
+        name: string;
+        emailVerified: boolean;
+        image?: string | null;
+      })
+    | undefined;
   const user: SessionUser | null = u
     ? {
         id: u.id,
@@ -18,6 +26,7 @@ export async function getUser(c: Context<AppEnv>): Promise<SessionUser | null> {
         role: u.role as UserRole,
         status: u.status as SessionUser['status'],
         emailVerified: u.emailVerified,
+        image: typeof u.image === 'string' && u.image ? u.image : null,
       }
     : null;
   c.set('user', user);

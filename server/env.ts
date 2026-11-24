@@ -26,6 +26,11 @@ const envSchema = z.object({
   BUNNY_STREAM_TOKEN_KEY: optional,
   /** Stream library API key (Bunny → Stream → library → API). Needed to create videos and sign TUS uploads. */
   BUNNY_STREAM_API_KEY: optional,
+  /** Bunny Storage (profile photos and, later, media). Optional until uploads are configured. */
+  BUNNY_STORAGE_ZONE: optional,
+  BUNNY_STORAGE_KEY: optional,
+  /** Pull-zone hostname only, e.g. `alpharecovery.b-cdn.net` (no scheme). */
+  BUNNY_CDN_HOSTNAME: optional,
 });
 
 export type Env = z.infer<typeof envSchema>;

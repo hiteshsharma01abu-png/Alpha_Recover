@@ -58,10 +58,18 @@ const LOGIN_MAX_FAILURES = 5;
 async function publicUser(c: Context<AppEnv>, userId: string) {
   const [u] = await c
     .get('deps')
-    .db.select({ id: users.id, email: users.email, firstName: users.firstName, role: users.role, status: users.status, emailVerified: users.emailVerified })
+    .db.select({
+      id: users.id,
+      email: users.email,
+      firstName: users.firstName,
+      role: users.role,
+      status: users.status,
+      emailVerified: users.emailVerified,
+      image: users.image,
+    })
     .from(users)
     .where(eq(users.id, userId));
-  return u;
+  return u ? { ...u, image: u.image ?? null } : u;
 }
 
 /** Copies Better Auth's Set-Cookie headers (session cookie) onto our response. */

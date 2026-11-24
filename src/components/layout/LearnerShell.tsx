@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { brandLogo } from '../../data/content';
 import { logout, useAuth } from '../../lib/auth';
 import { icons } from '../../lib/icons';
@@ -51,9 +51,10 @@ type LearnerShellProps = {
   title?: string;
 };
 
-/** Signed-in student chrome for /dashboard (My Learning), /account and /account/settings. */
+/** Signed-in student chrome for /dashboard (My Learning) and /account/settings. */
 export function LearnerShell({ children, showUpgrade = true, title = 'My Learning' }: LearnerShellProps) {
   const auth = useAuth();
+  const navigate = useNavigate();
   const { pathname, hash } = useLocation();
   const menuRef = useRef<HTMLDivElement>(null);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -84,6 +85,7 @@ export function LearnerShell({ children, showUpgrade = true, title = 'My Learnin
     setBusy(everywhere ? 'all' : 'one');
     try {
       await logout(everywhere);
+      navigate('/account', { replace: true });
     } finally {
       setBusy(null);
       setMenuOpen(false);
@@ -159,7 +161,7 @@ export function LearnerShell({ children, showUpgrade = true, title = 'My Learnin
                   setMenuOpen((open) => !open);
                 }}
               >
-                <img className="lrn-avatar" src={learnerAssets.avatar} alt="" width={36} height={36} />
+                <img className="lrn-avatar" src={auth.user?.image || learnerAssets.avatar} alt="" width={36} height={36} />
                 <span className="lrn-user-name">{firstName}</span>
                 <img className="lrn-user-chevron" src={learnerAssets.iconChevron} alt="" width={14} height={14} />
               </button>

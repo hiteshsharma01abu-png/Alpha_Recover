@@ -33,6 +33,7 @@ Set these in the cPanel Node.js App's environment settings, or in a `chmod 600` 
 | `SENTRY_DSN` | optional |
 | `BUNNY_STREAM_LIBRARY_ID`, `BUNNY_STREAM_TOKEN_KEY` | optional until lesson videos exist: the Bunny Stream library id and its token-authentication key (playback URLs are signed for 2 hours) |
 | `BUNNY_STREAM_API_KEY` | optional until staff upload videos: the Stream **library** API key (Bunny → Stream → library → API), used to create videos and sign TUS uploads |
+| `BUNNY_STORAGE_ZONE`, `BUNNY_STORAGE_KEY`, `BUNNY_CDN_HOSTNAME` | optional until profile photo (and later media) uploads: Storage zone name, zone AccessKey, and pull-zone hostname only (e.g. `alpharecovery.b-cdn.net`) |
 | `TURNSTILE_SECRET_KEY` | required in production (Cloudflare Turnstile secret for the site) |
 
 **Frontend build variables:** `VITE_TURNSTILE_SITE_KEY` (the public site key) must be set when running `npm run build`, otherwise the forms render without the security check and the API rejects them in production. `VITE_SITE_URL` (e.g. `https://alpharecover.com`, no trailing slash) is the public origin baked into canonical URLs, share cards and `sitemap.xml`; it defaults to the Vercel staging URL, so set it for the production build.

@@ -6,11 +6,20 @@ import { logActivity } from '../audit';
 import { getUser, requireUser } from '../auth/middleware';
 import { courses, enrollments, plans, sessions, users } from '../db/schema';
 import { AppError } from '../lib/errors';
+import { uuidv7 } from '../lib/ids';
 import { normalizePhone } from '../lib/phone';
 import { describeDevice } from '../lib/userAgent';
 import { canAccessCourse } from '../services/enrollments';
+import { deleteObject, pathFromPublicUrl, publicUrl, putObject } from '../services/bunnyStorage';
 import { validate } from '../lib/validate';
 import type { AppEnv } from '../types';
+
+const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
+const AVATAR_TYPES: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+};
 
 const countryCodes = REGISTER_COUNTRIES.map((c) => c.code) as [string, ...string[]];
 const optionalName = (max: number) =>
@@ -55,14 +64,20 @@ const profileColumns = {
   country: users.country,
   role: users.role,
   emailVerified: users.emailVerified,
+  image: users.image,
   whatsappOptInAt: users.whatsappOptInAt,
   createdAt: users.createdAt,
 };
 
 async function loadProfile(db: AppEnv['Variables']['deps']['db'], userId: string) {
   const [p] = await db.select(profileColumns).from(users).where(eq(users.id, userId));
-  const { whatsappOptInAt, ...rest } = p;
-  return { ...rest, whatsappOptIn: Boolean(whatsappOptInAt), createdAt: p.createdAt.toISOString() };
+  const { whatsappOptInAt, image, ...rest } = p;
+  return {
+    ...rest,
+    image: image ?? null,
+    whatsappOptIn: Boolean(whatsappOptInAt),
+    createdAt: p.createdAt.toISOString(),
+  };
 }
 
 /** /me — the signed-in user's own profile and devices (docs/API.md §3). */
@@ -92,6 +107,72 @@ export const meRoutes = new Hono<AppEnv>()
         entityId: user.id,
         metadata: { fields: Object.keys(input) },
       });
+    }
+    return c.json({ data: await loadProfile(db, user.id) });
+  })
+
+  /** Profile photo: JPEG / PNG / WebP, max 2 MB. Relayed to Bunny Storage. */
+  .post('/me/avatar', async (c) => {
+    const { db, env } = c.get('deps');
+    const user = (await getUser(c))!;
+    const body = await c.req.parseBody();
+    const file = body.file;
+    if (!(file instanceof File)) {
+      throw new AppError('VALIDATION_ERROR', 'Choose an image to upload', {
+        details: [{ path: 'file', message: 'Choose an image to upload' }],
+      });
+    }
+    const ext = AVATAR_TYPES[file.type];
+    if (!ext) {
+      throw new AppError('VALIDATION_ERROR', 'Use a JPEG, PNG or WebP image', {
+        details: [{ path: 'file', message: 'Use a JPEG, PNG or WebP image' }],
+      });
+    }
+    if (file.size <= 0 || file.size > AVATAR_MAX_BYTES) {
+      throw new AppError('VALIDATION_ERROR', 'Keep the photo under 2 MB', {
+        details: [{ path: 'file', message: 'Keep the photo under 2 MB' }],
+      });
+    }
+
+    const before = await loadProfile(db, user.id);
+    const path = `avatars/${user.id}/${uuidv7()}.${ext}`;
+    await putObject(env, path, await file.arrayBuffer(), file.type);
+    const image = publicUrl(env, path);
+    await db.update(users).set({ image }).where(eq(users.id, user.id));
+
+    const oldPath = before.image ? pathFromPublicUrl(env, before.image) : null;
+    if (oldPath && oldPath !== path) {
+      try {
+        await deleteObject(env, oldPath);
+      } catch {
+        // Best-effort cleanup of the previous object.
+      }
+    }
+
+    await logActivity(c, {
+      action: 'user.avatar_upload',
+      entityType: 'user',
+      entityId: user.id,
+      metadata: { path },
+    });
+    return c.json({ data: await loadProfile(db, user.id) });
+  })
+
+  .delete('/me/avatar', async (c) => {
+    const { db, env } = c.get('deps');
+    const user = (await getUser(c))!;
+    const before = await loadProfile(db, user.id);
+    if (before.image) {
+      await db.update(users).set({ image: null }).where(eq(users.id, user.id));
+      const path = pathFromPublicUrl(env, before.image);
+      if (path && env.BUNNY_STORAGE_ZONE && env.BUNNY_STORAGE_KEY) {
+        try {
+          await deleteObject(env, path);
+        } catch {
+          // Row is already cleared; storage delete is best-effort.
+        }
+      }
+      await logActivity(c, { action: 'user.avatar_clear', entityType: 'user', entityId: user.id });
     }
     return c.json({ data: await loadProfile(db, user.id) });
   })

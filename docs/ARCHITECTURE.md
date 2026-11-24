@@ -57,7 +57,7 @@ public/
 | `/pricing` | Pricing | Professional Plan with Buy Now (checkout stub) |
 | `/demos` | Demos | Filter, search, pagination over demo videos |
 | `/contact` | Contact | Contact form (stub) |
-| `/account` | Account | Login, register, forgot password; signed-in view (verification status, log out) |
+| `/account` | Account | Login, register, forgot password. A signed-in visit redirects to `/dashboard` |
 | `/about`, `/services`, `/industries` | Static pages | |
 | `/privacy-policy`, `/terms`, `/refund-policy` | LegalPage | One component; text in `src/data/legal.ts` (linked from the footer) |
 | `/blog`, `/blog/:slug` | Blog | Excerpts only |

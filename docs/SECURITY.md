@@ -64,7 +64,7 @@ Implementation:
 | Bot protection | Turnstile on register, forgot password, leads; honeypot field on leads |
 | Mass assignment | Admin update schemas whitelist fields; `role` changes only via a dedicated endpoint |
 | Staff invites | Inviting an email that belongs to an unverified student account resets its password and sends the invite link (only the inbox owner can then sign in); only verified accounts are promoted in place (`server/routes/admin/team.ts`, tested in `team.admin.test.ts`) |
-| File uploads | Direct-to-Bunny signed uploads; MIME and size whitelist (images ≤ 5 MB; video via Bunny TUS); random keys; never served from our origin |
+| File uploads | Images go to Bunny Storage (zone key stays on the server). Student avatars: `POST /me/avatar` relays JPEG/PNG/WebP ≤ 2 MB to `avatars/{userId}/…` (Bunny has no browser pre-signed PUT without exposing the zone password). Admin media signed URLs still planned. Lesson video via Bunny TUS. Random keys; never served from our origin |
 | Errors | Generic messages to clients; full details only in logs/Sentry; `requestId` correlation |
 | Dependencies | `npm audit` / Dependabot in CI; lockfile committed |
 

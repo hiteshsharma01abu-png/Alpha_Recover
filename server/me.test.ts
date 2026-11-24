@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { afterAll, beforeAll, beforeEach, describe, expect, inject, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, inject, it, vi } from 'vitest';
 import { activityLogs, sessions, users } from './db/schema';
 import { describeDevice } from './lib/userAgent';
 import { browserHeaders, CookieJar, createTestContext, getJson, postJson, readJson, resetTables } from './test/helpers';
@@ -67,7 +67,102 @@ describe.skipIf(!dbAvailable)('/me (MySQL)', () => {
   it('returns the profile', async () => {
     const jar = await signedIn();
     const { data } = await readJson(await getJson(app(), '/me', jar));
-    expect(data).toMatchObject({ email: 'ravi@example.com', firstName: 'Ravi', lastName: null, country: 'IN', role: 'student', emailVerified: false, whatsappOptIn: false });
+    expect(data).toMatchObject({
+      email: 'ravi@example.com',
+      firstName: 'Ravi',
+      lastName: null,
+      country: 'IN',
+      role: 'student',
+      emailVerified: false,
+      whatsappOptIn: false,
+      image: null,
+    });
+  });
+
+  it('uploads and clears a profile photo via Bunny Storage', async () => {
+    const jar = await signedIn();
+    expect(
+      (await app().request('/api/v1/me/avatar', { method: 'POST', headers: { ...browserHeaders, Cookie: jar.header() }, body: new FormData() })).status,
+    ).toBe(400);
+    const unset = new FormData();
+    unset.append('file', new File([new Uint8Array([1])], 'a.png', { type: 'image/png' }));
+    expect(
+      (await app().request('/api/v1/me/avatar', { method: 'POST', headers: { ...browserHeaders, Cookie: jar.header() }, body: unset })).status,
+    ).toBe(503);
+
+    const storage = createTestContext({
+      BUNNY_STORAGE_ZONE: 'ar-media',
+      BUNNY_STORAGE_KEY: 'storage-key-secret',
+      BUNNY_CDN_HOSTNAME: 'cdn.example.test',
+    });
+    await resetTables(storage.db);
+    const sJar = new CookieJar();
+    await postJson(
+      storage.app,
+      '/auth/register',
+      {
+        firstName: 'Ravi',
+        email: 'avatar@example.com',
+        country: 'IN',
+        password: 'correct-horse-battery',
+        confirmPassword: 'correct-horse-battery',
+        acceptTerms: true,
+      },
+      sJar,
+    );
+
+    const puts: string[] = [];
+    const spy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
+      const url = String(input);
+      if (url.startsWith('https://storage.bunnycdn.com/ar-media/avatars/')) {
+        puts.push(`${init?.method ?? 'GET'} ${url}`);
+        return new Response(null, { status: init?.method === 'DELETE' ? 200 : 201 });
+      }
+      return new Response('unexpected', { status: 500 });
+    });
+
+    try {
+      const badType = new FormData();
+      badType.append('file', new File([new Uint8Array([1])], 'a.gif', { type: 'image/gif' }));
+      expect(
+        (await storage.app.request('/api/v1/me/avatar', { method: 'POST', headers: { ...browserHeaders, Cookie: sJar.header() }, body: badType })).status,
+      ).toBe(400);
+
+      const tooBig = new FormData();
+      tooBig.append('file', new File([new Uint8Array(2 * 1024 * 1024 + 1)], 'a.png', { type: 'image/png' }));
+      expect(
+        (await storage.app.request('/api/v1/me/avatar', { method: 'POST', headers: { ...browserHeaders, Cookie: sJar.header() }, body: tooBig })).status,
+      ).toBe(400);
+
+      const ok = new FormData();
+      ok.append('file', new File([new Uint8Array([137, 80, 78, 71])], 'me.png', { type: 'image/png' }));
+      const up = await storage.app.request('/api/v1/me/avatar', {
+        method: 'POST',
+        headers: { ...browserHeaders, Cookie: sJar.header() },
+        body: ok,
+      });
+      expect(up.status).toBe(200);
+      const body = await readJson(up);
+      expect(body.data.image).toMatch(/^https:\/\/cdn\.example\.test\/avatars\/.+\/.+\.png$/);
+      expect(puts.some((p) => p.startsWith('PUT '))).toBe(true);
+      expect(JSON.stringify(body)).not.toContain('storage-key-secret');
+
+      const session = await readJson(await getJson(storage.app, '/auth/session', sJar));
+      expect(session.data.user.image).toBe(body.data.image);
+
+      const cleared = await storage.app.request('/api/v1/me/avatar', {
+        method: 'DELETE',
+        headers: { ...browserHeaders, Cookie: sJar.header() },
+      });
+      expect(cleared.status).toBe(200);
+      expect((await readJson(cleared)).data.image).toBeNull();
+      expect(puts.some((p) => p.startsWith('DELETE '))).toBe(true);
+      expect(await storage.db.$count(activityLogs, eq(activityLogs.action, 'user.avatar_upload'))).toBe(1);
+      expect(await storage.db.$count(activityLogs, eq(activityLogs.action, 'user.avatar_clear'))).toBe(1);
+    } finally {
+      spy.mockRestore();
+      await storage.close();
+    }
   });
 
   it('updates allowed fields, normalizes the phone and clears optional ones', async () => {
