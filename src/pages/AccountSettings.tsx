@@ -2,11 +2,14 @@ import { useCallback, useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { REGISTER_COUNTRIES, type CountryCode } from '../../shared/countries';
+import { AuthTopBar, LearnerShell } from '../components/layout/LearnerShell';
 import { refreshSession, useAuth } from '../lib/auth';
 import { timeAgo } from '../lib/demoVideos';
 import { formErrors } from '../lib/leads';
+import { getDashboard } from '../lib/learning';
 import { changePassword, getProfile, listDevices, signOutDevice, updateProfile, type Device, type Profile } from '../lib/profile';
 import './SimplePages.css';
+import './Dashboard.css';
 
 type FormState = { busy: boolean; error: string; ok: string; fields: Record<string, string> };
 const idle: FormState = { busy: false, error: '', ok: '', fields: {} };
@@ -92,7 +95,7 @@ function ProfileForm({ profile, onSaved }: { profile: Profile; onSaved: (p: Prof
           <span className="settings-hint">Leave empty to use your first and last name.</span>
           <Err msg={state.fields.certificateName} />
         </div>
-        <div className="field">
+        <div className="field settings-wide">
           <label htmlFor="p-email">Email</label>
           <input id="p-email" value={profile.email} readOnly disabled />
           <span className="settings-hint">{profile.emailVerified ? '✓ Verified' : 'Not verified yet'}</span>
@@ -221,6 +224,7 @@ export function AccountSettings() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [devices, setDevices] = useState<Device[]>([]);
   const [loadError, setLoadError] = useState('');
+  const [hasActiveEnrollment, setHasActiveEnrollment] = useState(false);
 
   const loadDevices = useCallback(() => {
     listDevices()
@@ -228,49 +232,62 @@ export function AccountSettings() {
       .catch(() => setDevices([]));
   }, []);
 
+  const userId = auth.user?.id;
   useEffect(() => {
-    if (!auth.user) return;
+    if (!userId) return;
     getProfile()
       .then(setProfile)
       .catch(() => setLoadError('We couldn’t load your profile. Please refresh the page.'));
     loadDevices();
-  }, [auth.user, loadDevices]);
+    let live = true;
+    getDashboard()
+      .then((d) => {
+        if (live) setHasActiveEnrollment(d.hasActiveEnrollment);
+      })
+      .catch(() => {
+        if (live) setHasActiveEnrollment(false);
+      });
+    return () => {
+      live = false;
+    };
+  }, [userId, loadDevices]);
+
+  const body = (
+    <div className="settings-stack">
+      {!auth.loaded ? <div className="panel" aria-busy="true" /> : null}
+      {auth.loaded && !auth.user ? (
+        <div className="panel account-glass">
+          <p>Please log in to manage your account.</p>
+          <Link className="btn btn-primary" to="/account">
+            Log in
+          </Link>
+        </div>
+      ) : null}
+      {loadError ? <p className="form-error">{loadError}</p> : null}
+      {auth.user && profile ? (
+        <div className="settings-forms">
+          <ProfileForm profile={profile} onSaved={setProfile} />
+          <div className="settings-side">
+            <PasswordForm onChanged={loadDevices} />
+            <Devices devices={devices} onChange={loadDevices} />
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+
+  if (!auth.loaded || !auth.user) {
+    return (
+      <div className="dsh-gate">
+        <AuthTopBar />
+        <section className="dsh-gate-body">{body}</section>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <div className="page-hero">
-        <div className="container">
-          <div className="breadcrumb">
-            <Link to="/">Home</Link>
-            <span>/</span>
-            <Link to="/account">My Account</Link>
-            <span>/</span>
-            <span>Settings</span>
-          </div>
-          <h1>Account settings</h1>
-        </div>
-      </div>
-      <section className="section">
-        <div className="container narrow settings-stack">
-          {!auth.loaded ? <div className="panel" aria-busy="true" /> : null}
-          {auth.loaded && !auth.user ? (
-            <div className="panel">
-              <p>Please log in to manage your account.</p>
-              <Link className="btn btn-primary" to="/account">
-                Log in
-              </Link>
-            </div>
-          ) : null}
-          {loadError ? <p className="form-error">{loadError}</p> : null}
-          {auth.user && profile ? (
-            <>
-              <ProfileForm profile={profile} onSaved={setProfile} />
-              <PasswordForm onChanged={loadDevices} />
-              <Devices devices={devices} onChange={loadDevices} />
-            </>
-          ) : null}
-        </div>
-      </section>
-    </div>
+    <LearnerShell title="Account settings" showUpgrade={!hasActiveEnrollment}>
+      {body}
+    </LearnerShell>
   );
 }

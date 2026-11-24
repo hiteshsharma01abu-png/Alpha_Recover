@@ -1,11 +1,29 @@
-/* Student dashboard (/dashboard) */
+/* Student dashboard (/dashboard) — premium learner layout */
+
+.dsh-gate {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 70% 50% at 80% -10%, color-mix(in srgb, var(--mint) 12%, transparent), transparent 55%),
+    linear-gradient(165deg, #031611 0%, var(--surface) 48%, #04140f 100%);
+}
+
+.dsh-gate-body {
+  display: grid;
+  place-items: center;
+  padding: 2rem 1.25rem 3rem;
+  min-height: calc(100vh - 5rem);
+}
+
 .dsh {
   display: grid;
-  gap: 1rem;
+  gap: 1.25rem;
+  max-width: 72rem;
 }
 
 .dsh-loading {
   min-height: 240px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--mint) 6%, transparent);
 }
 
 .dsh-muted {
@@ -14,32 +32,8 @@
   color: var(--text-sub);
 }
 
-.dsh-continue {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 1.1rem;
-  padding: 1.25rem 1.5rem;
-  border: 1px solid color-mix(in srgb, var(--mint) 30%, transparent);
-  border-radius: 16px;
-  background:
-    radial-gradient(ellipse 50% 90% at 100% 50%, color-mix(in srgb, var(--mint) 12%, transparent), transparent 70%),
-    var(--surface);
-}
-
-.dsh-continue > img {
-  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--mint) 40%, transparent));
-}
-
-.dsh-continue h2 {
-  margin: 0.15rem 0 0.25rem;
-  font-family: var(--font-body);
-  font-size: clamp(1.1rem, 2.2vw, 1.35rem);
-  font-weight: 800;
-}
-
 .dsh-kicker {
-  margin: 0;
+  margin: 0 0 0.35rem;
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -48,32 +42,135 @@
 }
 
 .dsh-heading {
-  margin: 1.25rem 0 0.25rem;
+  margin: 0;
   font-family: var(--font-body);
   font-size: 1.15rem;
   font-weight: 800;
 }
 
-.dsh-grid {
+.dsh-section {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.dsh-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
   gap: 1rem;
 }
 
-.dsh-course {
+.dsh-view-all {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--mint);
+  text-decoration: none;
+}
+
+.dsh-view-all:hover {
+  text-decoration: underline;
+}
+
+.dsh-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1.25rem;
+  padding: clamp(1.25rem, 3vw, 1.75rem);
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 45% 90% at 100% 50%, color-mix(in srgb, var(--mint) 14%, transparent), transparent 70%),
+    var(--glass-bg);
+}
+
+.dsh-hero-copy h2 {
+  margin: 0 0 0.45rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 2.8vw, 1.85rem);
+  font-weight: 800;
+}
+
+.dsh-hero-copy .dsh-muted {
+  margin-bottom: 1rem;
+  max-width: 36rem;
+}
+
+.dsh-hero-cta {
+  display: inline-flex;
+}
+
+.dsh-hero-art {
+  width: min(280px, 32vw);
+  height: auto;
+  filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.4));
+  pointer-events: none;
+}
+
+.dsh-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.dsh-stat {
   display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  padding: 1.1rem 1.2rem;
-  border: 1px solid color-mix(in srgb, var(--mint) 18%, transparent);
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.95rem 1.05rem;
+}
+
+.dsh-stat img {
+  width: 1.35rem;
+  height: 1.35rem;
+  flex-shrink: 0;
+}
+
+.dsh-stat strong {
+  display: block;
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--mint);
+}
+
+.dsh-stat span {
+  font-size: 0.78rem;
+  color: var(--content);
+  font-weight: 650;
+}
+
+.dsh-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.dsh-course {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.95rem 1.05rem;
+}
+
+.dsh-course-thumb {
+  width: 4.25rem;
+  height: 4.25rem;
+  object-fit: cover;
   border-radius: 14px;
-  background: var(--surface);
+  border: 1px solid color-mix(in srgb, var(--mint) 18%, transparent);
+}
+
+.dsh-course-body {
+  display: grid;
+  gap: 0.4rem;
+  min-width: 0;
 }
 
 .dsh-course h3 {
   margin: 0;
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: 0.98rem;
   font-weight: 800;
   line-height: 1.35;
 }
@@ -89,7 +186,7 @@
 
 .dsh-bar {
   display: block;
-  height: 6px;
+  height: 7px;
   overflow: hidden;
   border-radius: 999px;
   background: var(--chip);
@@ -100,13 +197,133 @@
   height: 100%;
   border-radius: inherit;
   background: var(--mint);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--mint) 45%, transparent);
 }
 
-.dsh-course-btn {
-  align-self: flex-start;
-  margin-top: auto;
-  padding: 0.55rem 1rem;
-  font-size: 0.88rem;
+.dsh-play {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--mint) 35%, transparent);
+  background: color-mix(in srgb, var(--mint) 14%, transparent);
+  flex-shrink: 0;
+}
+
+.dsh-play:hover {
+  background: color-mix(in srgb, var(--mint) 24%, transparent);
+}
+
+.dsh-play img {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.dsh-progress-block {
+  padding: 1.25rem 1.35rem;
+}
+
+.dsh-progress-block .dsh-heading {
+  margin-bottom: 0.85rem;
+}
+
+.dsh-progress-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.dsh-ring {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.dsh-ring svg {
+  display: block;
+}
+
+.dsh-ring-track {
+  fill: none;
+  stroke: var(--chip);
+  stroke-width: 10;
+}
+
+.dsh-ring-fill {
+  fill: none;
+  stroke: var(--mint);
+  stroke-width: 10;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--mint) 50%, transparent));
+}
+
+.dsh-ring-label {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+}
+
+.dsh-ring-label strong {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--mint);
+  line-height: 1;
+}
+
+.dsh-ring-label small {
+  font-size: 0.72rem;
+  color: var(--content);
+  font-weight: 650;
+}
+
+.dsh-progress-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.dsh-progress-stats div {
+  padding: 0.75rem 0.85rem;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--mint) 12%, transparent);
+  background: color-mix(in srgb, var(--mint) 5%, transparent);
+}
+
+.dsh-progress-stats strong {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.dsh-progress-stats span {
+  font-size: 0.78rem;
+  color: var(--content);
+  font-weight: 650;
+}
+
+.dsh-milestone {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+}
+
+.dsh-milestone-copy p:not(.dsh-kicker) {
+  margin: 0 0 0.55rem;
+  font-size: 0.92rem;
+  color: var(--text-sub);
+}
+
+.dsh-milestone-pct {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--mint);
 }
 
 .dsh-certs {
@@ -122,10 +339,7 @@
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.9rem;
-  padding: 0.85rem 1rem;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--surface);
+  padding: 0.95rem 1.1rem;
 }
 
 .dsh-certs strong,
@@ -163,7 +377,7 @@
   gap: 0.6rem;
   max-width: 560px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 2rem 1.35rem;
   text-align: center;
 }
 
@@ -188,22 +402,42 @@
 }
 
 @media (max-width: 1024px) {
-  .dsh-grid {
+  .dsh-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-}
 
-@media (max-width: 640px) {
   .dsh-grid {
     grid-template-columns: minmax(0, 1fr);
   }
+}
 
-  .dsh-continue {
+@media (max-width: 760px) {
+  .dsh-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .dsh-hero-art {
+    width: min(220px, 70vw);
+    justify-self: end;
+  }
+
+  .dsh-progress-row {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .dsh-progress-stats {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .dsh-milestone {
     grid-template-columns: auto minmax(0, 1fr);
   }
 
-  .dsh-continue .btn {
-    grid-column: 1 / -1;
+  .dsh-milestone-pct {
+    grid-column: 2;
   }
 
   .dsh-certs li {
@@ -213,5 +447,16 @@
   .dsh-cert-actions {
     grid-column: 1 / -1;
     justify-content: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .dsh-course {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .dsh-play {
+    grid-column: 2;
+    justify-self: start;
   }
 }

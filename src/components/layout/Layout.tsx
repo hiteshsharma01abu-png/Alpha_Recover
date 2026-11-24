@@ -8,12 +8,19 @@ import { RouteScrollReset } from './RouteScrollReset';
 import { ScrollToTop } from './ScrollToTop';
 import '../../styles/glass.css';
 
+/** /account, /account/settings and /dashboard use their own chrome (AuthTopBar / LearnerShell). */
+function isLearnerChrome(pathname: string) {
+  return pathname === '/account' || pathname === '/account/settings' || pathname === '/dashboard';
+}
+
 export function Layout() {
-  const isHome = useLocation().pathname === '/';
+  const { pathname } = useLocation();
+  const isHome = pathname === '/';
+  const learner = isLearnerChrome(pathname);
 
   // <html data-home> on the homepage: sections shared with other pages (pricing card, training
   // explorer) keep their original homepage buttons there (docs/DESIGN.md §5). The header and
-  // footer are identical on every page and never use this flag.
+  // footer are identical on every page except learner chrome routes (docs/DESIGN.md §5).
   useLayoutEffect(() => {
     document.documentElement.toggleAttribute('data-home', isHome);
   }, [isHome]);
@@ -22,13 +29,17 @@ export function Layout() {
     <>
       <PageMeta />
       <RouteScrollReset />
-      <Header />
-      <main className="page">
+      {learner ? null : <Header />}
+      <main className={learner ? 'page page-learner' : 'page'}>
         <Outlet />
       </main>
-      <Footer />
-      <ScrollToTop />
-      <WhatsAppFloat />
+      {learner ? null : (
+        <>
+          <Footer />
+          <ScrollToTop />
+          <WhatsAppFloat />
+        </>
+      )}
     </>
   );
 }

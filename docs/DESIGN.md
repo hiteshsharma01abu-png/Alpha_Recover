@@ -62,7 +62,7 @@ Fonts load from Google Fonts at the top of `global.css`. Base body size is 16px,
 
 | Pattern | Where | Notes |
 |---|---|---|
-| Buttons | `.btn` + `.btn-primary` / `.btn-ghost` / `.btn-cyan`; section variants (`pp-btn-*`, `tx-btn-*`, `demos-btn-*`, …) | **One site button look**: the soft ivory → teal gradient (the hero "Demo Videos" pill), from the `--btn-soft-*` tokens in `global.css` (background, hover, active, text, border, shadow). New buttons use those tokens. **Homepage exception:** the homepage keeps its original buttons (brass "View Plan", outline buttons); page sections shared with other pages (pricing card, training explorer) switch to the site look only under `:root:not([data-home])` (`Layout.tsx` sets `data-home` on `/`). **The header and footer are the same on every page** (one `Header` / `Footer` in `Layout.tsx`, no page-specific styling) and keep their approved design, including the brass "Register / Login" |
+| Buttons | `.btn` + `.btn-primary` / `.btn-ghost` / `.btn-cyan`; section variants (`pp-btn-*`, `tx-btn-*`, `demos-btn-*`, …) | **One site button look**: the soft ivory → teal gradient (the hero "Demo Videos" pill), from the `--btn-soft-*` tokens in `global.css` (background, hover, active, text, border, shadow). New buttons use those tokens. **Homepage exception:** the homepage keeps its original buttons (brass "View Plan", outline buttons); page sections shared with other pages (pricing card, training explorer) switch to the site look only under `:root:not([data-home])` (`Layout.tsx` sets `data-home` on `/`). **Header / footer:** the marketing `Header` / `Footer` / WhatsApp float are the same on every public page **except** `/account` and `/dashboard`, which use `AuthTopBar` (logged out) or `LearnerShell` (`lrn-`, signed in) instead. Those screens still use `--btn-soft-*` for primary actions (not a mint fill) |
 | Form fields | `.field` (label + input/select/textarea), `.check` (checkbox row) | Account page uses its own `acc-*` field styling with leading icons |
 | Panels / cards | `.panel`, glass tokens (`--glass-bg`, `--glass-border`, `--glass-shadow`, `--glass-blur`) in `glass.css` | Use the glass tokens for new elevated cards |
 | Glass "orb" icons | `--glass-orb-*` tokens | Round 3D icon badges (pricing perks) |
@@ -72,6 +72,7 @@ Fonts load from Google Fonts at the top of `global.css`. Base body size is 16px,
 | Form states | `.field-error`, `.form-error`, `.form-success`, `.hp-field` (honeypot), `.turnstile-box` in `global.css`; `.success` (page-scoped in `SimplePages.css`) | Use these for every API-backed form: errors in `--danger`, success in `--ok`. The `<Turnstile>` widget lives in `src/components/ui/Turnstile.tsx`; `submitLead()` / `formErrors()` in `src/lib/leads.ts` |
 | Floating actions | WhatsApp float, scroll-to-top | Bottom corners; keep new floating UI clear of them |
 | Inner-page hero | `<PageHero crumbs title sub art>` in `src/components/ui/PageHero.tsx` (`ph-`) | Breadcrumb, title, subtitle, optional chips (children) and a glowing illustration (`heroArt` in `src/data/pageContent.ts`); used by Services, Industries, Blog, Training track, Verify Certificate. The illustration hides below 760px |
+| Learner chrome | `LearnerShell` / `AuthTopBar` in `src/components/layout/LearnerShell.tsx` (`lrn-`, `auth-top`); assets in `public/assets/alpha-recovery-assets/` via `src/lib/learnerAssets.ts` | Premium dark emerald shell for `/account`, `/account/settings` and `/dashboard`. Sidebar: My Learning (`/dashboard`, page title “My Learning”), courses/progress/certificates anchors, Account settings, Support. The `/account` header title is “Hi, {first name}”. The name chip opens a menu with Log out and Log out of all devices. Mobile bottom bar keeps the main learning links; More includes My Learning, Account settings and Support. Upgrade card shows when `hasActiveEnrollment` is false (Professional Plan → `/pricing`). Stats and progress come from `GET /me/dashboard` — no invented totals |
 | Icon cards | `<IconCard item>` in `.ic-grid` (`src/components/ui/IconCard.tsx`, `ic-`) | Icon tile + title + text + mint pill link; 3 / 2 / 1 columns |
 | Feature strip | `<FeatureStrip items>` (`src/components/ui/FeatureStrip.tsx`, `fs-`) | Bordered row of icon highlights at the bottom of inner pages; 4 → 2 → 1 columns |
 | Article content | `.prose` (in `SimplePages.css`) + `<Markdown source>` from `src/components/ui/Markdown.tsx` | Headings (`#`/`##` → h2), lists, quotes (brass left border), code blocks (`--dark-band`), inline code (`--chip`), brass underlined links |
@@ -118,8 +119,8 @@ Fonts load from Google Fonts at the top of `global.css`. Base body size is 16px,
 
 ## 11. Building new screens (dashboard, player, admin)
 
-1. Start from `.page-hero` + `.breadcrumb` + `.container` + `.section`.
-2. Use glass panel tokens for cards, `.btn-primary` / `.btn-ghost` for actions, `.field` for forms.
-3. Pick a new unique class prefix for the screen (e.g. `dash-*`, `player-*`, `adm-*`).
+1. Start from `.page-hero` + `.breadcrumb` + `.container` + `.section` for marketing pages; for `/account` and `/dashboard`, start from `LearnerShell` / `AuthTopBar` and the `dsh-*` / `auth-*` / `acc-*` patterns already on those pages.
+2. Use glass panel tokens for cards, `.btn-primary` / `.btn-ghost` (or `.account-submit`) for actions — keep `--btn-soft-*`, do not invent a mint primary button.
+3. Pick a new unique class prefix for the screen (e.g. `dsh-*`, `player-*`, `adm-*`, `lrn-*`).
 4. Use `--ok` / `--danger` for status; `--brass` sparingly for emphasis.
 5. Check all four target widths and reduced motion before merging.
