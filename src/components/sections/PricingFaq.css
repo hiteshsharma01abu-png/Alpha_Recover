@@ -175,33 +175,6 @@
   font-weight: 650;
 }
 
-.pfq-more {
-  margin-top: 1.75rem;
-  padding: 1.25rem 1.15rem;
-  border-radius: 16px;
-  border: 1px solid color-mix(in srgb, var(--mint) 16%, transparent);
-  background: color-mix(in srgb, var(--dark-band) 55%, transparent);
-  text-align: center;
-  display: grid;
-  gap: 0.65rem;
-  justify-items: center;
-}
-
-.pfq-more h3 {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: 1.2rem;
-  font-weight: 800;
-}
-
-.pfq-more p {
-  margin: 0;
-  max-width: 32rem;
-  color: var(--content);
-  font-size: 0.92rem;
-  line-height: 1.45;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .pfq-tab,
   .pfq-item,

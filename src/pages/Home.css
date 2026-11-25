@@ -603,55 +603,6 @@
   padding-block: clamp(3.5rem, 7vw, 5.75rem);
 }
 
-.gs-bg {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
-  /* Soften dense grid/dot texture from the plate */
-  opacity: 0.38;
-  pointer-events: none;
-}
-
-.gs-wave {
-  position: absolute;
-  left: 0;
-  width: 100%;
-  height: auto;
-  z-index: 1;
-  pointer-events: none;
-  mix-blend-mode: screen;
-}
-
-.gs-wave-top {
-  top: 0;
-  transform: translateY(-28%);
-  opacity: 0.14;
-}
-
-.gs-wave-bottom {
-  bottom: 0;
-  transform: scaleY(-1) translateY(-6%);
-  opacity: 0.42;
-  filter: drop-shadow(0 0 18px rgba(125, 255, 192, 0.18));
-}
-
-.gs-globe {
-  position: absolute;
-  z-index: 1;
-  right: clamp(-2%, 2vw, 4%);
-  top: clamp(0%, 3vw, 6%);
-  width: min(48vw, 580px);
-  max-width: 600px;
-  height: auto;
-  pointer-events: none;
-  opacity: 0.92;
-  mix-blend-mode: screen;
-  filter: drop-shadow(0 0 56px rgba(125, 255, 192, 0.35));
-}
-
 .gs-shell {
   position: relative;
   z-index: 2;
@@ -1056,21 +1007,9 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.95rem;
   }
-
-  .gs-globe {
-    width: min(40vw, 440px);
-    opacity: 0.8;
-  }
 }
 
 @media (max-width: 1100px) {
-  .gs-globe {
-    width: min(52vw, 340px);
-    top: 2%;
-    right: -6%;
-    opacity: 0.5;
-  }
-
   .gs-head {
     max-width: min(100%, 28rem);
   }
@@ -1399,27 +1338,6 @@
     margin-top: 0.15rem;
     font-size: 0.6rem;
     line-height: 1.3;
-  }
-
-  .gs-globe {
-    width: min(62vw, 230px);
-    top: 0.75rem;
-    right: -12%;
-    opacity: 0.5;
-  }
-
-  .gs-bg {
-    opacity: 0.28;
-  }
-
-  .gs-wave-top {
-    transform: translateY(-32%);
-    opacity: 0.08;
-  }
-
-  .gs-wave-bottom {
-    transform: scaleY(-1) translateY(-8%);
-    opacity: 0.28;
   }
 }
 

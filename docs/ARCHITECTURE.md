@@ -54,7 +54,7 @@ public/
 | `/` | Home | Hero, solutions, training explorer, pro training, demo videos, Professional Plan, contact CTA |
 | `/training` | TrainingIndex | Training explorer + pro training |
 | `/training/:trackId` | TrainingTrack | Track modules and lessons; each lesson links to the player |
-| `/pricing` | Pricing | Three plans (Essential / Professional / Expert Coming soon), comparison, static FAQ; Buy Now is still the Phase 5 checkout stub. Home keeps the single Professional card |
+| `/pricing` | Pricing | Three plans (Essential / Professional / Expert Coming soon), comparison, static FAQ, one post-FAQ WhatsApp guidance consult, final enroll stub; Buy Now is still the Phase 5 checkout stub. Home keeps the single Professional card |
 | `/demos` | Demos | Filter, search, pagination over demo videos |
 | `/contact` | Contact | Contact form (stub) |
 | `/account` | Account | Login, register, forgot password. A signed-in visit redirects to `/dashboard` |

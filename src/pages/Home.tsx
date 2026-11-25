@@ -4,9 +4,6 @@ import { ContactCtaSection } from '../components/sections/ContactCtaSection';
 import { DemoVideosSection } from '../components/sections/DemoVideosSection';
 import {
   globalStatIcons,
-  globalStatsBg,
-  globalStatsGlobe,
-  globalStatsWave,
   heroHighlightIcons,
 } from '../components/visuals/impactVisuals';
 import { ProfessionalPlanSection } from '../components/sections/ProfessionalPlanSection';
@@ -180,15 +177,6 @@ export function Home() {
       </section>
 
       <Reveal as="section" className="section impact-section">
-        <div
-          className="gs-bg"
-          style={{ backgroundImage: `url(${globalStatsBg})` }}
-          aria-hidden
-        />
-        <img className="gs-wave gs-wave-top" src={globalStatsWave} alt="" aria-hidden />
-        <img className="gs-wave gs-wave-bottom" src={globalStatsWave} alt="" aria-hidden />
-        <img className="gs-globe" src={globalStatsGlobe} alt="" aria-hidden />
-
         <div className="container gs-shell">
           <div className="gs-head">
             <span className="gs-accent" aria-hidden />

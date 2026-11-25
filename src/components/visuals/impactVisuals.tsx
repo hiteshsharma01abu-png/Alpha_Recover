@@ -3,10 +3,6 @@ import { icons } from '../../lib/icons';
 
 const ASSET = '/assets';
 
-export const globalStatsBg = `${ASSET}/images/backgrounds/global-stats-bg.webp`;
-export const globalStatsGlobe = `${ASSET}/images/illustrations/global-stats-globe.png`;
-export const globalStatsWave = `${ASSET}/images/backgrounds/global-stats-wave.png`;
-
 export const globalStatIcons: Record<string, string> = {
   Languages: `${ASSET}/images/stat-icons/stat-icon-languages.png`,
   Trainees: `${ASSET}/images/stat-icons/stat-icon-trainees.png`,

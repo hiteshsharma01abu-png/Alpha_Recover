@@ -1,12 +1,10 @@
 import { useEffect, useId, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { company } from '../../data/content';
 import {
   faqCategories,
   pricingFaqs,
   type FaqCategoryId,
 } from '../../data/pricingPlans';
-import { useSiteSettings } from '../../lib/settings';
 import './PricingFaq.css';
 
 function renderAnswer(text: string) {
@@ -24,10 +22,8 @@ function renderAnswer(text: string) {
 
 export function PricingFaq() {
   const baseId = useId();
-  const { company: liveCompany } = useSiteSettings();
   const [category, setCategory] = useState<FaqCategoryId>('general');
   const [openId, setOpenId] = useState<string | null>(null);
-  const whatsappHref = liveCompany.whatsapp || company.whatsapp;
   const items = pricingFaqs.filter((item) => item.category === category);
 
   useEffect(() => {
@@ -123,22 +119,6 @@ export function PricingFaq() {
               </div>
             );
           })}
-        </div>
-
-        <div className="pfq-more">
-          <h3>Still have questions?</h3>
-          <p>
-            Get personalised guidance from the {liveCompany.name || company.name} team before you
-            choose a plan.
-          </p>
-          <a
-            className="btn btn-primary"
-            href={whatsappHref}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Ask on WhatsApp
-          </a>
         </div>
       </div>
     </section>
