@@ -65,7 +65,7 @@ Without a `POSTMARK_SERVER_TOKEN`, emails are printed to the API log instead of 
 - Frontend: Vite + React + TypeScript, React Router, custom CSS (no UI kit); public pages pre-rendered to static HTML for SEO
 - API (Phase 1 foundation): Node.js + Hono, MySQL + Drizzle, Better Auth. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
-The pages don't call the API yet: auth, payments, leads and the training portal are still UI stubs. Progress is tracked in [docs/PLAN.md](docs/PLAN.md).
+Login and registration, the student dashboard and lesson player, certificates and Razorpay checkout use the API; some forms are still UI stubs. Progress is tracked in [docs/PLAN.md](docs/PLAN.md).
 
 ## Brand
 
@@ -81,7 +81,8 @@ The pages don't call the API yet: auth, payments, leads and the training portal 
 | `/` | Home |
 | `/training` | Training solutions |
 | `/training/:trackId` | Training track (modules + lessons) |
-| `/pricing` | Essential / Professional / Expert plans + FAQ (Buy Now stub) |
+| `/pricing` | Essential / Professional / Expert plans + FAQ; Buy Now opens Razorpay Checkout |
+| `/checkout/success`, `/checkout/failed` | Result after paying (order status, next steps) |
 | `/demos` | Demo videos |
 | `/contact` | Contact |
 | `/account` | Login / Register |
@@ -93,7 +94,7 @@ The pages don't call the API yet: auth, payments, leads and the training portal 
 | `/blog/:slug` | Blog post |
 | `/verify-certificate` | Verify certificate |
 | `/admin` | Admin panel (staff only; separate lazy-loaded chunk) |
-| `/account/settings` | Account settings: profile, password, devices |
+| `/account/settings` | Account settings: profile, password, devices, purchases |
 | `/dashboard` | My Learning: courses with progress, continue learning, certificates |
 | `/learn/:course/:module/:lesson` | Lesson player with the course outline and progress |
 | `/verify-email` | Email verification (link from email) |

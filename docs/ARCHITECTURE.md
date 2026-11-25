@@ -54,15 +54,16 @@ public/
 | `/` | Home | Hero, solutions, training explorer, pro training, demo videos, Professional Plan, contact CTA |
 | `/training` | TrainingIndex | Training explorer + pro training |
 | `/training/:trackId` | TrainingTrack | Track modules and lessons; each lesson links to the player |
-| `/pricing` | Pricing | Three plans (Essential / Professional / Expert Coming soon), comparison, static FAQ, one post-FAQ WhatsApp guidance consult, final enroll stub; Buy Now is still the Phase 5 checkout stub. Home keeps the single Professional card |
+| `/pricing` | Pricing | Three plans (Essential / Professional / Expert Coming soon), comparison, static FAQ, one post-FAQ WhatsApp guidance consult, final Enroll Now. Buy Now / Enroll Now open Razorpay Checkout (`useBuyPlan`; signed-out visitors go to `/account?mode=register&next=…`). Home keeps the single Professional card (links to `/pricing`) |
 | `/demos` | Demos | Filter, search, pagination over demo videos |
 | `/contact` | Contact | Contact form (stub) |
-| `/account` | Account | Login, register, forgot password. A signed-in visit redirects to `/dashboard` |
+| `/account` | Account | Login, register, forgot password (`?mode=register\|forgot`). A signed-in visit redirects to `?next=` (same-site paths only) or `/dashboard` |
+| `/checkout/success`, `/checkout/failed` | CheckoutResult | After Razorpay Checkout (`?order=`, failed also `&reason=`). Success reads `GET /me/orders/:orderNumber` and keeps checking while the payment confirms. Signed-in only, `noindex` |
 | `/about`, `/services`, `/industries` | Static pages | |
 | `/privacy-policy`, `/terms`, `/refund-policy` | LegalPage | One component; text in `src/data/legal.ts` (linked from the footer) |
 | `/blog`, `/blog/:slug` | Blog | Excerpts only |
 | `/verify-certificate` | VerifyCertificate | Certificate lookup (API) |
-| `/account/settings` | AccountSettings | Profile, change password, your devices (sign out others) |
+| `/account/settings` | AccountSettings | Profile, change password, your devices (sign out others), purchases (`#purchases`, `GET /me/orders`) |
 | `/dashboard` | Dashboard | My Learning: accessible courses with progress, continue learning, certificates (`GET /me/dashboard`) |
 | `/learn/:courseSlug/:moduleSlug/:lessonSlug` | LessonPlayer | Bunny embed (signed URL), locked / coming-soon states, mark complete, prev/next, outline with progress; saves position every 15 s, on pause and at the end via the player.js messages |
 | `/verify-email` | VerifyEmail | Landing page for the verification email link (`?token=`) |

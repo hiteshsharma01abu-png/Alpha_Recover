@@ -85,7 +85,15 @@ export async function startCheckout(
     )
     .limit(1);
   if (open) {
-    return { orderNumber: open.orderNumber, amountPaise, currency: open.currency, planName: priced.name, razorpay: { keyId, orderId: open.providerOrderId!, prefill: prefill(open) } };
+    // A phone added to the profile since the order was created still pre-fills Checkout
+    const billingPhone = input.billing.phone || open.billingPhone || user.phone;
+    return {
+      orderNumber: open.orderNumber,
+      amountPaise,
+      currency: open.currency,
+      planName: priced.name,
+      razorpay: { keyId, orderId: open.providerOrderId!, prefill: prefill({ ...open, billingPhone }) },
+    };
   }
 
   const promotionId = priced.promotion

@@ -255,6 +255,23 @@
   margin-top: 0.35rem;
 }
 
+.px-buy-error {
+  margin: 0.6rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--danger);
+}
+
+.px-buy-error a {
+  font-weight: 700;
+  color: var(--mint);
+}
+
+.px-btn[disabled] {
+  cursor: progress;
+  opacity: 0.75;
+}
+
 .px-btn {
   appearance: none;
   display: inline-flex;

@@ -1,7 +1,7 @@
 import { createHmac } from 'node:crypto';
 import { eq } from 'drizzle-orm';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, inject, it, vi } from 'vitest';
-import { activityLogs, enrollments, notificationJobs, orders, payments, paymentWebhookEvents, plans } from './db/schema';
+import { activityLogs, enrollments, notificationJobs, orders, payments, paymentWebhookEvents, plans, users } from './db/schema';
 import { seedCatalog, seedPlans } from './db/seed';
 import { grantEnrollment } from './services/enrollments';
 import { loadPlans } from './services/pricing';
@@ -101,6 +101,13 @@ describe.skipIf(!dbAvailable)('checkout and Razorpay payments (MySQL)', () => {
       const again = (await readJson(await checkout('essential'))).data;
       expect(again.orderNumber).toBe(data.orderNumber);
       expect(rzpOrders).toHaveLength(1);
+
+      // A phone added to the profile after the order was created still pre-fills Checkout on reuse
+      const other = await loginAs(ctx, 'student', 'Asha');
+      expect((await readJson(await checkout('essential', other.jar))).data.razorpay.prefill.contact).toBe('');
+      await ctx.db.update(users).set({ phone: '+919812345678' }).where(eq(users.id, other.id));
+      expect((await readJson(await checkout('essential', other.jar))).data.razorpay.prefill.contact).toBe('+919812345678');
+      expect(rzpOrders).toHaveLength(2);
     });
 
     it('uses the running sale price for the Professional Plan', async () => {
@@ -157,10 +164,13 @@ describe.skipIf(!dbAvailable)('checkout and Razorpay payments (MySQL)', () => {
       const active = await activeEnrollments();
       expect(active).toHaveLength(1);
       expect(active[0]).toMatchObject({ userId: student.id, source: 'purchase', orderId: order.id, expiresAt: null });
-      expect(await emails()).toEqual([
-        { template: 'order_receipt', to: student.email },
-        { template: 'enrollment_welcome', to: student.email },
-      ]);
+      expect(await emails()).toEqual(
+        expect.arrayContaining([
+          { template: 'order_receipt', to: student.email },
+          { template: 'enrollment_welcome', to: student.email },
+        ]),
+      );
+      expect(await emails()).toHaveLength(2);
       expect((await ctx.db.select().from(activityLogs).where(eq(activityLogs.action, 'order.paid'))).map((a) => a.metadata)).toEqual([
         { orderNumber: data.orderNumber, amountPaise: 99900, via: 'checkout' },
       ]);

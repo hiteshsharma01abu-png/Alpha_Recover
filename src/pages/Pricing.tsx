@@ -8,6 +8,7 @@ import { pricingPlans } from '../data/pricingPlans';
 import { icons } from '../lib/icons';
 import { type Plan, usePlans, withoutSale } from '../lib/plans';
 import { useSiteSettings } from '../lib/settings';
+import { useBuyPlan } from '../lib/useBuyPlan';
 import '../components/sections/ProfessionalPlanSection.css';
 import './PricingPage.css';
 
@@ -96,13 +97,35 @@ function cellMarkup(value: CompareCell) {
   return value;
 }
 
+type BuyError = { message: string; owned: boolean };
+
+/** Why checkout didn't open; owners get a link to their courses instead. */
+function BuyMessage({ error }: { error: BuyError | null }) {
+  if (!error) return null;
+  return (
+    <p className="px-buy-error" role="alert">
+      {error.message}
+      {error.owned ? (
+        <>
+          {' '}
+          <Link to="/dashboard">Go to My Learning</Link>
+        </>
+      ) : null}
+    </p>
+  );
+}
+
 function PlanCard({
   plan,
   onBuy,
+  busy,
+  error,
   whatsappHref,
 }: {
   plan: Plan;
   onBuy: () => void;
+  busy: boolean;
+  error: BuyError | null;
   whatsappHref: string;
 }) {
   const staticDef = pricingPlans.find((p) => p.slug === plan.slug);
@@ -146,12 +169,12 @@ function PlanCard({
             Coming soon
           </button>
         ) : recommended ? (
-          <button type="button" className="px-btn px-btn-gold" onClick={onBuy}>
-            {ctaLabel}
+          <button type="button" className="px-btn px-btn-gold" onClick={onBuy} disabled={busy} aria-busy={busy}>
+            {busy ? 'Opening checkout…' : ctaLabel}
           </button>
         ) : (
-          <button type="button" className="px-btn px-btn-primary" onClick={onBuy}>
-            {ctaLabel}
+          <button type="button" className="px-btn px-btn-primary" onClick={onBuy} disabled={busy} aria-busy={busy}>
+            {busy ? 'Opening checkout…' : ctaLabel}
           </button>
         )}
         <a className="px-btn px-btn-ghost" href={whatsappHref} target="_blank" rel="noopener noreferrer">
@@ -159,6 +182,7 @@ function PlanCard({
           Ask on WhatsApp
         </a>
       </div>
+      <BuyMessage error={error} />
     </article>
   );
 }
@@ -176,9 +200,7 @@ export function Pricing() {
   const professional = plans.find((p) => p.slug === 'professional');
   const promo = !saleOver ? professional?.promotion : null;
 
-  function onBuy() {
-    alert('Checkout will connect once you pick payments (Razorpay / Stripe / etc.).');
-  }
+  const { buy, busy, error } = useBuyPlan();
 
   return (
     <div className="px-page">
@@ -211,7 +233,14 @@ export function Pricing() {
         <div className="container">
           <div className="px-plan-grid">
             {plans.map((plan) => (
-              <PlanCard key={plan.slug} plan={plan} onBuy={onBuy} whatsappHref={whatsappHref} />
+              <PlanCard
+                key={plan.slug}
+                plan={plan}
+                onBuy={() => void buy(plan.slug)}
+                busy={busy === plan.slug}
+                error={error?.plan === plan.slug ? error : null}
+                whatsappHref={whatsappHref}
+              />
             ))}
           </div>
         </div>
@@ -349,12 +378,18 @@ export function Pricing() {
           <div className="px-final-card">
             <h2 id="px-final-title">Ready to start with Professional?</h2>
             <p>
-              Full curriculum, lifetime updates and WhatsApp technical assistance — checkout connects
-              when payments go live.
+              Full curriculum, lifetime updates and WhatsApp technical assistance. Pay securely with UPI,
+              card or netbanking.
             </p>
             <div className="px-final-actions">
-              <button type="button" className="px-btn px-btn-gold" onClick={onBuy}>
-                Enroll Now
+              <button
+                type="button"
+                className="px-btn px-btn-gold"
+                onClick={() => void buy('professional')}
+                disabled={busy === 'professional'}
+                aria-busy={busy === 'professional'}
+              >
+                {busy === 'professional' ? 'Opening checkout…' : 'Enroll Now'}
               </button>
               <a className="px-btn px-btn-ghost" href={whatsappHref} target="_blank" rel="noopener noreferrer">
                 Ask on WhatsApp
