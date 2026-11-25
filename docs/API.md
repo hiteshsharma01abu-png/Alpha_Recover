@@ -139,8 +139,8 @@ Response `200`:
 | DELETE | `/me/avatar` | user | Clears `users.image` and best-effort deletes the prior Bunny object. Audit `user.avatar_clear`. **Implemented** |
 | GET | `/me/dashboard` | student | Enrolled courses with progress %, "continue learning" lesson, certificates. **Implemented (Phase 4)** |
 | GET | `/me/enrollments` | student | Your enrollments, newest first: status (active / revoked / expired, computed from the end date), source, plan slug and name, start and end. **Implemented (Phase 3)** |
-| GET | `/me/orders` | user | Order history |
-| GET | `/me/orders/:orderNumber` | user | Order detail (used by the checkout success page) |
+| GET | `/me/orders` | user | Purchase history: paid, refunded and partly refunded orders, newest first (orderNumber, status, planSlug, planName, amountPaise, currency, createdAt, paidAt). **Implemented (Phase 5)** |
+| GET | `/me/orders/:orderNumber` | user | One of your orders in any status, plus `lastPayment` (status, method, errorDescription); 404 for other users' orders. Used by the checkout result page. **Implemented (Phase 5)** |
 | GET | `/me/certificates` | student | Your valid certificates: code, recipientName, programTitle, issuedAt. **Implemented (Phase 4)** |
 | GET | `/me/certificates/:code/download` | student | The certificate PDF (`application/pdf`, attachment), generated on request from the stored row, so a corrected name is always current. Only your own valid certificates (else 404). **Implemented (Phase 4)**; replaces the planned 302 to a signed storage URL: nothing is stored, so it works on any host |
 | GET | `/me/sessions` | user | Active sessions: id, device ("Chrome on macOS"), ipAddress, createdAt, lastActiveAt, expiresAt, current. **Implemented (Phase 3)** |
@@ -237,14 +237,17 @@ Enrollments are **created only** by the payment service (purchase) or admins (ma
 
 | Method | Endpoint | Auth | Purpose |
 |---|---|---|---|
-| POST | `/checkout/orders` | user (verified email if configured) | Create or reuse an order + Razorpay order |
-| POST | `/checkout/verify` | user | Verify the Razorpay Checkout handler response |
-| POST | `/checkout/orders/:orderNumber/cancel` | user | User closed checkout (optional) |
-| POST | `/webhooks/razorpay` | Razorpay signature | Source of truth for payment state |
+| POST | `/checkout/orders` | user | Create or reuse an order + Razorpay order. **Implemented (Phase 5)**; the verified-email requirement is planned |
+| POST | `/checkout/verify` | user | Verify the Razorpay Checkout handler response. **Implemented (Phase 5)** |
+| POST | `/checkout/orders/:orderNumber/cancel` | user | User closed checkout (optional). *Not implemented*: an unpaid order is simply reused, then cancelled by the maintenance cron after 30 min |
+| POST | `/webhooks/razorpay` | Razorpay signature | Source of truth for payment state. **Implemented (Phase 5)** |
+
+**As implemented:** Razorpay is called with `fetch` (`server/services/razorpay.ts`), no SDK. `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` missing → `POST /checkout/orders` answers 503 before writing anything. Rate limits: 20 checkouts and 30 verifies per IP per hour.
 
 ### `POST /checkout/orders`
 Request: `{ "planSlug": "professional", "billing": { "name": "Ravi Patel", "phone": "+91…", "country": "IN", "gstin": null } }`
 Logic: plan published → user not already enrolled (409) → compute the effective price server-side → reuse an open order (same amount, unexpired) or create one → `razorpay.orders.create({ amount, currency: 'INR', receipt: order_number, notes: { orderId } })`.
+As implemented: `billing` is optional (`name` defaults to the profile name, `phone` is normalized to E.164, `gstin` must be a valid 15-character GSTIN). Plans shown as Coming soon (`comingSoon` in `src/data/pricingPlans.ts`: Expert) answer 422. 409 also when a live plan already grants every course. An open order is reused only with at least a minute left of its 30-minute window. A Razorpay failure answers 502 and marks the new order `failed`. The response also carries `planName`.
 Response `201`:
 ```json
 { "data": { "orderNumber": "AR-ORD-2026-000123", "amountPaise": 250000, "currency": "INR",
@@ -258,14 +261,15 @@ Request: `{ "razorpayOrderId": "order_…", "razorpayPaymentId": "pay_…", "raz
 Logic: HMAC-SHA256(`order_id|payment_id`, key secret) compared in constant time → fetch the payment from the Razorpay API → if `captured` and the amount matches, run `activateOrder(orderId)` (idempotent, same function as the webhook).
 Response `200`: `{ "data": { "orderNumber": "…", "status": "paid", "enrollment": { "planSlug": "professional", "status": "active" } } }`
 Errors: 400 `VALIDATION_ERROR` (bad signature), 404, 422 `BUSINESS_RULE` (amount mismatch; flagged for review).
+As implemented: the order must belong to the caller (else 404), and the fetched payment's `order_id` must match (else 400). Response `data` is the order (`orderNumber`, `status`, `planSlug`, `planName`, `amountPaise`, `currency`, `createdAt`, `paidAt`) plus `enrollment`. Razorpay status `failed` → the attempt is saved and `status: "failed"` returned (the order stays payable); `authorized` → `status: "processing"` (the `payment.captured` webhook finishes it). A bad signature is audited as `order.verify_failed`.
 
 ### `POST /webhooks/razorpay`
 Headers: `X-Razorpay-Signature`, `X-Razorpay-Event-Id`. The raw body is verified with HMAC-SHA256 using the webhook secret.
 Events handled: `payment.authorized` (record), `payment.captured` / `order.paid` → `activateOrder`, `payment.failed` → mark failed, `refund.processed` → update the refund and revoke access if configured.
-Idempotency: insert `payment_webhook_events(event_id)`; on a unique violation return `200` immediately.
+Idempotency: insert `payment_webhook_events(event_id)`; an event already `processed` or `ignored` returns `200 { ok: true, duplicate: true }` immediately. As implemented: an event stored as `failed` is processed again when Razorpay retries it; a bad signature answers 400 and is **not** stored (a forged event id must not block the real one); no webhook secret → 503. Handled now: `payment.captured` and `order.paid` (activate), `payment.failed` (record). `payment.authorized` and `refund.processed` are stored as `ignored` until refunds ship. Payments for orders this site didn't create are `ignored`.
 Response: `200 { "ok": true }` quickly (heavy work in the same transaction is fine; it's small). Signature failure → `400`, logged.
 
-**`activateOrder(orderId)` (single transaction):** lock the order `FOR UPDATE` → if already `paid` return → upsert `payments` → `orders.status='paid', paid_at` → insert `enrollments` (unique on `order_id` guarantees once) → enqueue `order_receipt` + `enrollment_welcome` → `activity_logs(order.paid)`.
+**`activateOrder(orderId)` (single transaction):** lock the order `FOR UPDATE` → if already `paid` return → upsert `payments` → `orders.status='paid', paid_at` → insert `enrollments` (unique on `order_id` guarantees once) → enqueue `order_receipt` + `enrollment_welcome` → `activity_logs(order.paid)`. As implemented: the payment row is upserted first; an amount or currency mismatch throws 422 (nothing activates); a `cancelled` or `failed` order that still gets paid is honoured; `access_days` sets the enrollment end. `activity_logs(order.paid)` is written by the caller with `metadata.via` = `checkout` or `webhook`.
 
 ---
 
@@ -430,7 +434,7 @@ All read-only aggregates over existing tables (no separate analytics store at th
 | POST | `/internal/cron/maintenance` (**implemented**) | `Authorization: Bearer $CRON_SECRET` (host cron) | Expire orders, delete expired sessions and verifications, end promotions |
 | POST | `/webhooks/postmark` | Postmark basic-auth | Bounce/spam complaints → mark email undeliverable |
 
-Templates: `verify_email`, `password_reset`, `staff_invite` (implemented), `order_receipt`, `enrollment_welcome`, `lead_ack`, `lead_alert`, `certificate_issued`, `refund_processed`. WhatsApp templates are added when the BSP is onboarded.
+Templates: `verify_email`, `password_reset`, `staff_invite`, `order_receipt` (payment confirmation, not a GST invoice), `enrollment_welcome` (implemented), `lead_ack`, `lead_alert`, `certificate_issued`, `refund_processed` (planned with refunds). WhatsApp templates are added when the BSP is onboarded.
 
 ## 14. Settings APIs
 
@@ -454,7 +458,7 @@ Templates: `verify_email`, `password_reset`, `staff_invite` (implemented), `orde
 | Request callback | `POST /leads` (`callback`) |
 | Services "Request service" | → `/contact` → `POST /leads` (`data_recovery_service`) |
 | Verify certificate submit | `GET /certificates/verify/:code` |
-| Buy Now (`/pricing`) | `POST /checkout/orders` → Razorpay Checkout → `POST /checkout/verify` (+ webhook); UI still stub until Phase 5 |
+| Buy Now (`/pricing`) | `POST /checkout/orders` → Razorpay Checkout → `POST /checkout/verify` (+ webhook) → `/checkout/success` reads `GET /me/orders/:orderNumber`. Account settings lists `GET /me/orders` |
 | Price, sale label, countdown | `GET /plans` / `GET /plans/:slug` (`essential` \| `professional` \| `expert`) |
 | Training explorer, track pages, header dropdown | `GET /courses`, `GET /courses/:slug` |
 | Lesson click | `POST /lessons/:id/playback` (new player page) |

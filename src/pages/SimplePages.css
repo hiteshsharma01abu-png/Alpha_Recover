@@ -691,3 +691,67 @@ a.contact-info-card:hover {
     align-items: flex-start;
   }
 }
+
+/* Checkout result (/checkout/success, /checkout/failed) */
+.checkout-panel {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.checkout-panel p {
+  margin: 0;
+}
+
+.checkout-summary {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.4rem 1.25rem;
+  margin: 0.25rem 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.checkout-summary dt {
+  color: var(--content);
+}
+
+.checkout-summary dd {
+  margin: 0;
+  font-weight: 700;
+  text-align: right;
+}
+
+.checkout-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.25rem;
+}
+
+.checkout-help {
+  font-size: 0.88rem;
+  color: var(--content);
+}
+
+/* Purchase history (account settings) */
+.purchase-list li strong {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.purchase-amount {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.purchase-badge {
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background: var(--chip);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--brass);
+}

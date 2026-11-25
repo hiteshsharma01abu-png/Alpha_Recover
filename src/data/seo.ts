@@ -81,7 +81,7 @@ const STATIC_PAGES: Record<string, Omit<PageSeo, 'path'>> = {
 };
 
 /** Signed-in or one-off pages: never indexed, never pre-rendered. */
-const PRIVATE_PREFIXES = ['/account', '/dashboard', '/learn/', '/verify-email', '/reset-password', '/admin'];
+const PRIVATE_PREFIXES = ['/account', '/checkout/', '/dashboard', '/learn/', '/verify-email', '/reset-password', '/admin'];
 
 const normalize = (pathname: string) => (pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname) || '/';
 

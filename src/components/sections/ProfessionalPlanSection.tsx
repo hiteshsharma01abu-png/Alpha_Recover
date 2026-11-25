@@ -4,6 +4,7 @@ import { Reveal } from '../ui/Reveal';
 import { icons } from '../../lib/icons';
 import { usePlan, withoutSale } from '../../lib/plans';
 import { useSiteSettings } from '../../lib/settings';
+import { useBuyPlan } from '../../lib/useBuyPlan';
 import {
   pricingFeatureIcons,
   pricingHeroVisual,
@@ -141,13 +142,11 @@ export function ProfessionalPlanSection({
       : allFeatureIndexes;
   const canToggleFeatures = narrow && allFeatureIndexes.length > MOBILE_FEATURES_PREVIEW;
 
-  function onBuy() {
-    alert('Checkout will connect once you pick payments (Razorpay / Stripe / etc.).');
-  }
+  const { buy, busy } = useBuyPlan();
 
   const buyButton =
     buyMode === 'checkout' ? (
-      <button type="button" className="pp-btn pp-btn-gold" onClick={onBuy}>
+      <button type="button" className="pp-btn pp-btn-gold" onClick={() => void buy('professional')} disabled={busy !== null} aria-busy={busy !== null}>
         <CartIcon />
         Buy Now
         <span aria-hidden>›</span>

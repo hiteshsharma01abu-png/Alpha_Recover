@@ -6,6 +6,7 @@ import { Account } from './pages/Account';
 import { AccountSettings } from './pages/AccountSettings';
 import { Blog } from './pages/Blog';
 import { BlogPost } from './pages/BlogPost';
+import { CheckoutResult } from './pages/CheckoutResult';
 import { Contact } from './pages/Contact';
 import { Dashboard } from './pages/Dashboard';
 import { Demos } from './pages/Demos';
@@ -38,6 +39,8 @@ export default function App() {
       <Route element={<Layout />}>
         <Route index element={<Home />} />
         <Route path="pricing" element={<Pricing />} />
+        <Route path="checkout/success" element={<CheckoutResult outcome="success" />} />
+        <Route path="checkout/failed" element={<CheckoutResult outcome="failed" />} />
         <Route path="demos" element={<Demos />} />
         <Route path="contact" element={<Contact />} />
         <Route path="account" element={<Account />} />

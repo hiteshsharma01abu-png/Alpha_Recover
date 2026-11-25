@@ -1,6 +1,6 @@
 /**
  * Email templates (docs/API.md §13). Each returns subject, plain text and HTML.
- * Later phases add order_receipt, enrollment_welcome…
+ * order_receipt and enrollment_welcome are queued together when an order is paid (server/services/orders.ts).
  */
 type Rendered = { subject: string; text: string; html: string };
 
@@ -45,6 +45,37 @@ export const templates = {
     html: layout(
       'Your certificate is ready',
       `<p>Hi ${escapeHtml(p.firstName)},</p><p>Congratulations on completing <strong>${escapeHtml(p.programTitle)}</strong>! Your certificate is ready.</p><p>Certificate ID: <strong>${escapeHtml(p.code)}</strong></p>${button(p.dashboardUrl, 'Download your certificate')}<p style="font-size:13px">Anyone can confirm it's genuine at <a href="${escapeHtml(p.verifyUrl)}" style="color:#7DFFC0">${escapeHtml(p.verifyUrl)}</a>.</p>`,
+    ),
+  }),
+  /** Payment confirmation: the buyer's record of what they paid. Not a GST tax invoice (none until a GSTIN exists). */
+  order_receipt: (p: { firstName: string; orderNumber: string; planName: string; amount: string; paidAt: string; method: string | null; paymentId: string }): Rendered => {
+    const date = new Date(p.paidAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' });
+    const rows: [string, string][] = [
+      ['Order', p.orderNumber],
+      ['Plan', p.planName],
+      ['Amount paid', p.amount],
+      ['Date', `${date} IST`],
+      ...(p.method ? [['Payment method', p.method.toUpperCase()] as [string, string]] : []),
+      ['Payment ID', p.paymentId],
+    ];
+    return {
+      subject: `Payment received: ${p.planName} (${p.orderNumber})`,
+      text: `Hi ${p.firstName},\n\nThank you for your payment. Here are the details:\n\n${rows.map(([k, v]) => `${k}: ${v}`).join('\n')}\n\nKeep this email for your records. For refunds, see our refund policy or reply to this email.\n\nAlpha Recovery`,
+      html: layout(
+        'Payment received',
+        `<p>Hi ${escapeHtml(p.firstName)},</p><p>Thank you for your payment. Here are the details:</p><table cellpadding="0" cellspacing="0" style="width:100%;font-size:14px;margin:8px 0 16px">${rows
+          .map(([k, v]) => `<tr><td style="padding:6px 0;color:#A9C2BC">${escapeHtml(k)}</td><td style="padding:6px 0;text-align:right;color:#F0EDE4"><strong>${escapeHtml(v)}</strong></td></tr>`)
+          .join('')}</table><p style="font-size:13px">Keep this email for your records. For refunds, see our refund policy or reply to this email.</p>`,
+      ),
+    };
+  },
+  /** Sent with the receipt: access is open, here's where to start. */
+  enrollment_welcome: (p: { firstName: string; planName: string; dashboardUrl: string; lifetime: boolean }): Rendered => ({
+    subject: `Welcome to the ${p.planName}: your courses are unlocked`,
+    text: `Hi ${p.firstName},\n\nWelcome aboard! Your ${p.planName} is active${p.lifetime ? ' with lifetime access' : ''}. Start learning from My Learning:\n${p.dashboardUrl}\n\nYou'll get a certificate for each course you complete. Questions? Reply to this email or message us on WhatsApp.\n\nAlpha Recovery`,
+    html: layout(
+      'Your courses are unlocked',
+      `<p>Hi ${escapeHtml(p.firstName)},</p><p>Welcome aboard! Your <strong>${escapeHtml(p.planName)}</strong> is active${p.lifetime ? ' with lifetime access' : ''}.</p>${button(p.dashboardUrl, 'Start learning')}<p style="font-size:13px">You'll get a certificate for each course you complete. Questions? Reply to this email or message us on WhatsApp.</p>`,
     ),
   }),
   /** A Super Admin added this person to the team; the link sets their first password. */

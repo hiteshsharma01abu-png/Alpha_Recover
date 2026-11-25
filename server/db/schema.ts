@@ -318,8 +318,8 @@ export const enrollments = mysqlTable(
     planId: char('plan_id', { length: 36 })
       .notNull()
       .references(() => plans.id, { onDelete: 'restrict' }),
-    /** Set for purchases. The FK to orders.id is added with the orders table (Phase 5). */
-    orderId: char('order_id', { length: 36 }),
+    /** Set for purchases (unique: an order activates once). */
+    orderId: char('order_id', { length: 36 }).references(() => orders.id, { onDelete: 'restrict' }),
     source: mysqlEnum('source', ['purchase', 'manual', 'complimentary']).notNull(),
     status: mysqlEnum('status', ['active', 'revoked', 'expired']).notNull().default('active'),
     startsAt: ts('starts_at').notNull(),
@@ -341,6 +341,102 @@ export const enrollments = mysqlTable(
     uniqueIndex('enrollments_order_uq').on(t.orderId),
     uniqueIndex('enrollments_active_uq').on(t.activeFlag, t.userId, t.planId),
     index('enrollments_user_status_idx').on(t.userId, t.status),
+  ],
+);
+
+// ── Orders & payments (Phase 5) ──────────────────────────────────────────────
+
+export const ORDER_STATUSES = ['created', 'paid', 'failed', 'cancelled', 'refunded', 'partially_refunded'] as const;
+export const PAYMENT_STATUSES = ['authorized', 'captured', 'failed', 'refunded', 'partially_refunded'] as const;
+
+/** A purchase intent and its lifecycle (docs/DATABASE.md §12). Money tables are never deleted. */
+export const orders = mysqlTable(
+  'orders',
+  {
+    id: id(),
+    /** AR-ORD-YYYY-NNNNNN, allocated by server/services/orders.ts */
+    orderNumber: varchar('order_number', { length: 24 }).notNull(),
+    userId: char('user_id', { length: 36 })
+      .notNull()
+      .references(() => users.id, { onDelete: 'restrict' }),
+    planId: char('plan_id', { length: 36 })
+      .notNull()
+      .references(() => plans.id, { onDelete: 'restrict' }),
+    promotionId: char('promotion_id', { length: 36 }).references(() => promotions.id),
+    /** Computed on the server at creation (priceFor), never taken from the client. */
+    amountPaise: int('amount_paise', { unsigned: true }).notNull(),
+    currency: char('currency', { length: 3 }).notNull().default('INR'),
+    status: mysqlEnum('status', ORDER_STATUSES).notNull().default('created'),
+    provider: mysqlEnum('provider', ['razorpay']).notNull().default('razorpay'),
+    /** Razorpay order_…; null only between our insert and the gateway call. */
+    providerOrderId: varchar('provider_order_id', { length: 64 }),
+    billingName: varchar('billing_name', { length: 160 }).notNull(),
+    billingEmail: varchar('billing_email', { length: 254 }).notNull(),
+    billingPhone: varchar('billing_phone', { length: 20 }),
+    billingCountry: varchar('billing_country', { length: 2 }).notNull().default('IN'),
+    gstin: varchar('gstin', { length: 15 }),
+    paidAt: ts('paid_at'),
+    /** Unpaid orders stop being reused after this; the maintenance cron marks them cancelled. */
+    expiresAt: ts('expires_at').notNull(),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    uniqueIndex('orders_number_uq').on(t.orderNumber),
+    uniqueIndex('orders_provider_order_uq').on(t.providerOrderId),
+    index('orders_user_created_idx').on(t.userId, t.createdAt),
+    index('orders_status_created_idx').on(t.status, t.createdAt),
+  ],
+);
+
+export const orderSequences = mysqlTable('order_sequences', {
+  year: int('year').primaryKey(),
+  lastNumber: int('last_number', { unsigned: true }).notNull().default(0),
+});
+
+/** Gateway payments for an order (docs/DATABASE.md §13). */
+export const payments = mysqlTable(
+  'payments',
+  {
+    id: id(),
+    orderId: char('order_id', { length: 36 })
+      .notNull()
+      .references(() => orders.id, { onDelete: 'restrict' }),
+    providerPaymentId: varchar('provider_payment_id', { length: 64 }).notNull(),
+    amountPaise: int('amount_paise', { unsigned: true }).notNull(),
+    status: mysqlEnum('status', PAYMENT_STATUSES).notNull(),
+    method: varchar('method', { length: 32 }),
+    refundedPaise: int('refunded_paise', { unsigned: true }).notNull().default(0),
+    refundedAt: ts('refunded_at'),
+    errorCode: varchar('error_code', { length: 64 }),
+    errorDescription: text('error_description'),
+    /** Last gateway payload (Razorpay never sends card numbers). */
+    raw: json('raw'),
+    capturedAt: ts('captured_at'),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [uniqueIndex('payments_provider_payment_uq').on(t.providerPaymentId), index('payments_order_idx').on(t.orderId)],
+);
+
+/** Every webhook delivery, keyed by Razorpay's event id: the idempotency guard (docs/DATABASE.md §14). */
+export const paymentWebhookEvents = mysqlTable(
+  'payment_webhook_events',
+  {
+    id: id(),
+    provider: mysqlEnum('provider', ['razorpay']).notNull().default('razorpay'),
+    eventId: varchar('event_id', { length: 128 }).notNull(),
+    eventType: varchar('event_type', { length: 64 }).notNull(),
+    payload: json('payload').notNull(),
+    signatureValid: boolean('signature_valid').notNull(),
+    processedAt: ts('processed_at'),
+    status: mysqlEnum('status', ['received', 'processed', 'ignored', 'failed']).notNull().default('received'),
+    error: text('error'),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    uniqueIndex('payment_webhook_events_event_uq').on(t.provider, t.eventId),
+    index('payment_webhook_events_status_idx').on(t.status, t.createdAt),
   ],
 );
 

@@ -10,6 +10,7 @@ import { authRoutes } from './routes/auth';
 import { blogRoutes } from './routes/blog';
 import { catalogRoutes } from './routes/catalog';
 import { certificateRoutes } from './routes/certificates';
+import { checkoutRoutes } from './routes/checkout';
 import { demoVideoRoutes } from './routes/demoVideos';
 import { healthRoutes } from './routes/health';
 import { internalRoutes } from './routes/internal';
@@ -18,6 +19,7 @@ import { learningRoutes } from './routes/learning';
 import { meRoutes } from './routes/me';
 import { planRoutes } from './routes/plans';
 import { settingsRoutes } from './routes/settings';
+import { webhookRoutes } from './routes/webhooks';
 import type { AppEnv, Deps } from './types';
 
 export const API_BASE = '/api/v1';
@@ -52,6 +54,8 @@ export function createApp(deps: Deps) {
   app.route('/', settingsRoutes);
   app.route('/', meRoutes);
   app.route('/', learningRoutes);
+  app.route('/', checkoutRoutes);
+  app.route('/', webhookRoutes);
   app.route('/admin', adminRoutes);
 
   app.notFound((c) =>
