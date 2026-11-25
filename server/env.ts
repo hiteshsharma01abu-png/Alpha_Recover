@@ -31,6 +31,11 @@ const envSchema = z.object({
   BUNNY_STORAGE_KEY: optional,
   /** Pull-zone hostname only, e.g. `alpharecovery.b-cdn.net` (no scheme). */
   BUNNY_CDN_HOSTNAME: optional,
+  /** Razorpay (payments). The key id is public (sent to Checkout); the key secret and webhook secret stay on the server. */
+  RAZORPAY_KEY_ID: optional,
+  RAZORPAY_KEY_SECRET: optional,
+  /** Razorpay → Settings → Webhooks → secret. Without it the webhook endpoint answers 503. */
+  RAZORPAY_WEBHOOK_SECRET: optional,
 });
 
 export type Env = z.infer<typeof envSchema>;

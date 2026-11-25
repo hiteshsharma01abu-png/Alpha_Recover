@@ -1,6 +1,6 @@
 # Alpha Recovery — Deployment
 
-**Last reviewed:** 2026-11-24 · Related: [ARCHITECTURE.md](ARCHITECTURE.md) (§3 hosting checklist) · [SECURITY.md](SECURITY.md) · [TESTING.md](TESTING.md) §8 (release validation)
+**Last reviewed:** 2026-11-25 · Related: [ARCHITECTURE.md](ARCHITECTURE.md) (§3 hosting checklist) · [SECURITY.md](SECURITY.md) · [TESTING.md](TESTING.md) §8 (release validation)
 
 > **Status:** the production host isn't chosen yet. The frontend is temporarily on Vercel (deployed manually with `npx vercel --prod`; the project isn't connected to GitHub). A Vercel staging setup for the API is prepared ([§9](#9-vercel-staging-temporary)) but needs a managed MySQL and Vercel env vars before it works. This guide covers both targets the backend is built for: **cPanel with "Setup Node.js App"** and a **VPS**. The automated deploy job is added to CI once the host is known.
 
@@ -35,6 +35,8 @@ Set these in the cPanel Node.js App's environment settings, or in a `chmod 600` 
 | `BUNNY_STREAM_API_KEY` | optional until staff upload videos: the Stream **library** API key (Bunny → Stream → library → API), used to create videos and sign TUS uploads |
 | `BUNNY_STORAGE_ZONE`, `BUNNY_STORAGE_KEY`, `BUNNY_CDN_HOSTNAME` | optional until profile photo (and later media) uploads: Storage zone name, zone AccessKey, and pull-zone hostname only (e.g. `alpharecovery.b-cdn.net`) |
 | `TURNSTILE_SECRET_KEY` | required in production (Cloudflare Turnstile secret for the site) |
+| `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET` | optional until payments go live (Buy Now answers 503 without them): Razorpay → Settings → API Keys. Live keys only after business verification; test keys (`rzp_test_…`) everywhere else |
+| `RAZORPAY_WEBHOOK_SECRET` | the secret set on the Razorpay webhook (below); without it the webhook endpoint answers 503 |
 
 **Frontend build variables:** `VITE_TURNSTILE_SITE_KEY` (the public site key) must be set when running `npm run build`, otherwise the forms render without the security check and the API rejects them in production. `VITE_SITE_URL` (e.g. `https://alpharecover.com`, no trailing slash) is the public origin baked into canonical URLs, share cards and `sitemap.xml`; it defaults to the Vercel staging URL, so set it for the production build.
 
@@ -116,6 +118,15 @@ Then watch Sentry and the app log for 30 minutes.
 | Jobs stuck in `dead` | Read `notification_jobs.last_error`; fix the cause, then reset `status = 'pending', attempts = 0` |
 | All users appear to share one IP (rate limits trip for everyone) | Set `TRUSTED_PROXY_HEADER` to the header your host's proxy adds |
 | Changes not visible after upload (cPanel) | Restart the Node.js app (`touch tmp/restart.txt`) |
+
+### Razorpay webhook (once per environment)
+
+Razorpay → **Settings → Webhooks → Add New Webhook**:
+- URL: `https://alpharecover.com/api/v1/webhooks/razorpay` (must be public HTTPS; it can't reach `localhost`)
+- Secret: a long random string (`openssl rand -hex 32`), also set as `RAZORPAY_WEBHOOK_SECRET`
+- Active events: `payment.captured`, `payment.failed`, `order.paid`
+
+The webhook unlocks a purchase when the buyer closes the tab before the site hears back; checkout works without it, but don't go live without it. Each delivery is logged in `payment_webhook_events` (status `processed` / `ignored` / `failed`); a failed one is retried by Razorpay.
 
 ## 9. Vercel staging (temporary)
 

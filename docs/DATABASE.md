@@ -237,6 +237,8 @@
 
 ## 12. `orders`
 
+> **Implemented (Phase 5)** with `payments`, `payment_webhook_events` and `order_sequences` (migration `0013`) in `server/services/orders.ts`. Order numbers come from `order_sequences` (one row per India year, same `LAST_INSERT_ID` counter as certificate codes). `provider_order_id` is nullable: it's set right after the Razorpay order is created; if that call fails the order is marked `failed`. Buying is refused (409) when the user already has a live enrollment for the plan **or** any live plan that grants all courses. The enrollments → orders foreign key now exists.
+
 | Column | Type | Notes |
 |---|---|---|
 | id | char(36) | PK |
@@ -299,7 +301,7 @@
 
 ## 15. `enrollments`
 
-> **Implemented (Phase 3)** with `server/services/enrollments.ts`: `grantEnrollment()` (idempotent per order and per user + plan, safe under concurrency), `revokeEnrollment()`, `accessibleCourseIds()` / `canAccessCourse()` (the access rule below) and `expireEnrollments()` (run by the maintenance cron). **Pending:** the foreign key `order_id → orders.id` is added together with the `orders` table in Phase 5.
+> **Implemented (Phase 3)** with `server/services/enrollments.ts`: `grantEnrollment()` (idempotent per order and per user + plan, safe under concurrency), `revokeEnrollment()`, `accessibleCourseIds()` / `canAccessCourse()` (the access rule below) and `expireEnrollments()` (run by the maintenance cron). The foreign key `order_id → orders.id` exists since migration `0013`.
 
 | Column | Type | Notes |
 |---|---|---|

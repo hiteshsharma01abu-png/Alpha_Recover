@@ -13,6 +13,7 @@ import {
 } from '../lib/auth';
 import { formErrors } from '../lib/leads';
 import { learnerAssets } from '../lib/learnerAssets';
+import { safeNext } from '../lib/useBuyPlan';
 import './Account.css';
 
 type Mode = 'login' | 'register' | 'forgot';
@@ -96,7 +97,8 @@ const FieldError = ({ msg }: { msg?: string }) => (msg ? <span className="field-
 export function Account() {
   const auth = useAuth();
   const [params] = useSearchParams();
-  const [mode, setMode] = useState<Mode>(params.get('mode') === 'forgot' ? 'forgot' : 'login');
+  const initialMode = params.get('mode');
+  const [mode, setMode] = useState<Mode>(initialMode === 'forgot' || initialMode === 'register' ? initialMode : 'login');
   const [note, setNote] = useState('');
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -212,7 +214,8 @@ export function Account() {
   }
 
   if (auth.user) {
-    return <Navigate to="/dashboard" replace />;
+    // ?next= brings a buyer back to pricing after signing in
+    return <Navigate to={safeNext(params.get('next')) ?? '/dashboard'} replace />;
   }
 
   const brandPanel =

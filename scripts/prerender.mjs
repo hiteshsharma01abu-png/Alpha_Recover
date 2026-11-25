@@ -73,7 +73,7 @@ await writeFile(
 );
 await writeFile(
   path.join(dist, 'robots.txt'),
-  ['User-agent: *', 'Disallow: /admin', 'Disallow: /account', 'Disallow: /dashboard', 'Disallow: /learn/', 'Disallow: /api/', '', `Sitemap: ${SITE_URL}/sitemap.xml`, ''].join('\n'),
+  ['User-agent: *', 'Disallow: /admin', 'Disallow: /account', 'Disallow: /dashboard', 'Disallow: /checkout/', 'Disallow: /learn/', 'Disallow: /api/', '', `Sitemap: ${SITE_URL}/sitemap.xml`, ''].join('\n'),
 );
 
 await rm(ssrOut, { recursive: true, force: true });

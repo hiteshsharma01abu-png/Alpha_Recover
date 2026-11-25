@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { REGISTER_COUNTRIES, type CountryCode } from '../../shared/countries';
 import { AuthTopBar, LearnerShell } from '../components/layout/LearnerShell';
 import { refreshSession, useAuth } from '../lib/auth';
+import { getOrders, type Order } from '../lib/checkout';
 import { timeAgo } from '../lib/demoVideos';
 import { formErrors } from '../lib/leads';
 import { getDashboard } from '../lib/learning';
@@ -308,13 +309,50 @@ function Devices({ devices, onChange }: { devices: Device[]; onChange: () => voi
   );
 }
 
-/** /account/settings — profile, password and devices for a signed-in user. */
+const ORDER_STATUS_LABEL: Partial<Record<Order['status'], string>> = { refunded: 'Refunded', partially_refunded: 'Partly refunded' };
+const inr = (paise: number) =>
+  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: paise % 100 ? 2 : 0 }).format(paise / 100);
+const indiaDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', year: 'numeric' });
+
+/** Paid orders, newest first; the receipt email has the full details. */
+function Purchases({ orders }: { orders: Order[] }) {
+  return (
+    <section className="panel settings-panel" id="purchases">
+      <h2>Purchases</h2>
+      {orders.length ? (
+        <ul className="device-list purchase-list">
+          {orders.map((o) => (
+            <li key={o.orderNumber}>
+              <div>
+                <strong>
+                  {o.planName}
+                  {ORDER_STATUS_LABEL[o.status] ? <span className="purchase-badge">{ORDER_STATUS_LABEL[o.status]}</span> : null}
+                </strong>
+                <span>
+                  {o.orderNumber} · {indiaDate(o.paidAt ?? o.createdAt)}
+                </span>
+              </div>
+              <span className="purchase-amount">{inr(o.amountPaise)}</span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="settings-hint">
+          No purchases yet. <Link to="/pricing">See plans</Link>
+        </p>
+      )}
+    </section>
+  );
+}
+
+/** /account/settings — profile, password, devices and purchases for a signed-in user. */
 export function AccountSettings() {
   const auth = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [devices, setDevices] = useState<Device[]>([]);
   const [loadError, setLoadError] = useState('');
   const [hasActiveEnrollment, setHasActiveEnrollment] = useState(false);
+  const [orders, setOrders] = useState<Order[]>([]);
 
   const loadDevices = useCallback(() => {
     listDevices()
@@ -330,6 +368,13 @@ export function AccountSettings() {
       .catch(() => setLoadError('We couldn’t load your profile. Please refresh the page.'));
     loadDevices();
     let live = true;
+    getOrders()
+      .then((o) => {
+        if (live) setOrders(o);
+      })
+      .catch(() => {
+        if (live) setOrders([]);
+      });
     getDashboard()
       .then((d) => {
         if (live) setHasActiveEnrollment(d.hasActiveEnrollment);
@@ -352,6 +397,7 @@ export function AccountSettings() {
           <div className="settings-side">
             <PasswordForm onChanged={loadDevices} />
             <Devices devices={devices} onChange={loadDevices} />
+            <Purchases orders={orders} />
           </div>
         </div>
       ) : null}

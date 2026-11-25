@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { afterAll, beforeAll, beforeEach, describe, expect, inject, it } from 'vitest';
-import { courses, enrollments, planCourses, plans, users } from './db/schema';
+import { courses, enrollments, orders, planCourses, plans, users } from './db/schema';
 import { seedCatalog, seedPlans } from './db/seed';
 import { accessibleCourseIds, canAccessCourse, expireEnrollments, grantEnrollment, revokeEnrollment } from './services/enrollments';
 import { CookieJar, createTestContext, getJson, postJson, readJson, resetTables } from './test/helpers';
@@ -53,7 +53,11 @@ describe.skipIf(!dbAvailable)('enrollments (MySQL)', () => {
     });
 
     it('activates an order at most once', async () => {
-      const orderId = '01a1d000-0000-7000-8000-00000000000a';
+      const [order] = await ctx.db
+        .insert(orders)
+        .values({ orderNumber: 'AR-ORD-2026-000001', userId, planId, amountPaise: 99900, billingName: 'Ravi', billingEmail: 'r@example.com', expiresAt: new Date() })
+        .$returningId();
+      const orderId = order.id;
       const a = await grantEnrollment(ctx.db, { userId, planId, source: 'purchase', orderId });
       const b = await grantEnrollment(ctx.db, { userId, planId, source: 'purchase', orderId });
       expect([a.created, b.created]).toEqual([true, false]);

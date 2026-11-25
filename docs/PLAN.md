@@ -148,6 +148,15 @@ Phase 7 QA & security hardening (continuous, gate before production launch)
 
 **Exit:** a live ₹1 test plan purchase activates access end to end; webhook replay is safe; refund revokes access.
 
+**Status (2026-11-25, in progress, branch `feat/payments`):**
+- [x] Schema: `orders`, `payments`, `payment_webhook_events`, `order_sequences` (migration 0013) + enrollments → orders FK
+- [x] Checkout API: `POST /checkout/orders` (server price, reuse open order, 409 owned / all-courses plan, 422 Coming soon), `POST /checkout/verify` (signature + payment fetch), `activateOrder()` once-only with receipt + welcome emails and audit
+- [x] Webhook `POST /webhooks/razorpay` (raw-body HMAC, idempotent per event id, failed deliveries retried) and stale-order cancellation in the maintenance cron
+- [x] `GET /me/orders`, `GET /me/orders/:orderNumber`; 13 integration tests with a mocked Razorpay
+- [x] [FE] Razorpay Checkout from Buy Now (`src/lib/checkout.ts`, `useBuyPlan`), `/checkout/success` + `/checkout/failed`, Purchases in account settings, login `?next=` back to pricing
+- [ ] Pricing page buttons wired (waiting for the parallel pricing copy changes to land on `Dev`)
+- [ ] Admin orders list/detail, refunds (`refund.processed` → revoke), reconcile; webhook set up on a public URL; ₹1 live test
+
 ### Phase 6 — Admin panel backend · L (incremental) · **In progress**
 Built module by module, right after the domain it depends on ships. The admin **UI** is a separate frontend effort. Recommended: a protected `/admin` area in the same SPA, reusing the design tokens, lazy-loaded so it doesn't grow the public bundle.
 
