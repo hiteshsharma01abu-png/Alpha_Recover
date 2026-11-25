@@ -9,7 +9,6 @@ import {
   pricingFeatureIcons,
   pricingHeroVisual,
   pricingPerks,
-  pricingSectionBg,
 } from '../visuals/pricingVisuals';
 import '../../styles/sections.css';
 import './ProfessionalPlanSection.css';
@@ -173,11 +172,6 @@ export function ProfessionalPlanSection({
 
   return (
     <Reveal as="section" className="section pp-section" id="pricing">
-      <div
-        className="pp-bg"
-        style={{ backgroundImage: `url(${pricingSectionBg})` }}
-        aria-hidden
-      />
       <div className="pp-glow pp-glow-tl" aria-hidden />
       <div className="pp-glow pp-glow-br" aria-hidden />
 
@@ -197,12 +191,12 @@ export function ProfessionalPlanSection({
             </div>
             <div className="pp-hero-visual">
               <img
-                src={pricingHeroVisual}
+                src={pricingHeroVisual.src}
                 alt=""
-                width={1200}
-                height={360}
+                width={pricingHeroVisual.width}
+                height={pricingHeroVisual.height}
+                loading="lazy"
                 decoding="async"
-                fetchPriority="low"
               />
             </div>
           </div>

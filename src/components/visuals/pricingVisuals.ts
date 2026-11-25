@@ -1,8 +1,5 @@
 import { icons, whiteIcon } from '../../lib/icons';
 
-const U = (id: string, w = 1200, h = 360) =>
-  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&h=${h}&q=80`;
-
 /** Icon image paths aligned 1:1 with `pricing.features` order in content.ts */
 export const pricingFeatureIcons: string[] = [
   icons.video,
@@ -24,9 +21,8 @@ export const pricingFeatureIcons: string[] = [
   icons.infinity,
 ];
 
-/** Open HDD actuator/platter — public Unsplash CDN (wide crop for pp-hero-visual). */
-export const pricingHeroVisual = U('photo-1597852074816-d933c7d2b988');
-export const pricingSectionBg = '/assets/images/backgrounds/pricing-bg.webp';
+/** Open HDD on a repair workbench: transparent cutout, shown uncropped in pp-hero-visual. */
+export const pricingHeroVisual = { src: '/assets/images/sections/hdd-repair-workbench.webp', width: 960, height: 704 };
 
 export const pricingPerks = [
   {

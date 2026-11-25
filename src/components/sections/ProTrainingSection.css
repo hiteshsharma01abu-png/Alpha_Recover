@@ -16,15 +16,6 @@
   pointer-events: none;
 }
 
-.pro-bg {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  opacity: 0.85;
-  pointer-events: none;
-}
-
 .pro-glow {
   position: absolute;
   pointer-events: none;

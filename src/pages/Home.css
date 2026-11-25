@@ -925,24 +925,6 @@
   object-position: center;
   display: block;
   filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.45));
-  border-radius: 10px;
-}
-
-.why-card-visual--cyber .why-card-photo,
-.why-card-visual--assets .why-card-photo {
-  max-width: 128px;
-  height: 118px;
-  border-radius: 0;
-}
-
-.why-card-visual--photo .why-card-photo,
-.why-card-visual--it .why-card-photo,
-.why-card-visual--online .why-card-photo,
-.why-card-visual--institutes .why-card-photo {
-  object-fit: cover;
-  border-radius: 12px;
-  mask-image: radial-gradient(ellipse 72% 72% at 50% 50%, #000 42%, transparent 78%);
-  -webkit-mask-image: radial-gradient(ellipse 72% 72% at 50% 50%, #000 42%, transparent 78%);
 }
 
 .why-card-badge {

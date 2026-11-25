@@ -31,13 +31,15 @@ export { demoVideoImages } from '../components/visuals/demoVisuals';
 
 export const fallbackSectionImage = '/assets/images/sections/training.webp';
 
+/** Transparent card illustrations (alpha-recovery-six-assets package), trimmed to their content and exported at 2×. */
+const WHY_LEARN = '/assets/images/illustrations/why-learn';
 export const whyLearnImages: Record<string, string> = {
-  cyber: '/assets/images/sections/hero-drive.webp',
-  photo: '/assets/images/sections/why-photo.webp',
-  it: '/assets/images/sections/why-it.webp',
-  online: '/assets/images/sections/why-online.webp',
-  assets: '/assets/images/sections/hero-drive.webp',
-  institutes: '/assets/images/sections/why-institutes.webp',
+  cyber: `${WHY_LEARN}/01-cybersecurity-experts.webp`,
+  photo: `${WHY_LEARN}/02-photographers.webp`,
+  it: `${WHY_LEARN}/03-it-careers.webp`,
+  online: `${WHY_LEARN}/04-online-advantages.webp`,
+  assets: `${WHY_LEARN}/05-protect-personal-assets.webp`,
+  institutes: `${WHY_LEARN}/06-computer-institutes.webp`,
 };
 
 export const whyLearnIconSrc: Record<string, string> = {

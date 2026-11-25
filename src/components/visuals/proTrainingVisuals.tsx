@@ -1,7 +1,6 @@
 import { icons } from '../../lib/icons';
 
 export const proTrainingHero = '/assets/images/sections/training-hero.webp';
-export const proTrainingBg = '/assets/images/backgrounds/training-bg.webp';
 
 export const proTrainingBenefits = [
   {

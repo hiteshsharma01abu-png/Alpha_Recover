@@ -5,7 +5,6 @@ import { fallbackSectionImage, proTrainingImages } from '../../data/sectionMedia
 import { icons } from '../../lib/icons';
 import {
   proTrainingBenefits,
-  proTrainingBg,
   proTrainingHero,
   proTrainingMeta,
 } from '../visuals/proTrainingVisuals';
@@ -22,10 +21,6 @@ export function ProTrainingSection() {
   return (
     <section className="section pro-section">
       <div className="pro-backdrop" aria-hidden>
-        <div
-          className="pro-bg"
-          style={{ backgroundImage: `url(${proTrainingBg})` }}
-        />
         <div className="pro-glow pro-glow-tl" />
         <div className="pro-glow pro-glow-br" />
         <div className="pro-deco">

@@ -7,15 +7,6 @@
   padding-block: clamp(2.5rem, 5vw, 4.25rem);
 }
 
-.pp-bg {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  opacity: 0.55;
-  pointer-events: none;
-}
-
 .pp-glow {
   position: absolute;
   pointer-events: none;
@@ -159,30 +150,19 @@
   color: var(--text);
 }
 
+/* Transparent cutout: shown whole (no crop, frame or overlay) on the section background. */
 .pp-hero-visual {
-  position: relative;
-  border-radius: 22px;
-  overflow: hidden;
-  isolation: isolate;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
-}
-
-.pp-hero-visual::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(115deg, rgba(125, 255, 192, 0.18), transparent 42%),
-    linear-gradient(180deg, transparent 55%, rgba(5, 13, 11, 0.55));
-  pointer-events: none;
+  display: flex;
+  justify-content: center;
 }
 
 .pp-hero-visual img {
   display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 819 / 248;
-  object-fit: cover;
+  width: auto;
+  max-width: 100%;
+  height: clamp(200px, 22vw, 300px);
+  aspect-ratio: 960 / 704;
+  object-fit: contain;
 }
 
 .pp-main {

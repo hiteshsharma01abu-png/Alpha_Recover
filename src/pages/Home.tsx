@@ -257,8 +257,8 @@ export function Home() {
                       className="why-card-photo"
                       src={whyLearnImages[w.id] ?? fallbackSectionImage}
                       alt=""
-                      width={800}
-                      height={600}
+                      width={320}
+                      height={320}
                       loading="lazy"
                       decoding="async"
                     />
