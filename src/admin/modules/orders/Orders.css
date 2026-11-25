@@ -1,0 +1,68 @@
+/* Orders & Payments (/admin/orders, /admin/orders/:id) */
+.adm-ord-number {
+  color: inherit;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-decoration: none;
+}
+
+.adm-ord-number:hover {
+  text-decoration: underline;
+}
+
+.adm-ord-amount {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.adm-ord-head-amount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--adm-text);
+}
+
+.adm-ord-refund-note {
+  margin: 0.35rem 0 0;
+  font-size: 0.82rem;
+  color: var(--adm-text-2);
+}
+
+.adm-ord-timeline {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.adm-ord-timeline li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.75rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid var(--adm-line);
+}
+
+.adm-ord-timeline li:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.adm-ord-timeline code {
+  font-size: 0.82rem;
+}
+
+.adm-ord-window {
+  margin: 0 0 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--adm-warning) 12%, transparent);
+  font-size: 0.88rem;
+}
+
+.adm-ord-window.is-inside {
+  background: color-mix(in srgb, var(--adm-success) 10%, transparent);
+}

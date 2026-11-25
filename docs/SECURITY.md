@@ -1,6 +1,6 @@
 # Alpha Recovery — Security, Authentication & Permissions
 
-**Last reviewed:** 2026-11-24 · **Status:** Proposal · Related: [API.md](API.md) · [DATABASE.md](DATABASE.md)
+**Last reviewed:** 2026-11-25 · **Status:** Proposal · Related: [API.md](API.md) · [DATABASE.md](DATABASE.md)
 
 ---
 
@@ -46,7 +46,7 @@ Implementation:
 
 ### Guard rails
 - The last `super_admin` can't be demoted or suspended; staff can't change their own role.
-- Refunds above the role's limit (`REFUND_LIMITS`) are refused.
+- Refunds above the role's limit (`REFUND_LIMITS`) are refused, and after the refund window (`refundWindowDays`, 3 days from payment) only a Super Admin can refund (owner decision 2026-11-25). Enforced on the server in `refundEligibility()` (`server/services/orders.ts`); the admin UI only mirrors it. Full refunds only; one per order (the order row is locked while refunding).
 - All admin mutations write `activity_logs` with before/after metadata.
 
 ## 3. API security

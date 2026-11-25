@@ -4,13 +4,14 @@ import { logActivity } from '../audit';
 import { orders, paymentWebhookEvents } from '../db/schema';
 import { AppError } from '../lib/errors';
 import { logger } from '../lib/logger';
-import { activateOrder, recordFailedPayment } from '../services/orders';
-import { type RazorpayPayment, webhookSignatureValid } from '../services/razorpay';
+import { activateOrder, recordFailedPayment, recordProviderRefund } from '../services/orders';
+import { type RazorpayPayment, type RazorpayRefund, webhookSignatureValid } from '../services/razorpay';
 import type { AppEnv } from '../types';
 
-type RazorpayEvent = { event: string; payload?: { payment?: { entity: RazorpayPayment } } };
+type RazorpayEvent = { event: string; payload?: { payment?: { entity: RazorpayPayment }; refund?: { entity: RazorpayRefund } } };
 
 const HANDLED = new Set(['payment.captured', 'order.paid', 'payment.failed']);
+const REFUND_EVENTS = new Set(['refund.processed', 'refund.failed']);
 
 /**
  * Razorpay webhooks (docs/API.md §7): the source of truth when the buyer's browser never comes back.
@@ -34,7 +35,7 @@ export const webhookRoutes = new Hono<AppEnv>().post('/webhooks/razorpay', async
   } catch {
     throw new AppError('VALIDATION_ERROR', 'Invalid JSON');
   }
-  const eventId = c.req.header('x-razorpay-event-id') ?? `${body.event}:${body.payload?.payment?.entity.id ?? 'unknown'}`;
+  const eventId = c.req.header('x-razorpay-event-id') ?? `${body.event}:${body.payload?.refund?.entity.id ?? body.payload?.payment?.entity.id ?? 'unknown'}`;
 
   await db
     .insert(paymentWebhookEvents)
@@ -45,6 +46,22 @@ export const webhookRoutes = new Hono<AppEnv>().post('/webhooks/razorpay', async
 
   const finish = (status: 'processed' | 'ignored' | 'failed', error: string | null = null) =>
     db.update(paymentWebhookEvents).set({ status, error, processedAt: new Date() }).where(eq(paymentWebhookEvents.id, event.id));
+
+  const refund = body.payload?.refund?.entity;
+  if (REFUND_EVENTS.has(body.event) && refund) {
+    if (body.event === 'refund.failed') {
+      // The money didn't go back: staff see this on the order and must retry from the Razorpay dashboard
+      logger.error('razorpay refund failed', { eventId, refundId: refund.id, paymentId: refund.payment_id });
+      await finish('failed', `Refund ${refund.id} failed at Razorpay`);
+      return c.json({ ok: true });
+    }
+    const result = await recordProviderRefund(db, refund);
+    if (result.matched && result.changed) {
+      await logActivity(c, { actor: null, action: 'order.refund', entityType: 'order', entityId: result.order.id, metadata: { orderNumber: result.order.orderNumber, amountPaise: refund.amount, refundId: refund.id, via: 'webhook' } });
+    }
+    await finish(result.matched ? 'processed' : 'ignored', result.matched ? null : 'no matching payment');
+    return c.json({ ok: true });
+  }
 
   const payment = body.payload?.payment?.entity;
   if (!HANDLED.has(body.event) || !payment?.order_id) {

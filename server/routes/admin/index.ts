@@ -11,6 +11,7 @@ import { adminEnrollmentRoutes } from './enrollments';
 import { adminLeadRoutes } from './leads';
 import { adminMeRoutes } from './me';
 import { adminNotificationRoutes } from './notifications';
+import { adminOrderRoutes } from './orders';
 import { adminPlanRoutes } from './plans';
 import { adminReportRoutes } from './reports';
 import { adminSettingsRoutes } from './settings';
@@ -29,6 +30,7 @@ export const adminRoutes = new Hono<AppEnv>()
   .route('/', adminLeadRoutes)
   .route('/', adminStudentRoutes)
   .route('/', adminEnrollmentRoutes)
+  .route('/', adminOrderRoutes)
   .route('/', adminPlanRoutes)
   .route('/', adminDemoVideoRoutes)
   .route('/', adminBlogRoutes)

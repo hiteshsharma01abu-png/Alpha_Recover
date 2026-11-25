@@ -3,9 +3,10 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 import { REGISTER_COUNTRIES } from '../../../shared/countries';
 import { logActivity } from '../../audit';
-import { requireStaff } from '../../auth/middleware';
+import { getUser, requireStaff } from '../../auth/middleware';
 import type { Database } from '../../db';
-import { certificates, courseModules, courses, enrollments, lessonProgress, lessons, plans, sessions, users } from '../../db/schema';
+import { can } from '../../../shared/permissions';
+import { certificates, courseModules, courses, enrollments, lessonProgress, lessons, orders, plans, sessions, users } from '../../db/schema';
 import { AppError } from '../../lib/errors';
 import { maskEmail, maskPhone } from '../../lib/mask';
 import { describeDevice } from '../../lib/userAgent';
@@ -148,6 +149,15 @@ export const adminStudentRoutes = new Hono<AppEnv>()
         .where(and(eq(lessonProgress.userId, s.id), eq(lessons.status, 'published'), isNull(lessons.deletedAt), isNull(courseModules.deletedAt), isNull(courses.deletedAt)))
         .groupBy(courses.id, courses.slug, courses.title),
     ]);
+    // Purchases (incl. refunded) for roles that may open Orders
+    const orderRows = can((await getUser(c))!.role, 'orders.view')
+      ? await db
+          .select({ id: orders.id, orderNumber: orders.orderNumber, status: orders.status, amountPaise: orders.amountPaise, plan: plans.name, createdAt: orders.createdAt, paidAt: orders.paidAt })
+          .from(orders)
+          .innerJoin(plans, eq(plans.id, orders.planId))
+          .where(and(eq(orders.userId, s.id), sql`${orders.status} in ('paid', 'refunded', 'partially_refunded')`))
+          .orderBy(desc(orders.createdAt))
+      : null;
     const outline = await publishedLessons(db, learningRows.map((l) => l.courseId));
     const learning = learningRows
       .map((l) => {
@@ -180,6 +190,7 @@ export const adminStudentRoutes = new Hono<AppEnv>()
         })),
         certificates: certificateRows.map((x) => ({ ...x, issuedAt: x.issuedAt.toISOString() })),
         learning,
+        orders: orderRows?.map((o) => ({ ...o, createdAt: o.createdAt.toISOString(), paidAt: iso(o.paidAt) })) ?? null,
         // Device only: the raw IP stays out of the admin UI.
         sessions: sessionRows.map((x) => ({ id: x.id, device: describeDevice(x.userAgent), signedInAt: x.createdAt.toISOString(), lastActiveAt: x.updatedAt.toISOString() })),
       },

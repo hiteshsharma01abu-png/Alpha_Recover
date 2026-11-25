@@ -95,7 +95,7 @@ Alpha Recovery sells **online data recovery training** (one-time purchase, lifet
 - FR-P4: Checkout creates an internal order and a Razorpay order. The client opens Razorpay Checkout, then the server verifies the signature. A webhook (`payment.captured`, `order.paid`) is the source of truth.
 - FR-P5: Enrollment is activated **only** after verified capture, and idempotently (webhook and client verify can both arrive).
 - FR-P6: Receipt email on success. A GST invoice is generated once GSTIN is registered (company GST is "Pending").
-- FR-P7: Admin-initiated full or partial refund through Razorpay. A refund revokes the enrollment (configurable).
+- FR-P7: Admin-initiated full or partial refund through Razorpay. A refund revokes the enrollment (configurable). **Implemented (2026-11-25) per the refund policy:** full refunds only from the admin panel, inside 3 days by any role with refund permission (within `REFUND_LIMITS`), after that Super Admin only; a refund always ends access (no setting). Partial refunds made in the Razorpay dashboard are recorded without ending access.
 - FR-P8: Coupons are **deferred**. The UI has no coupon field, so the schema reserves the extension point only.
 
 ### 3.5 Leads

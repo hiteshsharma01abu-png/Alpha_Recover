@@ -74,11 +74,11 @@ describe.skipIf(!dbAvailable)('admin API (MySQL)', () => {
     const widgets = async (role: UserRole) => Object.keys((await readJson(await getJson(ctx.app, '/admin/dashboard', await asRole(role)))).data).sort();
 
     it('gives each role only the widgets it may see', async () => {
-      expect(await widgets('super_admin')).toEqual(['content', 'demoVideos', 'email', 'leads', 'pricing', 'students']);
-      expect(await widgets('admin')).toEqual(['content', 'demoVideos', 'email', 'leads', 'pricing', 'students']);
-      expect(await widgets('finance_manager')).toEqual(['pricing', 'students']);
+      expect(await widgets('super_admin')).toEqual(['content', 'demoVideos', 'email', 'leads', 'pricing', 'revenue', 'students']);
+      expect(await widgets('admin')).toEqual(['content', 'demoVideos', 'email', 'leads', 'pricing', 'revenue', 'students']);
+      expect(await widgets('finance_manager')).toEqual(['pricing', 'revenue', 'students']);
       expect(await widgets('content_manager')).toEqual(['content', 'demoVideos', 'pricing']);
-      expect(await widgets('support_manager')).toEqual(['email', 'leads', 'students']);
+      expect(await widgets('support_manager')).toEqual(['email', 'leads', 'revenue', 'students']);
       expect((await getJson(ctx.app, '/admin/dashboard', await asRole('student'))).status).toBe(403);
     });
 

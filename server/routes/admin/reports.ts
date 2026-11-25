@@ -7,7 +7,7 @@ import { REPORT_ACCESS, REPORT_INTERVALS, REPORT_TYPES, type ReportInterval, typ
 import { logActivity } from '../../audit';
 import { requireStaff } from '../../auth/middleware';
 import type { Database } from '../../db';
-import { certificates, courseModules, courses, demoVideos, enrollments, leads, lessonProgress, lessons, users } from '../../db/schema';
+import { certificates, courseModules, courses, demoVideos, enrollments, leads, lessonProgress, lessons, orders, payments, plans, users } from '../../db/schema';
 import { AppError } from '../../lib/errors';
 import { csvCell } from '../../lib/mask';
 import { validate } from '../../lib/validate';
@@ -75,6 +75,46 @@ type Report = {
   breakdowns: Record<string, Breakdown>;
   note?: string;
 };
+
+/**
+ * Revenue in rupees (whole rupees; paise are rounded): paid orders by payment date, refunds by refund
+ * date, net per bucket = paid − refunded. Breakdowns count paid orders by plan and payment method.
+ */
+async function revenueReport(db: Database, r: Range): Promise<Report> {
+  const paid = and(sql`${orders.paidAt} is not null`, inRange(orders.paidAt, r));
+  const refunded = and(sql`${payments.refundedAt} is not null`, inRange(payments.refundedAt, r));
+  const pb = bucketSql(orders.paidAt, r.interval);
+  const rb = bucketSql(payments.refundedAt, r.interval);
+  const [inSeries, outSeries, [inTot], [outTot], byPlan, byMethod] = await Promise.all([
+    db.select({ bucket: pb, n: sql<number>`sum(${orders.amountPaise})` }).from(orders).where(paid).groupBy(pb),
+    db.select({ bucket: rb, n: sql<number>`sum(${payments.refundedPaise})` }).from(payments).where(refunded).groupBy(rb),
+    db.select({ n: count(), sum: sql<number>`coalesce(sum(${orders.amountPaise}), 0)` }).from(orders).where(paid),
+    db.select({ n: count(), sum: sql<number>`coalesce(sum(${payments.refundedPaise}), 0)` }).from(payments).where(refunded),
+    db.select({ key: plans.name, n: count() }).from(orders).innerJoin(plans, eq(plans.id, orders.planId)).where(paid).groupBy(plans.name),
+    // The successful payment of each paid order (failed attempts don't count)
+    db
+      .select({ key: payments.method, n: countDistinct(orders.id) })
+      .from(orders)
+      .innerJoin(payments, and(eq(payments.orderId, orders.id), ne(payments.status, 'failed')))
+      .where(paid)
+      .groupBy(payments.method),
+  ]);
+  const rupees = (paise: number | string | null) => Math.round(Number(paise ?? 0) / 100);
+  const gross = rupees(inTot.sum);
+  const refunds = rupees(outTot.sum);
+  const paidOrders = Number(inTot.n);
+  return {
+    totals: { netInr: gross - refunds, grossInr: gross, refundsInr: refunds, paidOrders, refundCount: Number(outTot.n), averageOrderInr: paidOrders ? Math.round(gross / paidOrders) : 0 },
+    series: {
+      label: 'Net revenue (₹, paid minus refunds)',
+      points: r.buckets.map((bucket) => ({
+        bucket,
+        count: rupees(inSeries.find((x) => x.bucket === bucket)?.n ?? 0) - rupees(outSeries.find((x) => x.bucket === bucket)?.n ?? 0),
+      })),
+    },
+    breakdowns: { plan: tally(byPlan), method: tally(byMethod) },
+  };
+}
 
 async function leadsReport(db: Database, r: Range): Promise<Report> {
   const base = and(isNull(leads.deletedAt), inRange(leads.createdAt, r));
@@ -281,11 +321,11 @@ async function build(c: Context<AppEnv>, type: ReportType, q: RangeInput): Promi
   if (type === 'content') return contentReport(db, c.get('user')!);
   const r = resolveRange(q);
   const report =
-    type === 'leads' ? await leadsReport(db, r) : type === 'students' ? await studentsReport(db, r) : type === 'learning' ? await learningReport(db, r) : await enrollmentsReport(db, r);
+    type === 'revenue' ? await revenueReport(db, r) : type === 'leads' ? await leadsReport(db, r) : type === 'students' ? await studentsReport(db, r) : type === 'learning' ? await learningReport(db, r) : await enrollmentsReport(db, r);
   return { ...report, range: { from: r.from, to: r.to, interval: r.interval } };
 }
 
-/** Reports (docs/admin/NAVIGATION.md §3): read-only aggregates. Revenue arrives with payments (Phase 5). */
+/** Reports (docs/admin/NAVIGATION.md §3): read-only aggregates. */
 export const adminReportRoutes = new Hono<AppEnv>()
   .get('/reports/:type', requireStaff('reports.view'), validate('param', typeParam), validate('query', rangeQuery), async (c) => {
     const { type } = c.req.valid('param');

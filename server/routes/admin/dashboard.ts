@@ -2,7 +2,7 @@ import { and, count, desc, eq, gte, isNotNull, isNull, sql, sum } from 'drizzle-
 import { Hono } from 'hono';
 import { getUser } from '../../auth/middleware';
 import { can } from '../../auth/permissions';
-import { blogPosts, courses, demoVideos, leads, lessons, notificationJobs, users } from '../../db/schema';
+import { blogPosts, courses, demoVideos, leads, lessons, notificationJobs, orders, payments, plans, users } from '../../db/schema';
 import { loadPlans } from '../../services/pricing';
 import type { AppEnv } from '../../types';
 
@@ -33,6 +33,31 @@ export const adminDashboardRoutes = new Hono<AppEnv>().get('/dashboard', async (
         .limit(5),
     ]);
     data.leads = { total: n(total), new: n(fresh), last7Days: n(week), recent: recent.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() })) };
+  }
+
+  if (can(role, 'orders.view')) {
+    const paid = sql`${orders.paidAt} is not null`;
+    const [[all], [week], [refundedAll], [refundedWeek], recent] = await Promise.all([
+      db.select({ n: count(), sum: sum(orders.amountPaise) }).from(orders).where(paid),
+      db.select({ n: count(), sum: sum(orders.amountPaise) }).from(orders).where(and(paid, gte(orders.paidAt, weekAgo))),
+      db.select({ n: count(), sum: sum(payments.refundedPaise) }).from(payments).where(sql`${payments.refundedAt} is not null`),
+      db.select({ sum: sum(payments.refundedPaise) }).from(payments).where(gte(payments.refundedAt, weekAgo)),
+      db
+        .select({ id: orders.id, orderNumber: orders.orderNumber, status: orders.status, amountPaise: orders.amountPaise, paidAt: orders.paidAt, plan: plans.name, firstName: users.firstName })
+        .from(orders)
+        .innerJoin(plans, eq(plans.id, orders.planId))
+        .innerJoin(users, eq(users.id, orders.userId))
+        .where(paid)
+        .orderBy(desc(orders.paidAt))
+        .limit(5),
+    ]);
+    data.revenue = {
+      netPaise: n(all.sum) - n(refundedAll.sum),
+      paidOrders: n(all.n),
+      refunds: n(refundedAll.n),
+      last7Days: { netPaise: n(week.sum) - n(refundedWeek.sum), paidOrders: n(week.n) },
+      recent: recent.map((r) => ({ ...r, paidAt: r.paidAt?.toISOString() ?? null })),
+    };
   }
 
   if (can(role, 'students.view')) {

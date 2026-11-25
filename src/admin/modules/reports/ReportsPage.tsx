@@ -12,6 +12,7 @@ import { useResource } from '../../lib/useResource';
 import { useTableState } from '../../lib/useTableState';
 import { CATEGORY_LABEL } from '../demos/demoDisplay';
 import { SOURCE_LABEL } from '../enrollments/enrollmentDisplay';
+import { methodLabel } from '../orders/orderDisplay';
 import { BreakdownBars, ColumnChart } from './ColumnChart';
 import './Reports.css';
 
@@ -36,7 +37,7 @@ export function ReportsPage() {
   if (!allowed.length) {
     return (
       <EmptyState>
-        <p>There are no reports for your role yet. Revenue reports arrive with online payments.</p>
+        <p>There are no reports for your role yet.</p>
       </EmptyState>
     );
   }
@@ -152,10 +153,30 @@ function Tiles({ items }: { items: [string, string, string?][] }) {
 function ReportBody({ type, r }: { type: ReportType; r: ReportData }) {
   const t = r.totals;
   const b = r.breakdowns;
-  const units: Partial<Record<ReportType, [string, string]>> = { leads: ['Leads', 'lead'], students: ['Sign-ups', 'sign-up'], enrollments: ['Grants', 'grant'], learning: ['Lessons', 'lesson'] };
+  const units: Partial<Record<ReportType, [string, string]>> = { revenue: ['Rupees', 'rupee'], leads: ['Leads', 'lead'], students: ['Sign-ups', 'sign-up'], enrollments: ['Grants', 'grant'], learning: ['Lessons', 'lesson'] };
   const [unit, unitOne] = units[type] ?? ['', ''];
   const chart = r.series && r.range ? <ColumnChart title={r.series.label} points={r.series.points} interval={r.range.interval} unit={unit} unitOne={unitOne} /> : null;
 
+  if (type === 'revenue') {
+    const inr = (n: number | undefined) => `₹${num(n ?? 0)}`;
+    return (
+      <>
+        <Tiles
+          items={[
+            ['Net revenue', inr(t.netInr), 'paid minus refunds'],
+            ['Paid orders', num(t.paidOrders), `${inr(t.grossInr)} received`],
+            ['Refunds', num(t.refundCount), `${inr(t.refundsInr)} returned`],
+            ['Average order', inr(t.averageOrderInr)],
+          ]}
+        />
+        {chart}
+        <div className="adm-report-grid">
+          <BreakdownBars title="Paid orders by plan" items={b.plan ?? []} label={(k) => k} />
+          <BreakdownBars title="Paid orders by payment method" items={b.method ?? []} label={(k) => (k === 'unknown' ? 'Not recorded' : methodLabel(k))} />
+        </div>
+      </>
+    );
+  }
   if (type === 'leads') {
     return (
       <>
@@ -200,7 +221,7 @@ function ReportBody({ type, r }: { type: ReportType; r: ReportData }) {
         <Tiles items={[['Access granted', num(t.granted), 'in this period'], ['Revoked', num(t.revoked), 'in this period'], ['Active now', num(t.activeNow), 'today, all time']]} />
         {chart}
         <div className="adm-report-grid">
-          <BreakdownBars title="Granted by type" items={b.source ?? []} label={(k) => SOURCE_LABEL[k as keyof typeof SOURCE_LABEL] ?? k} note="Purchases appear once online payments are live." />
+          <BreakdownBars title="Granted by type" items={b.source ?? []} label={(k) => SOURCE_LABEL[k as keyof typeof SOURCE_LABEL] ?? k} />
         </div>
       </>
     );

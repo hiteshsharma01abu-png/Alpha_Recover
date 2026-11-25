@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import { LEAD_REASONS } from '../../../../shared/leads';
 import { ApiError } from '../../../lib/api';
@@ -10,6 +11,7 @@ import { formatInr } from '../../lib/format';
 import './DashboardPage.css';
 
 const num = (n: number) => n.toLocaleString('en-IN');
+const plural = (n: number, word: string) => `${num(n)} ${word}${n === 1 ? '' : 's'}`;
 
 function endsIn(iso: string) {
   const ms = Date.parse(iso) - Date.now();
@@ -74,6 +76,12 @@ export function DashboardPage() {
       ) : (
         <>
           <div className="adm-kpis">
+            {data.revenue ? (
+              <>
+                <Kpi label="Revenue, last 7 days" value={formatInr(data.revenue.last7Days.netPaise)} hint={`${plural(data.revenue.last7Days.paidOrders, 'paid order')}, after refunds`} />
+                <Kpi label="Revenue, all time" value={formatInr(data.revenue.netPaise)} hint={`${plural(data.revenue.paidOrders, 'order')} · ${num(data.revenue.refunds)} refunded`} />
+              </>
+            ) : null}
             {data.leads ? (
               <>
                 <Kpi label="New leads" value={num(data.leads.new)} hint="Waiting for first contact" tone={data.leads.new ? 'warn' : undefined} />
@@ -114,6 +122,32 @@ export function DashboardPage() {
               />
             ) : null}
           </div>
+
+          {data.revenue ? (
+            <section className="adm-card">
+              <h2>Recent payments</h2>
+              {data.revenue.recent.length ? (
+                <ul className="adm-recent">
+                  {data.revenue.recent.map((o) => (
+                    <li key={o.id}>
+                      <span>
+                        <strong>
+                          <Link to={`/admin/orders/${o.id}`}>{o.orderNumber}</Link> · {formatInr(o.amountPaise)}
+                        </strong>
+                        <small>
+                          {o.firstName} · {o.plan}
+                        </small>
+                      </span>
+                      <span className={`adm-badge adm-badge--${o.status === 'paid' ? 'success' : 'muted'}`}>{o.status === 'paid' ? 'paid' : o.status === 'partially_refunded' ? 'part refunded' : 'refunded'}</span>
+                      {o.paidAt ? <time dateTime={o.paidAt}>{timeAgo(o.paidAt)}</time> : null}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <EmptyState>No payments yet. Paid orders from the website appear here.</EmptyState>
+              )}
+            </section>
+          ) : null}
 
           {data.leads ? (
             <section className="adm-card">

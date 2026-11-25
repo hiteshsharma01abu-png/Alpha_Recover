@@ -98,7 +98,9 @@ describe.skipIf(!dbAvailable)('admin reports API (MySQL)', () => {
     const admin = await loginAs(ctx, 'admin');
     expect((await getJson(ctx.app, '/admin/reports/leads?from=2026-11-10&to=2026-11-01', admin.jar)).status).toBe(400);
     expect((await getJson(ctx.app, '/admin/reports/leads?from=2020-01-01&to=2026-11-01', admin.jar)).status).toBe(400);
-    expect((await getJson(ctx.app, '/admin/reports/revenue', admin.jar)).status).toBe(400);
+    expect((await getJson(ctx.app, '/admin/reports/nope', admin.jar)).status).toBe(400);
+    expect((await getJson(ctx.app, '/admin/reports/revenue', admin.jar)).status).toBe(200);
+    expect((await getJson(ctx.app, '/admin/reports/revenue', content.jar)).status).toBe(403);
   });
 
   it('exports CSV (series + breakdowns) and logs it; content managers can view but not export', async () => {

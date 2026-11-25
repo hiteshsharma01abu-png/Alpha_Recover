@@ -155,7 +155,11 @@ Phase 7 QA & security hardening (continuous, gate before production launch)
 - [x] `GET /me/orders`, `GET /me/orders/:orderNumber`; 13 integration tests with a mocked Razorpay
 - [x] [FE] Razorpay Checkout from Buy Now (`src/lib/checkout.ts`, `useBuyPlan`), `/checkout/success` + `/checkout/failed`, Purchases in account settings, login `?next=` back to pricing
 - [x] Pricing page Buy Now / Enroll Now wired; a real Razorpay **test** order created and Checkout opened from the page (local, 2026-11-25). A full test payment still needs a manual run
-- [ ] Admin orders list/detail, refunds (`refund.processed` → revoke), reconcile; webhook set up on a public URL; ₹1 live test
+- [x] Owner's test purchase (card, ₹4,500) activated the Professional Plan end to end (2026-11-25)
+- [x] Admin Orders & Payments: list (tabs, filters, CSV), detail (payments, access, webhook + audit history), full refund with the 3-day window / role limits / Super Admin override, re-check with Razorpay; `refund.processed` webhook for dashboard refunds; revenue on the dashboard and a Revenue report; purchases on the student page. 10 integration tests
+- [ ] Razorpay refused a full ₹4,500 **test** refund ("invalid request sent") while accepting ₹1: check the test account's balance/refund settings in the Razorpay dashboard
+- [ ] Webhook set up on a public URL; ₹1 live test after go-live
+- [ ] Razorpay Checkout ignores `prefill.contact` on this account (sent as `+91…` and as 10 digits): buyers type their phone once
 
 ### Phase 6 — Admin panel backend · L (incremental) · **In progress**
 Built module by module, right after the domain it depends on ships. The admin **UI** is a separate frontend effort. Recommended: a protected `/admin` area in the same SPA, reusing the design tokens, lazy-loaded so it doesn't grow the public bundle.

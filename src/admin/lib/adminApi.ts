@@ -35,7 +35,65 @@ export type DashboardData = {
     promotion: { label: string; startsAt: string; endsAt: string } | null;
   } | null;
   email?: { failed: number; queued: number };
+  revenue?: {
+    netPaise: number;
+    paidOrders: number;
+    refunds: number;
+    last7Days: { netPaise: number; paidOrders: number };
+    recent: { id: string; orderNumber: string; status: OrderStatus; amountPaise: number; paidAt: string | null; plan: string; firstName: string }[];
+  };
 };
+
+export type OrderStatus = 'created' | 'paid' | 'failed' | 'cancelled' | 'refunded' | 'partially_refunded';
+
+/** List rows: the student's email arrives masked. */
+export type OrderRow = {
+  id: string;
+  orderNumber: string;
+  status: OrderStatus;
+  amountPaise: number;
+  currency: string;
+  createdAt: string;
+  paidAt: string | null;
+  planId: string;
+  plan: string;
+  method: string | null;
+  student: { id: string; firstName: string; lastName: string | null; email: string | null };
+};
+export type OrderListMeta = { page: number; pageSize: number; total: number; counts: Record<OrderStatus, number> };
+
+export type OrderDetail = {
+  id: string;
+  orderNumber: string;
+  status: OrderStatus;
+  amountPaise: number;
+  currency: string;
+  providerOrderId: string | null;
+  createdAt: string;
+  paidAt: string | null;
+  expiresAt: string;
+  billing: { name: string; email: string; phone: string | null; country: string; gstin: string | null };
+  student: { id: string; firstName: string; lastName: string | null; email: string };
+  plan: { id: string; name: string; slug: string };
+  payments: {
+    id: string;
+    providerPaymentId: string;
+    status: 'authorized' | 'captured' | 'failed' | 'refunded' | 'partially_refunded';
+    method: string | null;
+    amountPaise: number;
+    refundedPaise: number;
+    errorCode: string | null;
+    errorDescription: string | null;
+    capturedAt: string | null;
+    refundedAt: string | null;
+    createdAt: string;
+  }[];
+  enrollment: { id: string; status: 'active' | 'revoked' | 'expired'; startsAt: string; expiresAt: string | null; revokedAt: string | null; revokedReason: string | null } | null;
+  webhookEvents: { id: string; eventType: string; status: 'received' | 'processed' | 'ignored' | 'failed'; error: string | null; createdAt: string }[];
+  activity: { id: string; action: string; metadata: Record<string, unknown> | null; createdAt: string; actorName: string | null; actorRole: string | null }[];
+  refund: { allowed: boolean; reason: string | null; windowEndsAt: string | null; insideWindow: boolean };
+};
+export type Reconciliation = 'activated' | 'already_paid' | 'failed' | 'authorized' | 'nothing_yet';
 
 export type StaffRef = { id: string; firstName: string | null };
 
@@ -98,6 +156,8 @@ export type StudentDetail = Omit<StudentRow, 'enrolled'> & {
   sessions: { id: string; device: string; signedInAt: string; lastActiveAt: string }[];
   /** Courses the student has started, most recent activity first. */
   learning: { slug: string; title: string; lessonsTotal: number; lessonsCompleted: number; progressPct: number; lastActivityAt: string }[];
+  /** Purchases; null when the viewer's role can't open Orders. */
+  orders: { id: string; orderNumber: string; status: OrderStatus; amountPaise: number; plan: string; createdAt: string; paidAt: string | null }[] | null;
 };
 
 export type StudentUpdate = Partial<{ firstName: string; lastName: string | null; certificateName: string | null; phone: string | null; country: string }>;
@@ -382,6 +442,16 @@ export const adminApi = {
     setEnd: (id: string, expiresOn: string | null) => api.patch<{ id: string; expiresAt: string | null }>(`/admin/enrollments/${id}`, { expiresOn }).then((r) => r.data),
     revoke: (id: string, reason: string) => api.post<{ id: string }>(`/admin/enrollments/${id}/revoke`, { reason }).then((r) => r.data),
     exportUrl: (params: Record<string, string | undefined>) => `/api/v1/admin/enrollments/export.csv${qs(params)}`,
+  },
+  orders: {
+    list: (params: Record<string, string | undefined>) =>
+      api.get<OrderRow[]>(`/admin/orders${qs(params)}`).then((r) => ({ rows: r.data, meta: r.meta as OrderListMeta })),
+    plans: () => api.get<{ id: string; name: string }[]>('/admin/orders/plans').then((r) => r.data),
+    get: (id: string) => api.get<OrderDetail>(`/admin/orders/${id}`).then((r) => r.data),
+    refund: (id: string, reason: string) =>
+      api.post<{ status: OrderStatus; refundId: string; refundStatus: string; accessRevoked: boolean; amountPaise: number }>(`/admin/orders/${id}/refund`, { reason }).then((r) => r.data),
+    reconcile: (id: string) => api.post<{ result: Reconciliation }>(`/admin/orders/${id}/reconcile`).then((r) => r.data),
+    exportUrl: (params: Record<string, string | undefined>) => `/api/v1/admin/orders/export.csv${qs(params)}`,
   },
   plans: {
     list: () => api.get<PlanRow[]>('/admin/plans').then((r) => r.data),

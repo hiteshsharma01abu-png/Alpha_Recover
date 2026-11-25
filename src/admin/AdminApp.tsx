@@ -16,6 +16,8 @@ import { CourseEditorPage } from './modules/courses/CourseEditorPage';
 import { CoursesPage } from './modules/courses/CoursesPage';
 import { DemoVideosPage } from './modules/demos/DemoVideosPage';
 import { EnrollmentsPage } from './modules/enrollments/EnrollmentsPage';
+import { OrderDetailPage } from './modules/orders/OrderDetailPage';
+import { OrdersPage } from './modules/orders/OrdersPage';
 import { LeadsPage } from './modules/leads/LeadsPage';
 import { PlanEditorPage } from './modules/plans/PlanEditorPage';
 import { PlansPage } from './modules/plans/PlansPage';
@@ -33,6 +35,8 @@ const GUARDED: [path: string, perm: Permission, Page: ComponentType][] = [
   ['students', 'students.view', StudentsPage],
   ['students/:id', 'students.view', StudentDetailPage],
   ['enrollments', 'enrollments.view', EnrollmentsPage],
+  ['orders', 'orders.view', OrdersPage],
+  ['orders/:id', 'orders.view', OrderDetailPage],
   ['certificates', 'certificates.view', CertificatesPage],
   ['courses', 'courses.view', CoursesPage],
   ['courses/:id', 'courses.view', CourseEditorPage],

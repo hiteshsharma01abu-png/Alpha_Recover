@@ -4,7 +4,7 @@ export type AdminNavItem = {
   /** Path under /admin ('' = dashboard). */
   path: string;
   label: string;
-  icon: 'dashboard' | 'leads' | 'students' | 'enrollments' | 'certificates' | 'courses' | 'plans' | 'demos' | 'blog' | 'team' | 'activity' | 'settings' | 'email' | 'reports';
+  icon: 'dashboard' | 'leads' | 'orders' | 'students' | 'enrollments' | 'certificates' | 'courses' | 'plans' | 'demos' | 'blog' | 'team' | 'activity' | 'settings' | 'email' | 'reports';
   permission: Permission;
   group: 'Overview' | 'Sales' | 'Learners' | 'Content' | 'Insights' | 'System';
 };
@@ -16,6 +16,7 @@ export type AdminNavItem = {
 export const ADMIN_NAV: AdminNavItem[] = [
   { path: '', label: 'Dashboard', icon: 'dashboard', permission: 'dashboard.view', group: 'Overview' },
   { path: 'leads', label: 'Leads & Inquiries', icon: 'leads', permission: 'leads.view', group: 'Sales' },
+  { path: 'orders', label: 'Orders & Payments', icon: 'orders', permission: 'orders.view', group: 'Sales' },
   { path: 'students', label: 'Students', icon: 'students', permission: 'students.view', group: 'Learners' },
   { path: 'enrollments', label: 'Enrollments', icon: 'enrollments', permission: 'enrollments.view', group: 'Learners' },
   { path: 'certificates', label: 'Certificates', icon: 'certificates', permission: 'certificates.view', group: 'Learners' },

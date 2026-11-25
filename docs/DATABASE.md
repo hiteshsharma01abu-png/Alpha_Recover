@@ -265,6 +265,8 @@
 
 ## 13. `payments`
 
+> **Refunds are recorded here, no separate table** (Phase 5): a refund sets `status` (`refunded` / `partially_refunded`), `refunded_paise` and `refunded_at`, and the order's status to match. The Razorpay refund id is kept in the `order.refund` activity log entry. Full refunds also revoke the order's enrollment.
+
 | Column | Type | Notes |
 |---|---|---|
 | id | char(36) | PK |

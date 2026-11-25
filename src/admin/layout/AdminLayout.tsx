@@ -24,6 +24,12 @@ const ICONS: Record<AdminNavItem['icon'], ReactNode> = {
       <path d="M4 5.5h16v10H8l-4 3.5z" />
     </svg>
   ),
+  orders: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+      <rect x="2.5" y="5" width="19" height="14" rx="2" />
+      <path d="M2.5 10h19M6.5 15h4" />
+    </svg>
+  ),
   students: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
       <path d="M3 9l9-4 9 4-9 4z" />

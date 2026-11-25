@@ -69,6 +69,15 @@ export const templates = {
       ),
     };
   },
+  /** Refund issued (admin or Razorpay dashboard). Banks take 5–7 working days to show it. */
+  refund_processed: (p: { firstName: string; orderNumber: string; planName: string; amount: string; accessEnded: boolean }): Rendered => ({
+    subject: `Refund issued: ${p.planName} (${p.orderNumber})`,
+    text: `Hi ${p.firstName},\n\nWe've refunded ${p.amount} for your ${p.planName} (order ${p.orderNumber}) to your original payment method. Banks usually take 5–7 working days to show it.${p.accessEnded ? `\n\nAs per our refund policy, access to the ${p.planName} courses has ended.` : ''}\n\nQuestions? Reply to this email.\n\nAlpha Recovery`,
+    html: layout(
+      'Refund issued',
+      `<p>Hi ${escapeHtml(p.firstName)},</p><p>We've refunded <strong>${escapeHtml(p.amount)}</strong> for your ${escapeHtml(p.planName)} (order ${escapeHtml(p.orderNumber)}) to your original payment method. Banks usually take 5–7 working days to show it.</p>${p.accessEnded ? `<p>As per our refund policy, access to the ${escapeHtml(p.planName)} courses has ended.</p>` : ''}<p style="font-size:13px">Questions? Reply to this email.</p>`,
+    ),
+  }),
   /** Sent with the receipt: access is open, here's where to start. */
   enrollment_welcome: (p: { firstName: string; planName: string; dashboardUrl: string; lifetime: boolean }): Rendered => ({
     subject: `Welcome to the ${p.planName}: your courses are unlocked`,

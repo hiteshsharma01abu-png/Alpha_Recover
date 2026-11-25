@@ -1,13 +1,15 @@
 import { and, eq, gt, inArray, isNotNull, lte, sql } from 'drizzle-orm';
+import { can, REFUND_LIMITS, type UserRole } from '../../shared/permissions';
 import { pricingPlans } from '../../src/data/content';
+import { refundWindowDays } from '../../src/data/legal';
 import type { Database } from '../db';
 import { enrollments, orders, payments, plans, promotions, users } from '../db/schema';
 import type { Env } from '../env';
 import { AppError } from '../lib/errors';
 import { enqueueEmail } from '../notifications/outbox';
-import { grantEnrollment, liveEnrollment } from './enrollments';
+import { grantEnrollment, liveEnrollment, revokeEnrollment } from './enrollments';
 import { loadPlans } from './pricing';
-import { createRazorpayOrder, razorpayKeyId, type RazorpayEnv, type RazorpayPayment } from './razorpay';
+import { createRazorpayOrder, fetchRazorpayOrderPayments, razorpayKeyId, refundRazorpayPayment, type RazorpayEnv, type RazorpayPayment } from './razorpay';
 
 type Tx = Parameters<Parameters<Database['transaction']>[0]>[0];
 
@@ -249,3 +251,107 @@ export const formatInr = (paise: number) =>
   new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: paise % 100 ? 2 : 0 }).format(paise / 100);
 
 export type { RazorpayEnv };
+
+// ── Refunds and reconciliation (admin) ───────────────────────────────────────
+
+export type RefundCheck = { allowed: boolean; reason: string | null; windowEndsAt: string | null; insideWindow: boolean };
+
+/**
+ * Who may refund this order now (owner rule, 2026-11-25): full refunds only; inside the refund window
+ * (`refundWindowDays` after payment) anyone with orders.refund up to their REFUND_LIMITS ceiling;
+ * after it, Super Admin only. The UI shows `reason` when not allowed.
+ */
+export function refundEligibility(order: { status: string; paidAt: Date | null; amountPaise: number }, role: UserRole, now = new Date()): RefundCheck {
+  const windowEnds = order.paidAt ? new Date(order.paidAt.getTime() + refundWindowDays * 86_400_000) : null;
+  const insideWindow = !!windowEnds && now < windowEnds;
+  const result = (allowed: boolean, reason: string | null): RefundCheck => ({ allowed, reason, windowEndsAt: windowEnds?.toISOString() ?? null, insideWindow });
+  if (order.status === 'refunded' || order.status === 'partially_refunded') return result(false, 'This order has already been refunded');
+  if (order.status !== 'paid') return result(false, 'Only paid orders can be refunded');
+  if (!can(role, 'orders.refund')) return result(false, "Your role can't issue refunds");
+  if (!insideWindow && role !== 'super_admin') return result(false, `Outside the ${refundWindowDays}-day refund window: only a Super Admin can refund`);
+  const limit = REFUND_LIMITS[role];
+  if (limit !== undefined && limit !== null && order.amountPaise > limit) return result(false, `Above your refund limit of ${formatInr(limit)}`);
+  return result(true, null);
+}
+
+/**
+ * Records a refund on our side: payment and order marked refunded, the purchase's access revoked,
+ * and the buyer emailed. Shared by the admin refund and the refund.processed webhook (refunds made in
+ * the Razorpay dashboard). Caller holds the order row lock.
+ */
+async function markRefunded(tx: Tx, order: typeof orders.$inferSelect, paymentId: string, refund: { id: string; amount: number; reason: string }) {
+  const now = new Date();
+  await tx.update(payments).set({ status: refund.amount >= order.amountPaise ? 'refunded' : 'partially_refunded', refundedPaise: refund.amount, refundedAt: now }).where(eq(payments.id, paymentId));
+  const full = refund.amount >= order.amountPaise;
+  await tx.update(orders).set({ status: full ? 'refunded' : 'partially_refunded' }).where(eq(orders.id, order.id));
+  const [enrollment] = await tx.select({ id: enrollments.id }).from(enrollments).where(eq(enrollments.orderId, order.id));
+  // Policy: a (full) refund ends access to that purchase. A partial refund made in the Razorpay dashboard is
+  // only recorded; staff decide about access (Enrollments).
+  const revoked = enrollment && full ? await revokeEnrollment(tx as unknown as Database, enrollment.id, `Refunded (${refund.id}): ${refund.reason}`) : false;
+  const [user] = await tx.select({ firstName: users.firstName }).from(users).where(eq(users.id, order.userId));
+  const [plan] = await tx.select({ name: plans.name }).from(plans).where(eq(plans.id, order.planId));
+  await enqueueEmail(tx as unknown as Database, 'refund_processed', order.billingEmail, {
+    firstName: user.firstName,
+    orderNumber: order.orderNumber,
+    planName: plan.name,
+    amount: formatInr(refund.amount),
+    accessEnded: revoked,
+  });
+  return { status: full ? ('refunded' as const) : ('partially_refunded' as const), accessRevoked: revoked };
+}
+
+/** Admin refund (full amount) through Razorpay, then recorded with markRefunded(). */
+export async function refundOrder(db: Database, env: Env, input: { orderId: string; actor: { id: string; role: UserRole }; reason: string }, fetchImpl: typeof fetch = fetch) {
+  return db.transaction(async (tx) => {
+    const [order] = await tx.select().from(orders).where(eq(orders.id, input.orderId)).for('update');
+    if (!order) throw new AppError('NOT_FOUND', 'Order not found');
+    const check = refundEligibility(order, input.actor.role);
+    if (!check.allowed) {
+      const conflict = order.status !== 'paid';
+      throw new AppError(conflict ? 'CONFLICT' : 'FORBIDDEN', check.reason ?? 'This order cannot be refunded');
+    }
+    const [payment] = await tx.select().from(payments).where(and(eq(payments.orderId, order.id), eq(payments.status, 'captured'))).limit(1);
+    if (!payment) throw new AppError('CONFLICT', 'No captured payment found for this order. Use Re-check first.');
+    const refund = await refundRazorpayPayment(env, payment.providerPaymentId, { amountPaise: order.amountPaise, notes: { orderNumber: order.orderNumber, reason: input.reason.slice(0, 200) } }, fetchImpl).catch(
+      (err: unknown) => {
+        const why = err instanceof AppError ? err.details.find((d) => d.path === 'razorpay')?.message : undefined;
+        if (!why) throw err;
+        // Staff need Razorpay's own words (e.g. not enough balance for the refund)
+        throw new AppError('UPSTREAM_ERROR', `Razorpay refused the refund: “${why}”. Nothing was changed. Check the payment and your balance in the Razorpay dashboard, or refund it there.`);
+      },
+    );
+    const result = await markRefunded(tx, order, payment.id, { id: refund.id, amount: refund.amount, reason: input.reason });
+    return { ...result, orderNumber: order.orderNumber, refundId: refund.id, refundStatus: refund.status, amountPaise: refund.amount };
+  });
+}
+
+/** refund.processed webhook: a refund made in the Razorpay dashboard. No-op when we already recorded it. */
+export async function recordProviderRefund(db: Database, refund: { id: string; payment_id: string; amount: number }) {
+  return db.transaction(async (tx) => {
+    const [payment] = await tx.select().from(payments).where(eq(payments.providerPaymentId, refund.payment_id));
+    if (!payment) return { matched: false as const };
+    const [order] = await tx.select().from(orders).where(eq(orders.id, payment.orderId)).for('update');
+    if (order.status === 'refunded' || (order.status === 'partially_refunded' && payment.refundedPaise >= refund.amount)) return { matched: true as const, changed: false, order };
+    const result = await markRefunded(tx, order, payment.id, { id: refund.id, amount: refund.amount, reason: 'Refunded in the Razorpay dashboard' });
+    return { matched: true as const, changed: true, order, ...result };
+  });
+}
+
+export type Reconciliation = 'activated' | 'already_paid' | 'failed' | 'authorized' | 'nothing_yet';
+
+/** Asks Razorpay what happened to an order's payments and applies it (missed handler or webhook). */
+export async function reconcileOrder(db: Database, env: Env, orderId: string, fetchImpl: typeof fetch = fetch): Promise<{ result: Reconciliation; activation?: Activation }> {
+  const [order] = await db.select().from(orders).where(eq(orders.id, orderId));
+  if (!order) throw new AppError('NOT_FOUND', 'Order not found');
+  if (!order.providerOrderId) throw new AppError('CONFLICT', 'This order never reached Razorpay');
+  const found = await fetchRazorpayOrderPayments(env, order.providerOrderId, fetchImpl);
+  const captured = found.find((p) => p.status === 'captured');
+  if (captured) {
+    const activation = await activateOrder(db, env, order.id, captured);
+    return { result: activation.activated ? 'activated' : 'already_paid', activation };
+  }
+  if (order.status === 'paid') return { result: 'already_paid' };
+  for (const p of found.filter((x) => x.status === 'failed')) await recordFailedPayment(db, order.id, p);
+  if (found.some((p) => p.status === 'authorized')) return { result: 'authorized' };
+  return { result: found.length ? 'failed' : 'nothing_yet' };
+}

@@ -9,11 +9,12 @@ import { Dialog } from '../../components/Dialog';
 import { EmptyState, ErrorState, Skeleton } from '../../components/States';
 import { adminApi } from '../../lib/adminApi';
 import type { StudentDetail } from '../../lib/adminApi';
-import { ago, countryName, formatDate, formatIst } from '../../lib/format';
+import { ago, countryName, formatDate, formatInr, formatIst } from '../../lib/format';
 import { useResource } from '../../lib/useResource';
 import { IssueCertificateDialog, RenameCertificateDialog, RevokeCertificateDialog } from '../certificates/CertificateDialogs';
 import { EndDateDialog, GrantDialog, RevokeDialog } from '../enrollments/EnrollmentDialogs';
 import { SOURCE_LABEL, STATUS_LABEL, STATUS_TONE } from '../enrollments/enrollmentDisplay';
+import { ORDER_STATUS_LABEL, ORDER_STATUS_TONE } from '../orders/orderDisplay';
 import './Students.css';
 
 type Action = 'suspend' | 'unsuspend' | 'signout' | 'reset' | null;
@@ -242,6 +243,31 @@ function StudentView({ s, reload }: { s: StudentDetail; reload: () => void }) {
             <p className="adm-muted">No course access yet. Purchases and staff grants appear here.</p>
           )}
         </section>
+
+        {s.orders ? (
+          <section className="adm-panel adm-panel-wide">
+            <h3>Purchases</h3>
+            {s.orders.length ? (
+              <ul className="adm-list">
+                {s.orders.map((o) => (
+                  <li key={o.id}>
+                    <span className="adm-list-row">
+                      <Link to={`/admin/orders/${o.id}`}>
+                        <strong>{o.orderNumber}</strong>
+                      </Link>
+                      <StatusBadge tone={ORDER_STATUS_TONE[o.status]}>{ORDER_STATUS_LABEL[o.status]}</StatusBadge>
+                    </span>
+                    <span className="adm-sub">
+                      {o.plan} · {formatInr(o.amountPaise)} · {formatDate(o.paidAt ?? o.createdAt)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="adm-muted">No purchases.</p>
+            )}
+          </section>
+        ) : null}
 
         <section className="adm-panel adm-panel-wide">
           <div className="adm-panel-head">

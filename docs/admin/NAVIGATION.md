@@ -1,6 +1,6 @@
 # Alpha Recovery — Admin Panel Navigation & Modules
 
-**Last reviewed:** 2026-11-24 · **Status:** Proposal · built so far: Dashboard, Leads & Inquiries, Students, Enrollments, Certificates, Courses, Plans & Offers, Demo Videos, Blog, Reports, Activity Log, Team & Access, Email Log, Settings
+**Last reviewed:** 2026-11-25 · **Status:** Proposal · built so far: Dashboard, Leads & Inquiries, Students, Enrollments, Certificates, Courses, Plans & Offers, Demo Videos, Blog, Reports, Activity Log, Team & Access, Email Log, Settings
 **Related:** [ARCHITECTURE.md](ARCHITECTURE.md) · [AUTH_AND_RBAC.md](AUTH_AND_RBAC.md) (permission strings) · [UI_UX.md](UI_UX.md) (sidebar behaviour) · [../API.md](../API.md) §10–14
 
 ## 1. How the proposed list was finalized against the real project
@@ -61,7 +61,7 @@ Footer of the sidebar: the signed-in user, their role badge, and **View website 
 | `/admin/login`, `/admin/login/2fa` | Login, TOTP | public / pending 2FA |
 | `/admin` | Dashboard | `dashboard.view` |
 | `/admin/leads` · `/admin/leads?lead=:id` (drawer) | Leads list · detail (**built**; filters, page and the open lead live in the query string) | `leads.view` |
-| `/admin/orders` · `/admin/orders/:id` | Orders list · detail (payments, webhook events, refund) | `orders.view` |
+| `/admin/orders` · `/admin/orders/:id` | Orders list · detail (payments, webhook events, refund, re-check) (**built**, 2026-11-25) | `orders.view` |
 | `/admin/students` · `/admin/students/:id` | Students · detail (**built** as one page: profile, course access, certificates, devices; orders arrive with Phase 5) | `students.view` |
 | `/admin/enrollments` | Enrollments (**built**: status tabs, filters in the query string, grant / change end / revoke dialogs, also used on the student page) | `enrollments.view` |
 | `/admin/certificates` | Certificates (**built**: look up, manual issue, correct name, revoke, export; PDFs in Phase 4) | `certificates.view` |
@@ -120,7 +120,7 @@ Backend dependencies refer to [../PLAN.md](../PLAN.md) phases. "Exists" = live t
 | **Blog** | Write, schedule, publish articles | BlogListPage, BlogEditorPage (MarkdownEditor + preview, SEO, schedule) | `/blog`, `/blog/:id`, publish/unpublish, `/media/upload-url` | blog_posts (exists) | `blog.view/add/edit/delete/publish` | Foundation | **P1** |
 | **Certificates** | Look up, issue manually, revoke, regenerate PDF | CertificatesPage, IssueDialog, RevokeDialog (step-up) | `/certificates`, issue, revoke, regenerate-pdf | certificates, certificate_sequences (exist) | `certificates.view/add/edit` | Foundation; PDFs in Phase 4 | **P1** |
 | **Enrollments** | Grant/revoke access (manual, complimentary, purchase) | EnrollmentsPage, GrantDialog, RevokeDialog | `/enrollments`, `/enrollments/:id/revoke` | **enrollments (new)** | `enrollments.view/add/edit` | Backend Phase 3/5 | **P1** |
-| **Orders & Payments** | See payments, refund, reconcile missed webhooks | OrdersPage, OrderDetailPage, RefundDialog (step-up, limit) | `/orders`, `/orders/:id`, refund, reconcile, export | **orders, payments, payment_webhook_events (new)** | `orders.view/edit/export`, `orders.refund` | Backend Phase 5 | **P1** |
+| **Orders & Payments** (**built**) | See payments, refund, reconcile missed webhooks | OrdersPage, OrderDetailPage (refund dialog with window/limit; step-up planned) | `/orders`, `/orders/:id`, refund, reconcile, export | **orders, payments, payment_webhook_events (new)** | `orders.view/edit/export`, `orders.refund` | Backend Phase 5 | **P1** |
 | **Settings** | Site & contact details, social links, lead recipients, policies (session limit, refund-revokes-access, certificate criteria) | SettingsPage (tabs) | `GET /settings`, `PUT /settings/:key` | site_settings (exists) | `settings.view/edit` (Policies: super_admin) | Foundation | **P1** |
 | **Reports & Analytics** | Trends: revenue, leads by source/reason, signups, completion, demo views | ReportsPage (tabs, date range, CSV) | `/reports/:type`, `/reports/:type/export.csv` | all (read-only) | `reports.view/export` (tabs filtered by role) | P0/P1 data | **P2** |
 | **Email Log** | Debug delivery; retry dead jobs | NotificationsPage | `/notifications`, `/notifications/:id/retry` | notification_jobs (exists) | `notifications.view/edit` | Foundation | **P2** |

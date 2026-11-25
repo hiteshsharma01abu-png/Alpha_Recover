@@ -45,10 +45,12 @@ async function call<T>(env: RazorpayEnv, method: 'GET' | 'POST', path: string, b
     throw new AppError('UPSTREAM_ERROR', 'The payment service is not responding. Please try again in a minute.');
   }
   if (!res.ok) {
-    const detail = ((await res.json().catch(() => null)) as { error?: { description?: string } } | null)?.error?.description;
+    const err = ((await res.json().catch(() => null)) as { error?: { code?: string; description?: string; reason?: string; field?: string; step?: string } } | null)?.error;
     // 401 here means our keys are wrong: a server problem, never the buyer's
-    logger.error('razorpay error', { path, status: res.status, detail });
-    throw new AppError('UPSTREAM_ERROR', 'The payment service returned an error. Please try again.');
+    logger.error('razorpay error', { path, status: res.status, detail: err?.description, reason: err?.reason, field: err?.field, step: err?.step });
+    throw new AppError('UPSTREAM_ERROR', 'The payment service returned an error. Please try again.', {
+      details: err?.description ? [{ path: 'razorpay', message: err.description.slice(0, 200) }] : undefined,
+    });
   }
   return (await res.json()) as T;
 }
@@ -77,6 +79,13 @@ export function fetchRazorpayPayment(env: RazorpayEnv, paymentId: string, fetchI
 /** Payments made against one Razorpay order (reconciling a missed handler or webhook). */
 export async function fetchRazorpayOrderPayments(env: RazorpayEnv, providerOrderId: string, fetchImpl: typeof fetch = fetch) {
   return (await call<{ items: RazorpayPayment[] }>(env, 'GET', `/orders/${encodeURIComponent(providerOrderId)}/payments`, undefined, fetchImpl)).items;
+}
+
+export type RazorpayRefund = { id: string; payment_id: string; amount: number; status: 'pending' | 'processed' | 'failed' };
+
+/** Full or partial refund of a captured payment (https://razorpay.com/docs/api/refunds/). */
+export function refundRazorpayPayment(env: RazorpayEnv, paymentId: string, input: { amountPaise: number; notes: Record<string, string> }, fetchImpl: typeof fetch = fetch) {
+  return call<RazorpayRefund>(env, 'POST', `/payments/${encodeURIComponent(paymentId)}/refund`, { amount: input.amountPaise, speed: 'normal', notes: input.notes }, fetchImpl);
 }
 
 const hmacHex = (secret: string, data: string) => createHmac('sha256', secret).update(data).digest('hex');
