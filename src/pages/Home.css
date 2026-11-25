@@ -927,36 +927,6 @@
   filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.45));
 }
 
-.why-card-badge {
-  position: absolute;
-  top: 10%;
-  right: 8%;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: rgba(6, 22, 16, 0.82);
-  border: 1px solid rgba(125, 255, 192, 0.45);
-  box-shadow:
-    0 0 16px rgba(125, 255, 192, 0.35),
-    0 6px 14px rgba(0, 0, 0, 0.35);
-  z-index: 2;
-}
-
-.why-card-badge img {
-  width: 18px;
-  height: 18px;
-  display: block;
-}
-
-.why-card-visual--online .why-card-badge {
-  border-color: rgba(37, 211, 102, 0.55);
-  box-shadow:
-    0 0 16px rgba(37, 211, 102, 0.35),
-    0 6px 14px rgba(0, 0, 0, 0.35);
-}
-
 .why-illus {
   width: 100%;
   max-width: 118px;

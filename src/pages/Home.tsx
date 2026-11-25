@@ -13,7 +13,6 @@ import { SolutionsStack } from '../components/sections/SolutionsStack';
 import { TrainingSolutionsSection } from '../components/sections/TrainingSolutionsSection';
 import {
   fallbackSectionImage,
-  whyLearnBadgeSrc,
   whyLearnIconSrc,
   whyLearnImages,
 } from '../data/sectionMedia';
@@ -262,17 +261,6 @@ export function Home() {
                       loading="lazy"
                       decoding="async"
                     />
-                    {whyLearnBadgeSrc[w.id] ? (
-                      <span className="why-card-badge">
-                        <img
-                          src={whyLearnBadgeSrc[w.id]}
-                          alt=""
-                          width={22}
-                          height={22}
-                          decoding="async"
-                        />
-                      </span>
-                    ) : null}
                   </div>
                 </div>
               </article>

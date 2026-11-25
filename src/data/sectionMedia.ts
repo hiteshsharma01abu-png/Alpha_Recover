@@ -50,13 +50,3 @@ export const whyLearnIconSrc: Record<string, string> = {
   assets: icons.shieldCheck,
   institutes: icons.cpu,
 };
-
-/** Floating accent badges over card product images (Iconify CDN). */
-export const whyLearnBadgeSrc: Record<string, string | undefined> = {
-  cyber: icons.shield,
-  photo: undefined,
-  it: icons.wrench,
-  online: icons.whatsapp,
-  assets: icons.shield,
-  institutes: icons.school,
-};
