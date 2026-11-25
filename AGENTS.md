@@ -52,7 +52,7 @@ Verify with `npm run build` + `npm run lint` + `npm test`; for visual changes, r
 - Content changes go in `src/data/content.ts`, not inline in JSX.
 - New components go in the matching folder: app shell → `components/layout/`, page section → `components/sections/`, image/visual helpers → `components/visuals/`, generic piece → `components/ui/`.
 - Styles live next to their component (`Foo.tsx` + `Foo.css`) with a **unique class prefix**: all CSS ships in one bundle. Use tokens from `src/styles/global.css`, never new hex values. Details: [docs/DESIGN.md](docs/DESIGN.md).
-- Assets: everything lives in `public/assets/`: `brand/` (logos, favicons), `icons/` (local SVGs, used only via `icons.*` / `iconSrc()` in `src/lib/icons.ts`), `images/backgrounds|sections|illustrations|stat-icons/` (optimized `.webp`). Don't add assets elsewhere.
+- Assets: everything lives in `public/assets/`: `brand/` (logos, favicons), `icons/` (local SVGs, used only via `icons.*` / `iconSrc()` in `src/lib/icons.ts`), `images/backgrounds|sections|illustrations|stat-icons|learner/` (optimized `.webp`; `learner/` via `src/lib/learnerAssets.ts`). Don't add assets elsewhere, and delete an asset when its last reference goes (icons are referenced by name through `iconSrc()`, so search for `set/name` too).
 - Animations: wrap in `<Reveal>` and honour `prefers-reduced-motion`.
 - Public pages are pre-rendered at build time and hydrated (`scripts/prerender.mjs`, docs/ARCHITECTURE.md §5.1): never read `window`/`document`/`localStorage`/`Date.now()` during render (effects only; portals behind `useHydrated()`), and give every new public route an entry in `src/data/seo.ts`. `npm run build` must print "pre-rendered N pages"; check the browser console for hydration errors on changed pages.
 

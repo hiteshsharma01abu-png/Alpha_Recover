@@ -13,8 +13,8 @@
   inset: 0;
   z-index: 0;
   background:
-    url('/assets/alpha-recovery-assets/glow-overlay.webp') right -10% top -20% / min(720px, 80vw) no-repeat,
-    url('/assets/alpha-recovery-assets/background-desktop.webp') center / cover no-repeat;
+    url('/assets/images/learner/glow-overlay.webp') right -10% top -20% / min(720px, 80vw) no-repeat,
+    url('/assets/images/learner/background-desktop.webp') center / cover no-repeat;
   opacity: 0.95;
   pointer-events: none;
 }
@@ -491,8 +491,8 @@
 @media (max-width: 980px) {
   .auth-bg {
     background:
-      url('/assets/alpha-recovery-assets/glow-overlay.webp') center top / min(520px, 100vw) no-repeat,
-      url('/assets/alpha-recovery-assets/background-mobile.webp') center / cover no-repeat;
+      url('/assets/images/learner/glow-overlay.webp') center top / min(520px, 100vw) no-repeat,
+      url('/assets/images/learner/background-mobile.webp') center / cover no-repeat;
   }
 
   .auth-split {

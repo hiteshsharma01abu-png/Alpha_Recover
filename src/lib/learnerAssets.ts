@@ -1,5 +1,5 @@
-/** Paths under public/assets/alpha-recovery-assets (prefer .webp). */
-const BASE = '/assets/alpha-recovery-assets';
+/** Paths under public/assets/images/learner (prefer .webp). */
+const BASE = '/assets/images/learner';
 
 export const learnerAssets = {
   bgDesktop: `${BASE}/background-desktop.webp`,

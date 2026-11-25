@@ -1,1 +1,0 @@
-Freshly recreated vector-style assets, not crops. PNG and WebP versions. Hardware artwork and logo are approximations, not original photographic assets or official logo files. Backgrounds and course thumbnails are opaque; icons, logo, hardware and overlays have alpha transparency. Use CSS for cards, buttons, progress bars and forms. Palette: #031611, #12483B, #79F5C4, #F5D36D.
