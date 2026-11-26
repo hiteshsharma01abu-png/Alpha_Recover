@@ -120,7 +120,7 @@ describe.skipIf(!dbAvailable)('enrollments (MySQL)', () => {
       await grantEnrollment(ctx.db, { userId, planId, source: 'complimentary' });
       const { data } = await readJson(await getJson(ctx.app, '/me/enrollments', jar));
       expect(data).toHaveLength(1);
-      expect(data[0]).toMatchObject({ status: 'active', source: 'complimentary', planSlug: 'professional', planName: 'Professional Plan', expiresAt: null });
+      expect(data[0]).toMatchObject({ status: 'active', source: 'complimentary', planSlug: 'professional', planName: 'Professional Plan', grantsAllCourses: true, expiresAt: null });
     });
 
     it('GET /me/access/courses/:slug answers enrolled true/false', async () => {

@@ -255,6 +255,17 @@
   margin-top: 0.35rem;
 }
 
+.px-owned {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--mint);
+}
+
 .px-buy-error {
   margin: 0.6rem 0 0;
   font-size: 0.85rem;

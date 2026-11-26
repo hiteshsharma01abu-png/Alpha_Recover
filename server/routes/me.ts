@@ -214,6 +214,8 @@ export const meRoutes = new Hono<AppEnv>()
         expiresAt: enrollments.expiresAt,
         planSlug: plans.slug,
         planName: plans.name,
+        /** Lets the pricing page show "included in your plan" on smaller plans. */
+        grantsAllCourses: plans.grantsAllCourses,
       })
       .from(enrollments)
       .innerJoin(plans, eq(plans.id, enrollments.planId))

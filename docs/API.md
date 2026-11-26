@@ -2,7 +2,7 @@
 
 **Base URL:** `/api/v1` (same origin as the SPA; Node.js + Hono, host-portable: cPanel Node.js App, VPS, or Vercel during development)
 **Format:** JSON (UTF-8). Request bodies are validated with Zod schemas shared from `shared/schemas/`.
-**Last reviewed:** 2026-11-25 · **Status:** Proposal · Related: [DATABASE.md](DATABASE.md) · [SECURITY.md](SECURITY.md)
+**Last reviewed:** 2026-11-26 · **Status:** Proposal · Related: [DATABASE.md](DATABASE.md) · [SECURITY.md](SECURITY.md)
 
 ---
 
@@ -138,7 +138,7 @@ Response `200`:
 | POST | `/me/avatar` | user | Multipart field `file`: JPEG / PNG / WebP, max 2 MB. Relays to Bunny Storage under `avatars/{userId}/…`, sets `users.image` to the CDN URL, returns the profile. 503 until storage env is set. Audit `user.avatar_upload`. **Implemented** |
 | DELETE | `/me/avatar` | user | Clears `users.image` and best-effort deletes the prior Bunny object. Audit `user.avatar_clear`. **Implemented** |
 | GET | `/me/dashboard` | student | Enrolled courses with progress %, "continue learning" lesson, certificates. **Implemented (Phase 4)** |
-| GET | `/me/enrollments` | student | Your enrollments, newest first: status (active / revoked / expired, computed from the end date), source, plan slug and name, start and end. **Implemented (Phase 3)** |
+| GET | `/me/enrollments` | student | Your enrollments, newest first: status (active / revoked / expired, computed from the end date), source, plan slug and name, `grantsAllCourses`, start and end. **Implemented (Phase 3)**; `grantsAllCourses` added 2026-11-26 for the pricing page's "included in your plan" state |
 | GET | `/me/orders` | user | Purchase history: paid, refunded and partly refunded orders, newest first (orderNumber, status, planSlug, planName, amountPaise, currency, createdAt, paidAt). **Implemented (Phase 5)** |
 | GET | `/me/orders/:orderNumber` | user | One of your orders in any status, plus `lastPayment` (status, method, errorDescription); 404 for other users' orders. Used by the checkout result page. **Implemented (Phase 5)** |
 | GET | `/me/certificates` | student | Your valid certificates: code, recipientName, programTitle, issuedAt. **Implemented (Phase 4)** |

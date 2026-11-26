@@ -9,6 +9,7 @@ import { icons } from '../lib/icons';
 import { type Plan, usePlans, withoutSale } from '../lib/plans';
 import { useSiteSettings } from '../lib/settings';
 import { useBuyPlan } from '../lib/useBuyPlan';
+import { useOwnedPlans } from '../lib/useOwnedPlans';
 import '../components/sections/ProfessionalPlanSection.css';
 import './PricingPage.css';
 
@@ -120,12 +121,15 @@ function PlanCard({
   onBuy,
   busy,
   error,
+  ownership,
   whatsappHref,
 }: {
   plan: Plan;
   onBuy: () => void;
   busy: boolean;
   error: BuyError | null;
+  /** Signed-in student already has this plan, or a plan that includes every course. */
+  ownership: { kind: 'owned' } | { kind: 'included'; by: string } | null;
   whatsappHref: string;
 }) {
   const staticDef = pricingPlans.find((p) => p.slug === plan.slug);
@@ -134,6 +138,8 @@ function PlanCard({
   const tagline = plan.tagline ?? staticDef?.tagline ?? '';
   const audience = plan.audience ?? plan.description ?? staticDef?.audience ?? '';
   const ctaLabel = plan.ctaLabel ?? staticDef?.ctaLabel ?? 'Buy Now';
+  // Expert adds mentoring on top of every course: a Professional owner still sees "Coming soon" there, not "included"
+  const owns = ownership?.kind === 'included' && comingSoon ? null : ownership;
   const features = plan.features.slice(0, CARD_FEATURE_LIMIT);
   const moreCount = Math.max(0, plan.features.length - features.length);
 
@@ -164,7 +170,16 @@ function PlanCard({
         {moreCount > 0 ? <li>+ {moreCount} more benefits</li> : null}
       </ul>
       <div className="px-card-actions">
-        {comingSoon ? (
+        {owns ? (
+          <>
+            <p className="px-owned" role="status">
+              <span aria-hidden>✓</span> {owns.kind === 'owned' ? 'You own this plan' : `Included in your ${owns.by}`}
+            </p>
+            <Link className="px-btn px-btn-primary" to="/dashboard">
+              Go to My Learning
+            </Link>
+          </>
+        ) : comingSoon ? (
           <button type="button" className="px-btn px-btn-ghost is-disabled" disabled>
             Coming soon
           </button>
@@ -201,6 +216,10 @@ export function Pricing() {
   const promo = !saleOver ? professional?.promotion : null;
 
   const { buy, busy, error } = useBuyPlan();
+  const mine = useOwnedPlans();
+  const ownershipOf = (slug: string) =>
+    !mine ? null : mine.owned.has(slug) ? ({ kind: 'owned' } as const) : mine.allCoursesPlan ? ({ kind: 'included', by: mine.allCoursesPlan } as const) : null;
+  const ownsProfessional = ownershipOf('professional') !== null;
 
   return (
     <div className="px-page">
@@ -239,6 +258,7 @@ export function Pricing() {
                 onBuy={() => void buy(plan.slug)}
                 busy={busy === plan.slug}
                 error={error?.plan === plan.slug ? error : null}
+                ownership={ownershipOf(plan.slug)}
                 whatsappHref={whatsappHref}
               />
             ))}
@@ -376,21 +396,27 @@ export function Pricing() {
       <section className="px-final" aria-labelledby="px-final-title">
         <div className="container">
           <div className="px-final-card">
-            <h2 id="px-final-title">Ready to start with Professional?</h2>
+            <h2 id="px-final-title">{ownsProfessional ? 'Your Professional access is active' : 'Ready to start with Professional?'}</h2>
             <p>
               Full curriculum, lifetime updates and WhatsApp technical assistance. Pay securely with UPI,
               card or netbanking.
             </p>
             <div className="px-final-actions">
-              <button
-                type="button"
-                className="px-btn px-btn-gold"
-                onClick={() => void buy('professional')}
-                disabled={busy === 'professional'}
-                aria-busy={busy === 'professional'}
-              >
-                {busy === 'professional' ? 'Opening checkout…' : 'Enroll Now'}
-              </button>
+              {ownsProfessional ? (
+                <Link className="px-btn px-btn-gold" to="/dashboard">
+                  Go to My Learning
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  className="px-btn px-btn-gold"
+                  onClick={() => void buy('professional')}
+                  disabled={busy === 'professional'}
+                  aria-busy={busy === 'professional'}
+                >
+                  {busy === 'professional' ? 'Opening checkout…' : 'Enroll Now'}
+                </button>
+              )}
               <a className="px-btn px-btn-ghost" href={whatsappHref} target="_blank" rel="noopener noreferrer">
                 Ask on WhatsApp
               </a>
