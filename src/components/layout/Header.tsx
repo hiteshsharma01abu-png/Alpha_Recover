@@ -6,6 +6,7 @@ import { brandLogo, company, type TrainingTrack } from '../../data/content';
 import { useAuth } from '../../lib/auth';
 import { useTrainingTracks } from '../../lib/catalog';
 import { useHydrated } from '../../lib/useHydrated';
+import { useOwnedPlans } from '../../lib/useOwnedPlans';
 import './Header.css';
 
 const resourceLinks = [
@@ -313,7 +314,7 @@ function NavDropdown({
   );
 }
 
-function DesktopNav() {
+function DesktopNav({ ownsPlan }: { ownsPlan: boolean }) {
   const trainingTracks = useTrainingTracks();
   const { user } = useAuth();
   const { pathname } = useLocation();
@@ -418,15 +419,15 @@ function DesktopNav() {
         <NavLink to="/account" className="nav-login" onClick={closeMenus}>
           {user ? 'My Account' : 'Login'}
         </NavLink>
-        <NavLink to="/pricing" className="nav-enroll" onClick={closeMenus}>
-          Enroll Now
+        <NavLink to={ownsPlan ? '/dashboard' : '/pricing'} className="nav-enroll" onClick={closeMenus}>
+          {ownsPlan ? 'My Learning' : 'Enroll Now'}
         </NavLink>
       </div>
     </>
   );
 }
 
-function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
+function MobileDrawer({ open, onClose, ownsPlan }: { open: boolean; onClose: () => void; ownsPlan: boolean }) {
   const trainingTracks = useTrainingTracks();
   const { user } = useAuth();
   const { groups, extras } = useMemo(() => groupCourses(trainingTracks), [trainingTracks]);
@@ -549,8 +550,8 @@ function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void })
       </nav>
 
       <div className="drawer-foot">
-        <NavLink to="/pricing" className="drawer-enroll" onClick={onClose}>
-          Enroll Now
+        <NavLink to={ownsPlan ? '/dashboard' : '/pricing'} className="drawer-enroll" onClick={onClose}>
+          {ownsPlan ? 'My Learning' : 'Enroll Now'}
         </NavLink>
       </div>
     </div>
@@ -562,6 +563,8 @@ export function Header() {
   const [openOn, setOpenOn] = useState<string | null>(null);
   const open = openOn === location.pathname;
   const hydrated = useHydrated();
+  // Students who already hold a plan get "My Learning" instead of "Enroll Now"; reloaded after a purchase
+  const ownsPlan = (useOwnedPlans(location.pathname === '/checkout/success')?.owned.size ?? 0) > 0;
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
@@ -594,7 +597,7 @@ export function Header() {
           </button>
 
           <nav id="primary-nav" className="nav nav-desktop" aria-label="Primary">
-            <DesktopNav />
+            <DesktopNav ownsPlan={ownsPlan} />
           </nav>
         </div>
       </div>
@@ -602,7 +605,7 @@ export function Header() {
       {hydrated &&
         createPortal(
           <>
-            <MobileDrawer open={open} onClose={close} />
+            <MobileDrawer open={open} onClose={close} ownsPlan={ownsPlan} />
             {open ? (
               <button type="button" className="nav-backdrop" aria-label="Close menu" onClick={close} />
             ) : null}

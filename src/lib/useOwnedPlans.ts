@@ -9,9 +9,10 @@ export type OwnedPlans = { owned: Set<string>; allCoursesPlan: string | null };
 
 /**
  * What the pricing page needs to replace Buy with "You own this plan". null while signed out or loading;
- * loaded after hydration, so the pre-rendered page is the same for everyone.
+ * loaded after hydration, so the pre-rendered page is the same for everyone. A new `refreshKey` loads it again
+ * (the header passes one that changes after a purchase).
  */
-export function useOwnedPlans(): OwnedPlans | null {
+export function useOwnedPlans(refreshKey: string | number | boolean = 0): OwnedPlans | null {
   const { user } = useAuth();
   const userId = user?.id;
   const [state, setState] = useState<{ userId: string; plans: OwnedPlans } | null>(null);
@@ -19,6 +20,7 @@ export function useOwnedPlans(): OwnedPlans | null {
   useEffect(() => {
     if (!userId) return;
     let live = true;
+    void refreshKey;
     api
       .get<MyEnrollment[]>('/me/enrollments')
       .then((r) => {
@@ -31,7 +33,7 @@ export function useOwnedPlans(): OwnedPlans | null {
     return () => {
       live = false;
     };
-  }, [userId]);
+  }, [userId, refreshKey]);
 
   return userId && state?.userId === userId ? state.plans : null;
 }
