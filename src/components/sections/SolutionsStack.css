@@ -312,7 +312,7 @@
 
   .solutions-stack {
     --stack-top: calc(var(--header) + 20px);
-    --stack-row: min(520px, calc(100svh - var(--stack-top) - 12px));
+    --stack-row: min(470px, calc(100svh - var(--stack-top) - 12px));
   }
 
   .stack-card {
