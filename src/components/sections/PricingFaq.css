@@ -9,11 +9,11 @@
 }
 
 .pfq-head {
+  margin: 0 auto clamp(1.5rem, 3vw, 2.25rem);
   text-align: center;
-  margin-bottom: 1.5rem;
 }
 
-.pfq-eyebrow {
+.pfq-head .pfq-eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -25,7 +25,7 @@
   color: var(--brass);
 }
 
-.pfq-eyebrow::before {
+.pfq-head .pfq-eyebrow::before {
   content: '';
   width: 1.35rem;
   height: 2px;
@@ -34,10 +34,27 @@
 }
 
 .pfq-head h2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.75rem, 2vw, 1.5rem);
   margin: 0 0 0.55rem;
   font-family: var(--font-display);
   font-size: var(--text-3xl);
   font-weight: var(--fw-extrabold);
+}
+
+.pfq-head h2::before,
+.pfq-head h2::after {
+  content: '';
+  width: clamp(2.5rem, 9vw, 8rem);
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--mint) 55%, transparent));
+}
+
+.pfq-head h2::after {
+  transform: scaleX(-1);
 }
 
 .pfq-head p {
@@ -173,6 +190,24 @@
 .pfq-a a {
   color: var(--brass);
   font-weight: var(--fw-semibold);
+}
+
+@media (max-width: 760px) {
+  .pfq-head h2 {
+    gap: 0.6rem;
+  }
+
+  .pfq-head h2::before,
+  .pfq-head h2::after {
+    width: 1.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .pfq-head h2::before,
+  .pfq-head h2::after {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

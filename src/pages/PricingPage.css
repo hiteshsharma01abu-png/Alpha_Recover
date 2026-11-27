@@ -268,7 +268,7 @@
   margin-top: 0.35rem;
 }
 
-.px-card-actions > .px-btn:not(.px-btn-wa) {
+.px-card-actions>.px-btn:not(.px-btn-wa) {
   flex: 1 1 0;
   min-width: 0;
 }
@@ -398,22 +398,57 @@
 }
 
 .px-section-head {
-  max-width: 40rem;
-  margin: 0 auto 1.75rem;
+  margin: 0 auto clamp(1.5rem, 3vw, 2.25rem);
   text-align: center;
 }
 
 .px-section-head h2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.75rem, 2vw, 1.5rem);
   margin: 0 0 0.55rem;
   font-family: var(--font-display);
   font-size: var(--text-3xl);
   font-weight: var(--fw-extrabold);
 }
 
+.px-section-head h2::before,
+.px-section-head h2::after {
+  content: '';
+  width: clamp(2.5rem, 9vw, 8rem);
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--mint) 55%, transparent));
+}
+
+.px-section-head h2::after {
+  transform: scaleX(-1);
+}
+
 .px-section-head p {
   margin: 0;
   color: var(--content);
   line-height: var(--lh-normal);
+}
+
+@media (max-width: 760px) {
+  .px-section-head h2 {
+    gap: 0.6rem;
+  }
+
+  .px-section-head h2::before,
+  .px-section-head h2::after {
+    width: 1.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .px-section-head h2::before,
+  .px-section-head h2::after {
+    display: none;
+  }
 }
 
 .px-benefits {
@@ -472,8 +507,21 @@
   max-width: none;
 }
 
-.px-consult-card .px-btn {
-  margin-top: 0.25rem;
+.px-consult-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.25rem;
+  width: 100%;
+}
+
+.px-consult-row p {
+  flex: 1 1 16rem;
+  max-width: 40rem;
+}
+
+.px-consult-row .px-btn {
+  flex: 0 0 auto;
 }
 
 .px-final-actions {
