@@ -384,18 +384,28 @@
 }
 
 @media (max-width: 980px) {
+  /* Stacked: heading → paragraph → picture → benefits. The copy wrapper dissolves so the
+     picture can sit between the paragraph and the benefits list. */
   .pro-hero {
-    grid-template-columns: 1fr;
-    gap: 1.35rem;
-  }
-
-  .pro-hero-visual {
-    justify-self: center;
-    width: min(100%, 420px);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
   }
 
   .pro-hero-copy {
-    max-width: none;
+    display: contents;
+  }
+
+  .pro-hero-visual {
+    order: 1;
+    align-self: center;
+    width: min(100%, 420px);
+    margin-bottom: 1.35rem;
+  }
+
+  .pro-benefits {
+    order: 2;
   }
 
 }
