@@ -75,7 +75,9 @@
 
   /* Layout / type */
   --radius: 6px;
-  --max: 1180px;
+  --max: 1320px;
+  /* Side gutter of .container: 16px on phones, about 20px on tablets, up to 32px on wide screens */
+  --gutter: clamp(1rem, 2vw, 2rem);
   --header: 80px;
   --section-y: 4.5rem;
   --section-y-sm: 2.75rem;
@@ -197,14 +199,8 @@ p {
 }
 
 .container {
-  width: min(100% - 2.5rem, var(--max));
+  width: min(100% - 2 * var(--gutter), var(--max));
   margin-inline: auto;
-}
-
-@media (max-width: 600px) {
-  .container {
-    width: min(100% - 2rem, var(--max));
-  }
 }
 
 .btn {

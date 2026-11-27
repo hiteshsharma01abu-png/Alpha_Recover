@@ -51,7 +51,7 @@ Fonts load from Google Fonts at the top of `global.css`. Base body size is 16px,
 
 | Token / class | Use |
 |---|---|
-| `.container` | Centered content column, max width `--max`, with a mobile gutter |
+| `.container` | Centered content column used by every section and the footer: max width `--max` (1320px), side gutter `--gutter` (16px on phones, about 20px on tablets, up to 32px on wide screens). Change the width site-wide here, not per section. Prose blocks (blog posts, legal pages, About, pricing FAQ) keep their narrower reading width |
 | `--header` | Sticky marketing header height (80px desktop; mobile bar is 64px in `Header.css`) |
 | `.section` + `--section-y` / `--section-y-sm` | Vertical rhythm between bands (smaller on phones) |
 | `.section-head`, `--section-head-gap` | Section title block spacing |
