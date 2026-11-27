@@ -310,9 +310,25 @@
     padding-block: var(--section-y-sm);
   }
 
+  /* Phones: each card is as tall as its content (fixed photo + text), so no empty space
+     above the title or under the button. Rows still equal card height for the sticky stack. */
   .solutions-stack {
     --stack-top: calc(var(--header) + 20px);
-    --stack-row: min(470px, calc(100svh - var(--stack-top) - 12px));
+    grid-template-rows: none;
+    grid-auto-rows: auto;
+  }
+
+  .solutions-stack > .stack-card {
+    height: auto;
+  }
+
+  .solutions-stack .stack-card-shell {
+    grid-template-rows: 168px auto;
+  }
+
+  .solutions-stack .stack-card-body {
+    justify-content: flex-start;
+    padding: 1.25rem 1.35rem 1.4rem;
   }
 
   .stack-card {
