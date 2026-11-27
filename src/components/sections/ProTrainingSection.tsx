@@ -95,7 +95,6 @@ export function ProTrainingSection() {
                       loading="lazy"
                       decoding="async"
                     />
-                    <span className="stack-index">{String(i + 1).padStart(2, '0')}</span>
                   </div>
                   <div className="stack-card-body">
                     <h3>{s.title}</h3>

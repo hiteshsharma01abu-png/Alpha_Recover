@@ -47,9 +47,6 @@ export function SolutionsStack() {
                     loading="lazy"
                     decoding="async"
                   />
-                  <span className="stack-index">
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
                 </div>
                 <div className="stack-card-body">
                   <h3>{card.title}</h3>
