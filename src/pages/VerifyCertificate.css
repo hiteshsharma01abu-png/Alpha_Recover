@@ -39,20 +39,20 @@
   margin: 0 0 0.4rem;
   font-family: var(--font-body);
   font-size: clamp(1.35rem, 2.6vw, 1.75rem);
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
 }
 
 .vc-body > p {
   margin: 0 0 1.25rem;
   color: var(--text-sub);
-  line-height: 1.55;
+  line-height: var(--lh-normal);
 }
 
 .vc-body label {
   display: block;
   margin-bottom: 0.45rem;
-  font-weight: 700;
-  font-size: 0.94rem;
+  font-weight: var(--fw-bold);
+  font-size: var(--text-sm);
 }
 
 .vc-input {
@@ -78,8 +78,8 @@
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 1rem;
-  letter-spacing: 0.02em;
+  font-size: var(--text-base);
+  letter-spacing: var(--tracking-normal);
   outline: none;
 }
 
@@ -102,7 +102,7 @@
   background: var(--btn-soft-bg);
   color: var(--btn-soft-text);
   font: inherit;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   cursor: pointer;
   box-shadow: var(--btn-soft-shadow);
 }
@@ -139,7 +139,7 @@
 
 .vc-result-status {
   margin: 0 0 0.75rem;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: var(--ok);
 }
 
@@ -161,7 +161,7 @@
 .vc-result dd {
   margin: 0;
   color: var(--text);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   overflow-wrap: anywhere;
 }
 

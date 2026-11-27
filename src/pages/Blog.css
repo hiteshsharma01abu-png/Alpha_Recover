@@ -90,7 +90,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   color: var(--mint);
 }
 
@@ -98,8 +98,8 @@
   margin: 0.35rem 0 0.4rem;
   font-family: var(--font-body);
   font-size: clamp(1.1rem, 2vw, 1.3rem);
-  font-weight: 800;
-  line-height: 1.3;
+  font-weight: var(--fw-extrabold);
+  line-height: var(--lh-snug);
 }
 
 .bl-body h2 a {
@@ -113,14 +113,14 @@
 
 .bl-body p {
   margin: 0 0 0.75rem;
-  font-size: 0.94rem;
-  line-height: 1.55;
+  font-size: var(--text-sm);
+  line-height: var(--lh-normal);
   color: var(--text-sub);
 }
 
 .bl-read {
-  font-weight: 700;
-  font-size: 0.92rem;
+  font-weight: var(--fw-bold);
+  font-size: var(--text-sm);
   color: var(--mint);
   text-decoration: none;
 }
@@ -155,7 +155,7 @@
   background: var(--surface);
   color: var(--text);
   font: inherit;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   cursor: pointer;
 }
 

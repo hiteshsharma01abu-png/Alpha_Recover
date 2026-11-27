@@ -13,7 +13,7 @@
 .adm .adm-settings-intro {
   max-width: 70ch;
   margin: -0.3rem 0 1rem;
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 .adm-settings-group + .adm-settings-group {
@@ -22,7 +22,7 @@
 
 .adm-settings-group h4 {
   margin: 0 0 0.6rem;
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 .adm-settings-grid {
@@ -40,8 +40,8 @@
   display: grid;
   align-content: start;
   gap: 0.3rem;
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
 }
 
 .adm-settings-narrow {
@@ -63,7 +63,7 @@
   background: var(--adm-bg);
   color: var(--adm-text);
   font: inherit;
-  font-weight: 400;
+  font-weight: var(--fw-regular);
 }
 
 .adm-settings-card .adm-notice,

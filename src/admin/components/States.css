@@ -15,7 +15,7 @@
 }
 
 .adm-state code {
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   color: var(--adm-text-2);
 }
 

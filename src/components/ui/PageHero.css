@@ -41,7 +41,9 @@
   align-items: center;
   gap: 0.45rem;
   margin-bottom: 0.9rem;
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-snug);
   color: var(--text-sub);
 }
 
@@ -66,16 +68,19 @@
 
 .ph h1 {
   margin: 0;
-  font-size: clamp(2.1rem, 4.6vw, 3.25rem);
-  line-height: 1.08;
+  font-size: var(--text-4xl);
+  font-weight: var(--fw-extrabold);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight);
   max-width: 22ch;
 }
 
 .ph-sub {
   margin: 0.85rem 0 0;
   max-width: 58ch;
-  font-size: clamp(1rem, 1.5vw, 1.1rem);
-  line-height: 1.6;
+  font-size: var(--text-lg);
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-normal);
   color: var(--text-sub);
 }
 

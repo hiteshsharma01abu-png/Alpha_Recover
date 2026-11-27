@@ -57,8 +57,8 @@
   border-radius: 999px;
   background: rgba(125, 255, 210, 0.08);
   color: #7dffd2;
-  font-weight: 700;
-  font-size: 0.95rem;
+  font-weight: var(--fw-bold);
+  font-size: var(--text-sm);
 }
 
 .adm .adm-login-brand h1 {
@@ -66,8 +66,8 @@
   color: #fff;
   font-family: var(--font-body);
   font-size: clamp(2rem, 3.5vw, 3.4rem);
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-weight: var(--fw-extrabold);
+  letter-spacing: var(--tracking-tight);
   line-height: 1.1;
 }
 
@@ -80,8 +80,8 @@
   max-width: 40ch;
   margin: 0;
   color: rgba(240, 237, 228, 0.82);
-  font-size: 1.05rem;
-  line-height: 1.55;
+  font-size: var(--text-base);
+  line-height: var(--lh-normal);
 }
 
 .adm-login-features {
@@ -99,9 +99,9 @@
   justify-items: center;
   gap: 0.55rem;
   text-align: center;
-  font-size: 0.82rem;
-  font-weight: 600;
-  line-height: 1.3;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
 }
 
 .adm-login-feature-icon {
@@ -167,9 +167,9 @@
 .adm-login-card h2 {
   margin: 0 0 0.4rem;
   font-family: var(--font-body);
-  font-size: 1.95rem;
-  letter-spacing: -0.02em;
-  font-weight: 800;
+  font-size: var(--text-4xl);
+  letter-spacing: var(--tracking-tight);
+  font-weight: var(--fw-extrabold);
 }
 
 .adm .adm-login-sub {
@@ -184,8 +184,8 @@
 }
 
 .adm-field label {
-  font-weight: 600;
-  font-size: 0.9rem;
+  font-weight: var(--fw-semibold);
+  font-size: var(--text-sm);
 }
 
 .adm-field input {
@@ -240,7 +240,7 @@
 
 .adm-error {
   color: var(--adm-danger);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 .adm-btn.adm-login-submit {
@@ -255,8 +255,8 @@
   border-radius: 10px;
   background: linear-gradient(90deg, #0b4a3f 0%, #0f6d5c 45%, #1fc9a8 100%);
   color: #fff;
-  font-size: 1.05rem;
-  font-weight: 700;
+  font-size: var(--text-base);
+  font-weight: var(--fw-bold);
 }
 
 .adm-btn.adm-login-submit:hover:not(:disabled) {
@@ -270,13 +270,13 @@
 .adm .adm-login-foot {
   margin: 1.25rem 0 0;
   text-align: center;
-  font-size: 0.92rem;
+  font-size: var(--text-sm);
   color: var(--adm-text-2);
 }
 
 .adm-login-foot a {
   color: #0f8a72;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
 }
 
 .adm[data-theme='dark'] .adm-login-foot a {
@@ -305,8 +305,8 @@
   padding: 0.35rem 0.8rem;
   border-radius: 999px;
   background: color-mix(in srgb, #3fe6c4 14%, transparent);
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
 }
 
 .adm-login-trust {
@@ -323,7 +323,7 @@
   justify-items: center;
   gap: 0.45rem;
   text-align: center;
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
   color: var(--adm-text-2);
 }
 
@@ -396,7 +396,7 @@
   }
 
   .adm-login-brand .adm-logo-lg .adm-logo-text strong {
-    font-size: 1.2rem;
+    font-size: var(--text-xl);
   }
 
   .adm-login-panel {

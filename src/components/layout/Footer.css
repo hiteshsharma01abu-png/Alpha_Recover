@@ -61,8 +61,8 @@
   margin: 0;
   max-width: 34ch;
   text-align: left;
-  font-size: 0.86rem;
-  line-height: 1.5;
+  font-size: var(--text-sm);
+  line-height: var(--lh-normal);
   color: rgba(240, 237, 228, 0.82);
 }
 
@@ -76,8 +76,8 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.76rem;
-  font-weight: 600;
+  font-size: var(--text-xs);
+  font-weight: var(--fw-semibold);
   color: rgba(240, 237, 228, 0.9);
 }
 
@@ -120,8 +120,8 @@
   padding: 0;
   width: 100%;
   font-family: var(--font-display);
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-bold);
   color: #fff;
   background: none;
   border: 0;
@@ -134,8 +134,8 @@ button.footer-heading {
   cursor: pointer;
   font: inherit;
   font-family: var(--font-display);
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-bold);
   color: #fff;
 }
 
@@ -185,8 +185,8 @@ button.footer-heading[aria-expanded='true'] .footer-acc-chevron {
   padding: 0.22rem 0;
   color: rgba(240, 237, 228, 0.82);
   text-decoration: none;
-  font-size: 0.78rem;
-  line-height: 1.35;
+  font-size: var(--text-xs);
+  line-height: var(--lh-snug);
   transition: color 0.15s ease;
 }
 
@@ -207,7 +207,7 @@ button.footer-heading[aria-expanded='true'] .footer-acc-chevron {
 
 .footer-chevron {
   color: rgba(125, 255, 192, 0.55);
-  font-size: 1rem;
+  font-size: var(--text-base);
   line-height: 1;
 }
 
@@ -254,8 +254,8 @@ button.footer-heading[aria-expanded='true'] .footer-acc-chevron {
 
 .footer-touch small {
   display: block;
-  font-size: 0.66rem;
-  letter-spacing: 0.04em;
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: rgba(169, 194, 188, 0.85);
   margin-bottom: 0.1rem;
@@ -264,11 +264,11 @@ button.footer-heading[aria-expanded='true'] .footer-acc-chevron {
 .footer-touch a,
 .footer-touch strong {
   display: block;
-  font-size: 0.84rem;
-  font-weight: 600;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
   color: #fff;
   text-decoration: none;
-  line-height: 1.35;
+  line-height: var(--lh-snug);
 }
 
 .footer-touch a:hover {
@@ -278,8 +278,8 @@ button.footer-heading[aria-expanded='true'] .footer-acc-chevron {
 .footer-subheading {
   margin: 0.1rem 0 0;
   font-family: var(--font-display);
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-bold);
   color: #fff;
 }
 
@@ -296,8 +296,8 @@ button.footer-heading[aria-expanded='true'] .footer-acc-chevron {
   min-height: 44px;
   padding: 0.65rem 1rem;
   border-radius: 999px;
-  font-size: 0.84rem;
-  font-weight: 700;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-bold);
   text-decoration: none;
   transition:
     transform 0.15s ease,
@@ -375,7 +375,7 @@ button.footer-heading[aria-expanded='true'] .footer-acc-chevron {
   /* Clear fixed WhatsApp float (icon + optional chat copy) */
   padding-right: clamp(4.5rem, 12vw, 15rem);
   border-top: 1px solid rgba(125, 255, 192, 0.12);
-  font-size: 0.76rem;
+  font-size: var(--text-xs);
   color: rgba(169, 194, 188, 0.9);
 }
 
@@ -424,7 +424,7 @@ button.footer-heading[aria-expanded='true'] .footer-acc-chevron {
   }
 
   .footer-links a {
-    font-size: 0.74rem;
+    font-size: var(--text-xs);
   }
 }
 
@@ -457,7 +457,7 @@ button.footer-heading[aria-expanded='true'] .footer-acc-chevron {
   .footer-lead {
     max-width: none;
     text-align: left;
-    font-size: 0.84rem;
+    font-size: var(--text-sm);
   }
 
   .footer-trust-mobile {
@@ -472,7 +472,7 @@ button.footer-heading[aria-expanded='true'] .footer-acc-chevron {
     align-items: flex-start;
     text-align: left;
     gap: 0.35rem;
-    font-size: 0.7rem;
+    font-size: var(--text-xs);
     flex: 1;
   }
 
@@ -542,7 +542,7 @@ button.footer-heading[aria-expanded='true'] .footer-acc-chevron {
 
 @media (max-width: 420px) {
   .footer-trust-mobile .footer-highlight {
-    font-size: 0.64rem;
+    font-size: var(--text-xs);
   }
 
   .footer-highlight-icon {

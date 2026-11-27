@@ -30,14 +30,14 @@
 
 .fs-item strong {
   display: block;
-  font-size: 0.98rem;
+  font-size: var(--text-base);
   color: var(--text);
 }
 
 .fs-item small {
   display: block;
   margin-top: 0.15rem;
-  font-size: 0.84rem;
+  font-size: var(--text-sm);
   color: var(--text-sub);
 }
 

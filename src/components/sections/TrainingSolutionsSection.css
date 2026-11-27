@@ -22,12 +22,12 @@
   margin: 0 0 1.5rem;
   max-width: 38rem;
   color: #F0EDE4;
-  font-size: 1.02rem;
-  line-height: 1.55;
+  font-size: var(--text-base);
+  line-height: var(--lh-normal);
 }
 
 .training-head h2 {
-  font-size: clamp(1.85rem, 3.4vw, 2.55rem);
+  font-size: var(--text-4xl);
   color: #F0EDE4;
   margin: 0 0 0.65rem;
 }

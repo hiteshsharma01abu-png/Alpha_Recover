@@ -1,7 +1,7 @@
 /* Legal pages (Privacy, Terms, Refund): builds on .prose in SimplePages.css */
 .legal-prose .legal-updated {
   margin-bottom: 1.5rem;
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   color: var(--content);
 }
 
@@ -26,7 +26,7 @@
 
 .legal-others a {
   color: var(--brass);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   text-decoration: underline;
   text-underline-offset: 3px;
 }

@@ -183,8 +183,8 @@ export function ProfessionalPlanSection({
                 Complete training, real case workflows, and lifetime access to become a data recovery
                 expert.
               </p>
-              {promoStrip}
             </div>
+            {promoStrip}
           </div>
         ) : promoStrip ? (
           <div className="pp-hero pp-hero-compact">

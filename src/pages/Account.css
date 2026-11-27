@@ -32,15 +32,15 @@
 .auth-mobile-head h1 {
   margin: 0 0 0.4rem;
   font-family: var(--font-display);
-  font-size: 1.65rem;
-  font-weight: 800;
+  font-size: var(--text-2xl);
+  font-weight: var(--fw-extrabold);
 }
 
 .auth-mobile-head p {
   margin: 0 0 1rem;
   color: var(--content);
-  font-size: 0.92rem;
-  line-height: 1.45;
+  font-size: var(--text-sm);
+  line-height: var(--lh-snug);
 }
 
 .auth-split {
@@ -70,8 +70,8 @@
   border: 1px solid color-mix(in srgb, var(--mint) 35%, transparent);
   background: color-mix(in srgb, var(--mint) 10%, transparent);
   color: var(--mint);
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-bold);
 }
 
 .auth-pill img {
@@ -82,17 +82,17 @@
 .auth-brand h1 {
   margin: 0 0 0.75rem;
   font-family: var(--font-display);
-  font-size: clamp(2.1rem, 4.5vw, 3.25rem);
-  font-weight: 800;
+  font-size: var(--text-4xl);
+  font-weight: var(--fw-extrabold);
   line-height: 1.1;
-  letter-spacing: -0.02em;
+  letter-spacing: var(--tracking-tight);
 }
 
 .auth-brand > p {
   margin: 0 0 1.5rem;
   color: var(--text-sub);
-  font-size: 1.05rem;
-  line-height: 1.5;
+  font-size: var(--text-base);
+  line-height: var(--lh-normal);
   max-width: 28rem;
 }
 
@@ -110,7 +110,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  font-weight: 650;
+  font-weight: var(--fw-semibold);
   color: var(--text);
 }
 
@@ -145,8 +145,8 @@
   min-height: 2.85rem;
   padding: 0.65rem 1.35rem;
   border-radius: 999px;
-  font-weight: 700;
-  font-size: 0.95rem;
+  font-weight: var(--fw-bold);
+  font-size: var(--text-sm);
   cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
@@ -199,7 +199,7 @@
   margin: 0 auto 1rem;
   max-width: 40rem;
   color: var(--content);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 .account-note.success {
@@ -225,8 +225,8 @@
   border-radius: 999px;
   background: var(--btn-soft-bg);
   color: var(--btn-soft-text);
-  font-weight: 750;
-  font-size: 1rem;
+  font-weight: var(--fw-bold);
+  font-size: var(--text-base);
   cursor: pointer;
   box-shadow: var(--btn-soft-shadow);
   transition:
@@ -265,8 +265,8 @@
   border: 0;
   background: none;
   color: var(--content);
-  font-weight: 650;
-  font-size: 0.88rem;
+  font-weight: var(--fw-semibold);
+  font-size: var(--text-sm);
   cursor: pointer;
   padding: 0;
   text-align: center;
@@ -314,16 +314,16 @@
 .account-card-head h2 {
   margin: 0 0 0.2rem;
   font-family: var(--font-display);
-  font-size: 1.35rem;
-  font-weight: 800;
+  font-size: var(--text-xl);
+  font-weight: var(--fw-extrabold);
   color: var(--text);
 }
 
 .account-card-head p {
   margin: 0;
-  font-size: 0.88rem;
+  font-size: var(--text-sm);
   color: var(--content);
-  line-height: 1.4;
+  line-height: var(--lh-snug);
 }
 
 .acc-field {
@@ -335,8 +335,8 @@
 }
 
 .acc-field label {
-  font-size: 0.82rem;
-  font-weight: 650;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
   color: var(--text-sub);
 }
 
@@ -366,7 +366,7 @@
   place-items: center;
   color: var(--mint);
   flex-shrink: 0;
-  font-size: 1rem;
+  font-size: var(--text-base);
   line-height: 1;
 }
 
@@ -384,7 +384,7 @@
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 0.95rem;
+  font-size: var(--text-sm);
   padding: 0.7rem 0;
 }
 
@@ -440,7 +440,7 @@
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
-  font-size: 0.88rem;
+  font-size: var(--text-sm);
   color: var(--content);
   cursor: pointer;
 }
@@ -456,7 +456,7 @@
 
 .account-terms a {
   color: var(--mint);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
 }
 
 .account-reg-grid {
@@ -481,7 +481,7 @@
 .auth-card-foot p {
   margin: 0 0 0.75rem;
   color: var(--content);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 .auth-switch-btn {

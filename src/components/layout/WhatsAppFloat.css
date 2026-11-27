@@ -13,7 +13,7 @@
   border: 1px solid var(--line);
   padding: 0.55rem 0.85rem;
   border-radius: 999px;
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   color: var(--fog);
   box-shadow: var(--shadow-glow);
   opacity: 0;

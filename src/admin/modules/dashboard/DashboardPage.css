@@ -27,20 +27,20 @@
 
 .adm-kpi-label {
   margin: 0;
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   color: var(--adm-text-2);
 }
 
 .adm-kpi-value {
   margin: 0.3rem 0 0.2rem;
   font-family: var(--font-display);
-  font-size: 1.7rem;
+  font-size: var(--text-2xl);
   font-variant-numeric: tabular-nums;
 }
 
 .adm-kpi-hint {
   margin: 0;
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
   color: var(--adm-text-2);
 }
 
@@ -53,7 +53,7 @@
 
 .adm-card h2 {
   margin: 0 0 0.75rem;
-  font-size: 1rem;
+  font-size: var(--text-base);
 }
 
 .adm-recent {
@@ -77,7 +77,7 @@
 
 .adm-recent small,
 .adm-recent time {
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
   color: var(--adm-text-2);
 }
 
@@ -89,8 +89,8 @@
   padding: 0.12rem 0.5rem;
   border-radius: 999px;
   border: 1px solid var(--adm-line);
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: var(--text-xs);
+  font-weight: var(--fw-bold);
   text-transform: capitalize;
 }
 

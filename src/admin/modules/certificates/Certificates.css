@@ -1,7 +1,7 @@
 .adm-cert-code {
   color: var(--adm-text);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-weight: 600;
+  font-family: var(--font-mono);
+  font-weight: var(--fw-semibold);
   text-decoration: none;
   white-space: nowrap;
 }

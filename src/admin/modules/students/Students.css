@@ -8,7 +8,7 @@
   display: inline-block;
   margin-bottom: 1rem;
   color: var(--adm-text-2);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   text-decoration: none;
 }
 
@@ -27,13 +27,13 @@
 .adm-student-head .adm-avatar {
   width: 56px;
   height: 56px;
-  font-size: 1.4rem;
+  font-size: var(--text-xl);
 }
 
 .adm-student-head h2 {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1.4rem;
+  font-size: var(--text-xl);
 }
 
 .adm .adm-student-head p {
@@ -82,8 +82,8 @@
 
 .adm-panel h3 {
   margin: 0 0 0.8rem;
-  font-size: 0.78rem;
-  letter-spacing: 0.08em;
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--adm-text-2);
 }
@@ -96,8 +96,8 @@
 }
 
 .adm-facts dt {
-  font-size: 0.78rem;
-  font-weight: 600;
+  font-size: var(--text-xs);
+  font-weight: var(--fw-semibold);
   color: var(--adm-text-2);
 }
 
@@ -131,7 +131,7 @@
 .adm-list .adm-sub {
   display: block;
   margin-top: 0.15rem;
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   color: var(--adm-text-2);
 }
 
@@ -177,8 +177,8 @@
 .adm-form-grid label {
   display: grid;
   gap: 0.3rem;
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
 }
 
 .adm-form-grid input {
@@ -189,18 +189,18 @@
   background: var(--adm-bg);
   color: var(--adm-text);
   font: inherit;
-  font-weight: 400;
+  font-weight: var(--fw-regular);
 }
 
 .adm-field-error {
   color: var(--adm-danger);
-  font-size: 0.8rem;
-  font-weight: 500;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-medium);
 }
 
 .adm .adm-small {
   margin: 0;
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
 }
 
 @media (max-width: 860px) {

@@ -16,8 +16,8 @@
   border: 1px solid color-mix(in srgb, var(--mint) 30%, transparent);
   border-radius: 999px;
   background: color-mix(in srgb, var(--mint) 6%, transparent);
-  font-size: 0.88rem;
-  font-weight: 600;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
   color: var(--text);
 }
 
@@ -52,7 +52,7 @@
   margin: 0;
   font-family: var(--font-body);
   font-size: clamp(1.2rem, 2.4vw, 1.5rem);
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
 }
 
 .tt-count {
@@ -62,8 +62,8 @@
   padding: 0.45rem 0.9rem;
   border: 1px solid color-mix(in srgb, var(--mint) 35%, transparent);
   border-radius: 10px;
-  font-size: 0.86rem;
-  font-weight: 700;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-bold);
   white-space: nowrap;
 }
 
@@ -91,7 +91,7 @@
   background: color-mix(in srgb, var(--dark-band) 70%, transparent);
   color: var(--text);
   font: inherit;
-  font-size: 0.94rem;
+  font-size: var(--text-sm);
   text-align: left;
   text-decoration: none;
   transition: border-color 0.2s ease;
@@ -110,8 +110,8 @@
   border-radius: 8px;
   background: color-mix(in srgb, var(--mint) 14%, var(--surface));
   color: var(--mint);
-  font-size: 0.82rem;
-  font-weight: 800;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-extrabold);
 }
 
 .tt-title {
@@ -140,7 +140,7 @@
   margin: 0 0 0.3rem;
   font-family: var(--font-body);
   font-size: clamp(1.2rem, 2.4vw, 1.5rem);
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
 }
 
 .tt-cta p {
@@ -160,8 +160,8 @@
   gap: 0.55rem;
   padding: 0.75rem 1.3rem;
   border-radius: 12px;
-  font-weight: 700;
-  font-size: 0.94rem;
+  font-weight: var(--fw-bold);
+  font-size: var(--text-sm);
   text-decoration: none;
   white-space: nowrap;
 }

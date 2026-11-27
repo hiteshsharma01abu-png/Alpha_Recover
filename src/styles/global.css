@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
 
 :root {
   /* Backgrounds — matched to hero video plate (#123128) */
@@ -73,7 +73,7 @@
   /* "recovered" states */
   --danger: #F08A7A;
 
-  /* Layout / type */
+  /* Layout */
   --radius: 6px;
   --max: 1320px;
   /* Side gutter of .container: 16px on phones, about 20px on tablets, up to 32px on wide screens */
@@ -82,10 +82,50 @@
   --section-y: 4.5rem;
   --section-y-sm: 2.75rem;
   --section-head-gap: 2rem;
-  --font-display: 'Syne', system-ui, sans-serif;
-  --font-body: 'Manrope', system-ui, sans-serif;
-  /* matches the ALPHA RECOVERY wordmark in public/assets/brand/ */
+
+  /*
+   * Typography — one family site-wide (Manrope).
+   * --font-display aliases --font-body so existing CSS keeps working.
+   * --font-logo is only for reproducing the ALPHA RECOVERY wordmark.
+   * --font-mono is only for code / IDs / technical strings in admin.
+   */
+  --font-body: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: var(--font-body);
   --font-logo: Arial, Helvetica, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Type scale (rem on 16px root) */
+  --text-xs: 0.75rem; /* 12px — badges, micro labels */
+  --text-sm: 0.875rem; /* 14px — captions, meta, nav, form labels */
+  --text-base: 1rem; /* 16px — body */
+  --text-md: 1.0625rem; /* 17px — comfortable card body */
+  --text-lg: 1.125rem; /* 18px — lead / h4 */
+  --text-xl: 1.25rem; /* 20px — card titles / h3 */
+  --text-2xl: 1.5rem; /* 24px — small display / h3 emphasis */
+  --text-3xl: clamp(1.65rem, 2.8vw, 2.15rem); /* section h2 */
+  --text-4xl: clamp(2rem, 4vw, 2.75rem); /* page h1 */
+  --text-5xl: clamp(2.35rem, 4.5vw, 3.25rem); /* marketing hero */
+  --text-hero: clamp(2.5rem, 5vw, 3.5rem); /* home brand / largest display */
+
+  /* Weights — only load what Google Fonts serves for Manrope */
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-extrabold: 800;
+
+  /* Line heights */
+  --lh-tight: 1.15;
+  --lh-snug: 1.35;
+  --lh-normal: 1.6;
+  --lh-relaxed: 1.7;
+
+  /* Letter spacing */
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-label: 0.08em;
+  --tracking-wide: 0.12em;
+
   --shadow-glow: 0 0 0 1px color-mix(in srgb, var(--line-strong) 40%, transparent),
     0 12px 28px rgba(0, 0, 0, 0.35);
 
@@ -146,11 +186,13 @@ body {
   margin: 0;
   min-height: 100vh;
   font-family: var(--font-body);
-  font-size: 16px;
-  line-height: 1.6;
+  font-size: var(--text-base);
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-normal);
   color: var(--content);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 body::before {
@@ -186,16 +228,50 @@ h1,
 h2,
 h3,
 h4 {
-  font-family: var(--font-display);
-  line-height: 1.15;
-  letter-spacing: -0.02em;
+  font-family: var(--font-body);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight);
   margin: 0 0 0.5em;
   color: var(--text);
+}
+
+h1 {
+  font-size: var(--text-4xl);
+  font-weight: var(--fw-extrabold);
+}
+
+h2 {
+  font-size: var(--text-3xl);
+}
+
+h3 {
+  font-size: var(--text-xl);
+  line-height: var(--lh-snug);
+}
+
+h4 {
+  font-size: var(--text-lg);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--tracking-normal);
 }
 
 p {
   margin: 0 0 1em;
   color: var(--content);
+  line-height: var(--lh-normal);
+}
+
+/* Uppercase eyebrow / kicker — shared pattern for section labels */
+.type-label,
+.kicker {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-wide);
+  line-height: var(--lh-snug);
+  text-transform: uppercase;
 }
 
 .container {
@@ -211,8 +287,11 @@ p {
   padding: 0.85rem 1.4rem;
   border-radius: var(--radius);
   border: 1px solid transparent;
-  font-weight: 700;
-  font-size: 0.95rem;
+  font-family: var(--font-body);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-normal);
+  line-height: 1.25;
   cursor: pointer;
   transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease, color 0.25s ease,
     box-shadow 0.25s ease;
@@ -313,7 +392,9 @@ input[type='radio']:focus-visible {
   justify-content: center;
   gap: 0.45rem;
   padding: 0.75rem 1.25rem;
-  font-weight: 700;
+  font-family: var(--font-body);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-sm);
 }
 
 .btn-soft:hover,
@@ -476,7 +557,10 @@ a.tx-btn.tx-btn-outline:hover {
 }
 
 .page-hero h1 {
-  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  font-size: var(--text-4xl);
+  font-weight: var(--fw-extrabold);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight);
   margin: 0;
 }
 
@@ -484,7 +568,9 @@ a.tx-btn.tx-btn-outline:hover {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-snug);
   color: var(--mute);
   margin-bottom: 0.75rem;
 }
@@ -495,13 +581,13 @@ a.tx-btn.tx-btn-outline:hover {
   }
 
   .page-hero h1 {
-    font-size: clamp(1.55rem, 7vw, 2rem);
-    line-height: 1.15;
+    font-size: var(--text-3xl);
+    line-height: var(--lh-tight);
   }
 
   .breadcrumb {
     gap: 0.35rem;
-    font-size: 0.78rem;
+    font-size: var(--text-xs);
     margin-bottom: 0.35rem;
   }
 
@@ -525,7 +611,10 @@ a.tx-btn.tx-btn-outline:hover {
 }
 
 .section-head h2 {
-  font-size: clamp(1.7rem, 3vw, 2.35rem);
+  font-size: var(--text-3xl);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight);
 }
 
 .grid-3 {
@@ -556,9 +645,11 @@ a.tx-btn.tx-btn-outline:hover {
 }
 
 .field label {
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   color: var(--fog);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-normal);
+  line-height: var(--lh-snug);
 }
 
 .field input,
@@ -586,7 +677,8 @@ a.tx-btn.tx-btn-outline:hover {
   display: flex;
   gap: 0.65rem;
   align-items: flex-start;
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
+  line-height: var(--lh-normal);
   color: var(--mute);
   margin: 1rem 0 1.25rem;
 }
@@ -679,19 +771,23 @@ a.tx-btn.tx-btn-outline:hover {
 .field-error {
   display: block;
   margin-top: 0.3rem;
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
+  line-height: var(--lh-snug);
   color: var(--danger);
 }
 
 .form-error {
   margin: 0.25rem 0 0;
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
+  line-height: var(--lh-snug);
   color: var(--danger);
 }
 
 .form-success {
   margin: 0.25rem 0 0;
-  font-weight: 600;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
   color: var(--ok);
 }
 

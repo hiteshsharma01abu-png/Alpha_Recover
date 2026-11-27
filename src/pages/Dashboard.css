@@ -28,15 +28,15 @@
 
 .dsh-muted {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   color: var(--text-sub);
 }
 
 .dsh-kicker {
   margin: 0 0 0.35rem;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-size: var(--text-xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--brass);
 }
@@ -44,8 +44,8 @@
 .dsh-heading {
   margin: 0;
   font-family: var(--font-body);
-  font-size: 1.15rem;
-  font-weight: 800;
+  font-size: var(--text-lg);
+  font-weight: var(--fw-extrabold);
 }
 
 .dsh-section {
@@ -61,8 +61,8 @@
 }
 
 .dsh-view-all {
-  font-size: 0.88rem;
-  font-weight: 700;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-bold);
   color: var(--mint);
   text-decoration: none;
 }
@@ -86,8 +86,8 @@
 .dsh-hero-copy h2 {
   margin: 0 0 0.45rem;
   font-family: var(--font-display);
-  font-size: clamp(1.35rem, 2.8vw, 1.85rem);
-  font-weight: 800;
+  font-size: var(--text-3xl);
+  font-weight: var(--fw-extrabold);
 }
 
 .dsh-hero-copy .dsh-muted {
@@ -127,16 +127,16 @@
 
 .dsh-stat strong {
   display: block;
-  font-size: 1.35rem;
-  font-weight: 800;
+  font-size: var(--text-xl);
+  font-weight: var(--fw-extrabold);
   line-height: 1.1;
   color: var(--mint);
 }
 
 .dsh-stat span {
-  font-size: 0.78rem;
+  font-size: var(--text-xs);
   color: var(--content);
-  font-weight: 650;
+  font-weight: var(--fw-semibold);
 }
 
 .dsh-grid {
@@ -170,9 +170,9 @@
 .dsh-course h3 {
   margin: 0;
   font-family: var(--font-body);
-  font-size: 0.98rem;
-  font-weight: 800;
-  line-height: 1.35;
+  font-size: var(--text-base);
+  font-weight: var(--fw-extrabold);
+  line-height: var(--lh-snug);
 }
 
 .dsh-course h3 a {
@@ -268,16 +268,16 @@
 }
 
 .dsh-ring-label strong {
-  font-size: 1.35rem;
-  font-weight: 800;
+  font-size: var(--text-xl);
+  font-weight: var(--fw-extrabold);
   color: var(--mint);
   line-height: 1;
 }
 
 .dsh-ring-label small {
-  font-size: 0.72rem;
+  font-size: var(--text-xs);
   color: var(--content);
-  font-weight: 650;
+  font-weight: var(--fw-semibold);
 }
 
 .dsh-progress-stats {
@@ -295,15 +295,15 @@
 
 .dsh-progress-stats strong {
   display: block;
-  font-size: 1.2rem;
-  font-weight: 800;
+  font-size: var(--text-xl);
+  font-weight: var(--fw-extrabold);
   color: var(--text);
 }
 
 .dsh-progress-stats span {
-  font-size: 0.78rem;
+  font-size: var(--text-xs);
   color: var(--content);
-  font-weight: 650;
+  font-weight: var(--fw-semibold);
 }
 
 .dsh-milestone {
@@ -316,13 +316,13 @@
 
 .dsh-milestone-copy p:not(.dsh-kicker) {
   margin: 0 0 0.55rem;
-  font-size: 0.92rem;
+  font-size: var(--text-sm);
   color: var(--text-sub);
 }
 
 .dsh-milestone-pct {
-  font-size: 1.15rem;
-  font-weight: 800;
+  font-size: var(--text-lg);
+  font-weight: var(--fw-extrabold);
   color: var(--mint);
 }
 
@@ -361,13 +361,13 @@
 }
 
 .dsh-cert-actions > a:not(.btn) {
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: var(--brass);
 }
 
 .dsh-cert-download {
   padding: 0.5rem 0.95rem;
-  font-size: 0.86rem;
+  font-size: var(--text-sm);
 }
 
 .dsh-empty {
@@ -384,8 +384,8 @@
 .dsh-empty h2 {
   margin: 0;
   font-family: var(--font-body);
-  font-size: 1.35rem;
-  font-weight: 800;
+  font-size: var(--text-xl);
+  font-weight: var(--fw-extrabold);
 }
 
 .dsh-empty p {

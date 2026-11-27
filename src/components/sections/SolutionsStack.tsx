@@ -6,9 +6,8 @@ import '../../styles/sections.css';
 import './SolutionsStack.css';
 
 /**
- * Osaanj Featured Products: all cards are sticky SIBLINGS in one parent.
+ * Recovery solution paths: desktop = static 4-column row; ≤1024px = sticky sibling stack.
  * Shared parent = sticky works the same scrolling down from home and up from footer.
- * Tall rows + shorter cards → each card pins, then the next slides up and covers it.
  */
 export function SolutionsStack() {
   return (
@@ -19,7 +18,7 @@ export function SolutionsStack() {
           <h2>
             Recovery solution <em>paths</em>
           </h2>
-          <p>Four core recovery tracks — scroll to stack each card.</p>
+          <p>Four core recovery tracks — pick the path that matches the failure.</p>
         </div>
 
         <div

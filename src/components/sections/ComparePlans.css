@@ -16,8 +16,8 @@
   gap: clamp(0.75rem, 2vw, 1.5rem);
   margin: 0 0 0.55rem;
   font-family: var(--font-display);
-  font-size: clamp(1.55rem, 3vw, 2rem);
-  font-weight: 800;
+  font-size: var(--text-3xl);
+  font-weight: var(--fw-extrabold);
 }
 
 .cmp-head h2::before,
@@ -36,7 +36,7 @@
 .cmp-head p {
   margin: 0;
   color: var(--content);
-  line-height: 1.5;
+  line-height: var(--lh-normal);
 }
 
 .cmp-card {
@@ -72,8 +72,8 @@
   padding: 0.6rem 1.25rem;
   border-right: 1px solid color-mix(in srgb, var(--mint) 10%, transparent);
   color: var(--paper);
-  font-size: 0.95rem;
-  line-height: 1.35;
+  font-size: var(--text-sm);
+  line-height: var(--lh-snug);
 }
 
 .cmp-feature img {
@@ -91,8 +91,8 @@
 .cmp-row-head .cmp-feature,
 .cmp-row-head .cmp-cell {
   padding-block: 0.85rem 1rem;
-  font-size: clamp(1.02rem, 1.5vw, 1.2rem);
-  font-weight: 750;
+  font-size: var(--text-lg);
+  font-weight: var(--fw-bold);
   color: var(--paper);
 }
 
@@ -127,8 +127,8 @@
   gap: 0.7rem;
   padding: 0.62rem 1.25rem;
   color: var(--brass);
-  font-size: clamp(1rem, 1.4vw, 1.12rem);
-  font-weight: 750;
+  font-size: var(--text-lg);
+  font-weight: var(--fw-bold);
 }
 
 /* Professional column: outlined, tinted, with the Most Popular pill */
@@ -157,8 +157,8 @@
   border-radius: 999px;
   background: var(--mint);
   color: var(--mint-ink);
-  font-size: 0.78rem;
-  font-weight: 750;
+  font-size: var(--text-xs);
+  font-weight: var(--fw-bold);
   white-space: nowrap;
 }
 
@@ -171,8 +171,8 @@
   border-radius: 999px;
   background: color-mix(in srgb, var(--paper) 5%, transparent);
   color: var(--paper);
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
   white-space: nowrap;
 }
 
@@ -204,7 +204,7 @@
   border: 1px solid color-mix(in srgb, var(--mint) 18%, transparent);
   background: color-mix(in srgb, var(--mint) 6%, transparent);
   color: var(--content);
-  font-size: 0.88rem;
+  font-size: var(--text-sm);
   white-space: nowrap;
 }
 
@@ -234,7 +234,7 @@
   .cmp-feature {
     gap: 0.6rem;
     padding: 0.55rem 0.85rem;
-    font-size: 0.86rem;
+    font-size: var(--text-sm);
   }
 
   .cmp-row-head .cmp-feature {
@@ -248,12 +248,12 @@
   .cmp-yes {
     gap: 0.4rem;
     padding: 0.25rem 0.6rem 0.25rem 0.3rem;
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
   }
 
   .cmp-soon {
     padding: 0.25rem 0.6rem;
-    font-size: 0.78rem;
+    font-size: var(--text-xs);
   }
 }
 
@@ -292,8 +292,8 @@
     cursor: pointer;
     list-style: none;
     color: var(--paper);
-    font-size: 1.05rem;
-    font-weight: 750;
+    font-size: var(--text-base);
+    font-weight: var(--fw-bold);
   }
 
   .cmp-acc summary::-webkit-details-marker {
@@ -333,8 +333,8 @@
     gap: 0.6rem;
     margin: 0 0 0.6rem;
     color: var(--paper);
-    font-size: 0.92rem;
-    line-height: 1.35;
+    font-size: var(--text-sm);
+    line-height: var(--lh-snug);
   }
 
   .cmp-acc-feature img {
@@ -365,9 +365,9 @@
 
   .cmp-acc-plans dt {
     color: var(--content);
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
+    font-size: var(--text-xs);
+    font-weight: var(--fw-bold);
+    letter-spacing: var(--tracking-label);
     text-transform: uppercase;
   }
 
@@ -389,7 +389,7 @@
 
   .cmp-acc-plans .cmp-soon {
     padding: 0.1rem 0.45rem;
-    font-size: 0.68rem;
+    font-size: var(--text-xs);
   }
 }
 

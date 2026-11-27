@@ -1,6 +1,7 @@
 # Alpha Recovery — Design System
 
-**Last reviewed:** 2026-11-26
+**Last reviewed:** 2026-11-27
+
 **Scope:** how the UI looks and how to build new screens that match it (student dashboard, lesson player, checkout pages, admin). How the code is organized lives in [ARCHITECTURE.md](ARCHITECTURE.md).
 
 > **Source of truth:** token values live in [`src/styles/global.css`](../src/styles/global.css) (`:root`). This doc explains *what to use when*. It deliberately doesn't copy values, so it can't drift from the CSS.
@@ -39,13 +40,37 @@ A dark, technical "lab" aesthetic: deep pine-green backgrounds, ivory text, bras
 
 ## 3. Typography
 
-| Token | Font | Use |
-|---|---|---|
-| `--font-display` | **Syne** (600–800) | `h1`–`h4`, big numbers |
-| `--font-body` | **Manrope** (400–700) | Everything else |
-| `--font-logo` | Arial / Helvetica (bold, uppercase) | Text that reproduces the logo wordmark (the home hero "ALPHA RECOVERY") |
+One family site-wide: **Manrope** (400–800). Fonts load from Google Fonts at the top of `global.css`. Do not introduce a second display face or page-local `font-family` overrides.
 
-Fonts load from Google Fonts at the top of `global.css`. Base body size is 16px, line-height 1.6. Headings often use an `<em>` for a highlighted second phrase ("Get in *Touch*", "Demo *Videos*"). Keep that pattern for new page titles.
+| Token | Use |
+|---|---|
+| `--font-body` | Default UI font (Manrope). Body, headings, nav, buttons, forms, cards, dashboards |
+| `--font-display` | Alias of `--font-body` (kept so older CSS still resolves) |
+| `--font-logo` | Arial / Helvetica — only for text that reproduces the logo wordmark (home hero "ALPHA RECOVERY") |
+| `--font-mono` | Code, certificate IDs, technical strings (admin tables / prose `<code>`) |
+
+### Type scale
+
+Use the `--text-*` tokens instead of hard-coded `rem` / `clamp()` sizes:
+
+| Token | Role |
+|---|---|
+| `--text-xs` | Badges, micro labels, uppercase kickers |
+| `--text-sm` | Captions, meta, nav, form labels, buttons |
+| `--text-base` | Body copy (16px root) |
+| `--text-md` / `--text-lg` | Comfortable card body / lead paragraphs / h4 |
+| `--text-xl` / `--text-2xl` | Card titles / h3 |
+| `--text-3xl` | Section `h2` (`.section-head h2`) |
+| `--text-4xl` | Page `h1` (`.page-hero h1`, `.ph h1`) |
+| `--text-5xl` / `--text-hero` | Marketing heroes / home brand |
+
+Weights: `--fw-regular` (400), `--fw-medium` (500), `--fw-semibold` (600), `--fw-bold` (700), `--fw-extrabold` (800). Never invent intermediate weights (e.g. 650 / 750).
+
+Line heights: `--lh-tight` (headings), `--lh-snug` (labels / h3–h4), `--lh-normal` (body), `--lh-relaxed` (long prose).
+
+Letter spacing: `--tracking-tight` (headings), `--tracking-normal`, `--tracking-label` / `--tracking-wide` (uppercase kickers). Shared kicker utility: `.type-label` / `.kicker` in `global.css`.
+
+Base body is `--text-base` / `--lh-normal`. Headings often use an `<em>` for a highlighted second phrase ("Get in *Touch*", "Demo *Videos*"). Keep that pattern for new page titles.
 
 ## 4. Layout & spacing
 
@@ -68,11 +93,11 @@ Fonts load from Google Fonts at the top of `global.css`. Base body size is 16px,
 | Panels / cards | `.panel`, glass tokens (`--glass-bg`, `--glass-border`, `--glass-shadow`, `--glass-blur`) in `glass.css` | Use the glass tokens for new elevated cards |
 | Glass "orb" icons | `--glass-orb-*` tokens | Round 3D icon badges (pricing perks) |
 | Accent bar | `.why-accent-bar` / `.training-accent-bar` in `src/styles/sections.css` | Short gradient bar above section titles |
-| Sticky stacked cards | `stack-card*` in `components/sections/SolutionsStack.css` | Mobile/tablet sticky-sibling card stack used by three sections |
+| Sticky stacked cards | `stack-card*` in `components/sections/SolutionsStack.css` | Mobile/tablet sticky-sibling card stack used by three sections; Recovery solution paths is a static 4-column row at ≥1025px |
 | Tabs / filters | Account toggle, TrainingExplorer tracks, Demos filters, Pricing FAQ categories (`pfq-`) | `role="tab"`, `aria-selected`, `is-active` class |
 | Pricing FAQ accordion | `PricingFaq` (`src/components/sections/PricingFaq.tsx`, `pfq-`) | Category tabs + single-open accordion (`aria-expanded` / `aria-controls`); Escape closes; static Q&A from `pricingPlans.ts`; mint highlight on open; honour `prefers-reduced-motion` |
 | Marketing footer | `Footer` (`src/components/layout/Footer.tsx`, `footer-`) | Desktop: four columns (brand + social, services, information, get in touch + Quick Connect) with a trust strip under the grid. Mobile (≤980px): brand + trust first, then exclusive single-open accordions for Services / Information / Get in Touch; Quick Connect and social stay outside. Contact and social from `useSiteSettings()`; services from `content.ts`. Bottom bar clears WhatsApp + scroll-to-top floats |
-| `/pricing` three-plan layout | `Pricing.tsx` + `PricingPage.css` (`px-`) | Compact hero, Professional sale countdown, three cards (Expert disabled Coming soon), trust strip, Compare Plans (`ComparePlans.tsx` + `.css`, `cmp-`; rows in `src/data/pricingCompare.ts`): a grid table in a glowing card with gold category bands, ivory row icons, “Included” pills and the Professional column outlined under a Most Popular pill; at 760px and below it becomes one `<details>` accordion per category (mint icons) showing each feature's three plans, benefits (reuses homepage `pp-perks` markup/styles), FAQ (`PricingFaq`), one post-FAQ WhatsApp guidance consult (no duplicate “Still have questions?” block), final Enroll Now. Buy buttons show “Opening checkout…” while busy and a `.px-buy-error` line under the card when checkout can't start (owners get a My Learning link). For a signed-in student (`useOwnedPlans()`, loaded after hydration) a plan they own shows “✓ You own this plan” (`.px-owned`) and **Go to My Learning** instead of Buy; smaller plans covered by an all-courses plan show “Included in your …”; Coming soon plans (Expert) stay Coming soon. The final Enroll Now becomes Go to My Learning for Professional owners. Home still uses `pp-*` / `ProfessionalPlanSection` |
+| `/pricing` three-plan layout | `Pricing.tsx` + `PricingPage.css` (`px-`) | Compact hero with Professional sale countdown beside the title (stacks under on narrow widths), three cards (Expert disabled Coming soon), trust strip, Compare Plans (`ComparePlans.tsx` + `.css`, `cmp-`; rows in `src/data/pricingCompare.ts`): a grid table in a glowing card with gold category bands, ivory row icons, “Included” pills and the Professional column outlined in brass (same as `.px-card.is-recommended`) under a brass Recommended pill; at 760px and below it becomes one `<details>` accordion per category (mint icons) showing each feature's three plans, benefits (reuses homepage `pp-perks` markup/styles), FAQ (`PricingFaq`), one post-FAQ WhatsApp guidance consult (no duplicate “Still have questions?” block), final Enroll Now. Buy buttons show “Opening checkout…” while busy and a `.px-buy-error` line under the card when checkout can't start (owners get a My Learning link). For a signed-in student (`useOwnedPlans()`, loaded after hydration) a plan they own shows “✓ You own this plan” (`.px-owned`) and **Go to My Learning** instead of Buy; smaller plans covered by an all-courses plan show “Included in your …”; Coming soon plans (Expert) stay Coming soon. The final Enroll Now becomes Go to My Learning for Professional owners. Home still uses `pp-*` / `ProfessionalPlanSection` |
 | Form states | `.field-error`, `.form-error`, `.form-success`, `.hp-field` (honeypot), `.turnstile-box` in `global.css`; `.success` (page-scoped in `SimplePages.css`) | Use these for every API-backed form: errors in `--danger`, success in `--ok`. The `<Turnstile>` widget lives in `src/components/ui/Turnstile.tsx`; `submitLead()` / `formErrors()` in `src/lib/leads.ts` |
 | Floating actions | WhatsApp float, scroll-to-top | Bottom corners; keep new floating UI clear of them |
 | Inner-page hero | `<PageHero crumbs title sub art>` in `src/components/ui/PageHero.tsx` (`ph-`) | Breadcrumb, title, subtitle, optional chips (children) and a glowing illustration (`heroArt` in `src/data/pageContent.ts`); used by Services, Industries, Blog, Training track, Verify Certificate. The illustration hides below 760px |
@@ -95,7 +120,7 @@ Fonts load from Google Fonts at the top of `global.css`. Base body size is 16px,
 
 - **All assets live in `public/assets/`**: `brand/` (logos, favicons, apple-touch icon), `icons/` (UI SVGs, §6), and `images/` split into `backgrounds/`, `sections/` (photos in sections and cards), `illustrations/` (inner-page hero art, `why-learn/` card art), `stat-icons/` and `learner/` (signed-in learner pages). Every file there is referenced somewhere (audited 2026-11-25: unused icon colour variants, PNG duplicates and unused favicon sizes removed); brand master files that the site doesn't load (the banner `og-image.jpg` was cut from, logo PNGs) are kept outside `public/`.
 - The home “Learn the Realm of Data Recovery” band (`.impact-section`) uses a solid `--dark-band` fill. Stat-card icons stay in `stat-icons/`.
-- The Pro Training (`.pro-section`) and Professional Plan (`.pp-section`) bands have no background photo: the `--dark-band` fill plus their glows (`training-bg.webp` and `pricing-bg.webp` were removed). The Professional Plan hero is text only (heading, lead, sale strip); its HDD workbench picture was removed.
+- The Pro Training (`.pro-section`) and Professional Plan (`.pp-section`) bands have no background photo: the `--dark-band` fill plus their glows (`training-bg.webp` and `pricing-bg.webp` were removed). The Professional Plan hero is text only (heading + lead, with the sale countdown beside them on desktop); its HDD workbench picture was removed.
 - “Why learn data recovery?” card illustrations are `images/illustrations/why-learn/01–06-*.webp` (transparent, from the six-asset package; mapped by card id in `whyLearnImages`). They are trimmed to their content and exported at 2× (longest side 320px) so all six read at the same size in the 132×112 slot; shown with `object-fit: contain`, no mask or crop. The package README and PNG sources are kept outside `public/` (local `design/source-assets/`).
 - Photos are optimized **WebP** in `public/assets/images/`, referenced by absolute path (`/assets/images/sections/pcb.webp`); section → image maps live in [`src/data/sectionMedia.ts`](../src/data/sectionMedia.ts).
 - Inner-page hero illustrations (`public/assets/images/illustrations/page-*.webp`: hard drive, laptop + drive, certificate, light wave) are cut from the brand asset sheet with transparent backgrounds and exported at 2× (Lanczos + light sharpen) so they stay crisp on high-DPI screens; the sheet is only 1536×1024, so a higher-resolution sheet is the way to get more real detail; the source sheet and the redesign references (`alpha_recovery_assets/`) are kept outside the repo.
@@ -120,7 +145,7 @@ Fonts load from Google Fonts at the top of `global.css`. Base body size is 16px,
 
 - One CSS file next to each section/page component (`Foo.tsx` + `Foo.css`); shared primitives in `src/styles/`.
 - **BEM-ish kebab-case class names with a unique section prefix** (`hero-*`, `pp-*` homepage Professional Plan, `px-*` `/pricing` three-plan page, `pfq-*` pricing FAQ accordion, `cta-*`, `dv-*` demo cards, `tx-*` training explorer). All CSS ships in one bundle, so prefixes prevent cross-file clashes.
-- Use tokens for colour, spacing and type; avoid new hard-coded hex values.
+- Use tokens for colour, spacing and type (`--text-*`, `--fw-*`, `--lh-*`, `--tracking-*`); avoid new hard-coded hex values or one-off `font-size` / `font-weight` literals.
 - Accessibility: visible `:focus-visible` outlines (defined globally), labelled form fields, `aria-hidden` on decorative elements, `alt` text on meaningful images.
 - **Pre-render safe:** public pages are rendered to HTML at build time and hydrated (docs/ARCHITECTURE.md §5.1), so the first render must not read `window`, `document`, `localStorage`, screen size or the current time. Read them in effects, start from a fixed default (e.g. `useState(false)`, then sync in the effect), and gate browser-only markup such as portals with `useHydrated()`.
 

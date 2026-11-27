@@ -18,7 +18,7 @@
 
 .adm-enr-student {
   color: inherit;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   text-decoration: none;
 }
 
@@ -67,7 +67,7 @@
 }
 
 .adm-enr-results span {
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
   color: var(--adm-text-2);
 }
 
@@ -85,7 +85,7 @@
 
 .adm-enr-picked .adm-sub {
   display: block;
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
   color: var(--adm-text-2);
 }
 

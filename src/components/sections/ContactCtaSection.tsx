@@ -117,7 +117,6 @@ export function ContactCtaSection({ hideHead = false }: ContactCtaSectionProps) 
                   <label htmlFor="cta-website">Website</label>
                   <input id="cta-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
                 </div>
-                <Turnstile onToken={setCaptchaToken} resetKey={captchaReset} />
                 <button className="cta-submit" type="submit" disabled={submitting}>
                   <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden>
                     <path d="M8 6.5v11l9-5.5-9-5.5Z" />
@@ -125,6 +124,7 @@ export function ContactCtaSection({ hideHead = false }: ContactCtaSectionProps) 
                   {submitting ? 'Sending…' : 'Request callback'}
                   <span aria-hidden>›</span>
                 </button>
+                <Turnstile onToken={setCaptchaToken} resetKey={captchaReset} />
                 {formError ? (
                   <p className="form-error" role="alert" style={{ flexBasis: '100%' }}>
                     {formError}

@@ -33,7 +33,7 @@
 
 .lp-earned span {
   margin-top: 0.2rem;
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   color: var(--text-sub);
 }
 
@@ -78,14 +78,14 @@
   margin: 0.25rem 0 0;
   font-family: var(--font-body);
   font-size: clamp(1.1rem, 2.2vw, 1.4rem);
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
 }
 
 .lp-panel p {
   max-width: 46ch;
   margin: 0;
   color: var(--text-sub);
-  line-height: 1.55;
+  line-height: var(--lh-normal);
 }
 
 .lp-panel-actions {
@@ -120,8 +120,8 @@
   border: 1px solid var(--line);
   border-radius: 10px;
   color: var(--text);
-  font-weight: 700;
-  font-size: 0.92rem;
+  font-weight: var(--fw-bold);
+  font-size: var(--text-sm);
   text-decoration: none;
 }
 
@@ -136,7 +136,7 @@
   background: var(--btn-soft-bg);
   color: var(--btn-soft-text);
   font: inherit;
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   cursor: pointer;
   box-shadow: var(--btn-soft-shadow);
 }
@@ -173,7 +173,7 @@
   display: grid;
   gap: 0.45rem;
   margin-bottom: 1rem;
-  font-size: 0.86rem;
+  font-size: var(--text-sm);
   color: var(--text-sub);
 }
 
@@ -199,9 +199,9 @@
 .lp-module h2 {
   margin: 0 0 0.5rem;
   font-family: var(--font-body);
-  font-size: 0.82rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
+  font-size: var(--text-sm);
+  font-weight: var(--fw-extrabold);
+  letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--content);
 }
@@ -223,7 +223,7 @@
   border: 1px solid transparent;
   border-radius: 8px;
   color: var(--text);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   text-decoration: none;
 }
 
@@ -247,8 +247,8 @@
   height: 20px;
   border: 1px solid var(--line);
   border-radius: 50%;
-  font-size: 0.7rem;
-  font-weight: 800;
+  font-size: var(--text-xs);
+  font-weight: var(--fw-extrabold);
 }
 
 .lp-item.is-done .lp-item-mark {
@@ -262,7 +262,7 @@
 }
 
 .lp-item-meta {
-  font-size: 0.76rem;
+  font-size: var(--text-xs);
   color: var(--content);
   white-space: nowrap;
 }
