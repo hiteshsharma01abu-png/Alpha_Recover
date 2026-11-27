@@ -390,7 +390,6 @@
   }
 
   .pro-hero-visual {
-    order: -1;
     justify-self: center;
     width: min(100%, 420px);
   }
