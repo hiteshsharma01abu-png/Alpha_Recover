@@ -36,7 +36,7 @@ export function ComparePlans() {
         <div className="cmp-card">
           <div className="cmp-table" role="table" aria-labelledby="cmp-title">
             <span className="cmp-highlight" aria-hidden>
-              <span className="cmp-popular">Most Popular</span>
+              <span className="cmp-popular">Recommended</span>
             </span>
 
             <div className="cmp-row cmp-row-head" role="row">

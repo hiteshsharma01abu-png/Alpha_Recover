@@ -165,9 +165,14 @@ function PlanCard({
             {busy ? 'Opening checkout…' : ctaLabel}
           </button>
         )}
-        <a className="px-btn px-btn-ghost" href={whatsappHref} target="_blank" rel="noopener noreferrer">
-          <img src={icons.whatsapp} alt="" width={16} height={16} decoding="async" aria-hidden />
-          Ask on WhatsApp
+        <a
+          className="px-btn px-btn-ghost px-btn-wa"
+          href={whatsappHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Ask on WhatsApp"
+        >
+          <img src={icons.whatsapp} alt="" width={28} height={28} decoding="async" aria-hidden />
         </a>
       </div>
       <BuyMessage error={error} />
@@ -197,29 +202,28 @@ export function Pricing() {
   return (
     <div className="px-page">
       <header className="px-hero">
-        <div className="container px-hero-inner">
-          <p className="px-eyebrow">Flexible training plans</p>
-          <h1>Invest in Your Skills. Build Your Future.</h1>
-          <p className="px-hero-lead">
-            Choose Essential foundations, the full Professional curriculum, or Expert when mentoring
-            launches — one-time payment, lifetime access to the courses in your plan.
-          </p>
+        <div className="container px-hero-row">
+          <div className="px-hero-inner">
+            <p className="px-eyebrow">Flexible training plans</p>
+            <h1>Invest in Your Skills. Build Your Future.</h1>
+            <p className="px-hero-lead">
+              Choose Essential foundations, the full Professional curriculum, or Expert when mentoring
+              launches — one-time payment, lifetime access to the courses in your plan.
+            </p>
+          </div>
+          {promo ? (
+            <div className="px-sale">
+              <div className="px-sale-inner">
+                <div className="px-sale-copy">
+                  <p className="px-sale-kicker">Limited time · Professional Plan</p>
+                  <p className="px-sale-label">{promo.label}</p>
+                </div>
+                <SaleCountdown endsAt={promo.endsAt} onExpire={endSale} />
+              </div>
+            </div>
+          ) : null}
         </div>
       </header>
-
-      {promo ? (
-        <div className="px-sale">
-          <div className="container">
-            <div className="px-sale-inner">
-              <div className="px-sale-copy">
-                <p className="px-sale-kicker">Limited time · Professional Plan</p>
-                <p className="px-sale-label">{promo.label}</p>
-              </div>
-              <SaleCountdown endsAt={promo.endsAt} onExpire={endSale} />
-            </div>
-          </div>
-        </div>
-      ) : null}
 
       <Reveal as="section" className="px-plans" id="pricing-plans">
         <div className="container">
