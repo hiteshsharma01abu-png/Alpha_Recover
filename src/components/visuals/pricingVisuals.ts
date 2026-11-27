@@ -21,8 +21,6 @@ export const pricingFeatureIcons: string[] = [
   icons.infinity,
 ];
 
-/** Open HDD on a repair workbench: transparent cutout, shown uncropped in pp-hero-visual. */
-export const pricingHeroVisual = { src: '/assets/images/sections/hdd-repair-workbench.webp', width: 960, height: 704 };
 
 export const pricingPerks = [
   {

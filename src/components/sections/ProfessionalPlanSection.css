@@ -39,7 +39,7 @@
 
 .pp-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
+  grid-template-columns: 1fr;
   gap: clamp(1.25rem, 3vw, 2.5rem);
   align-items: center;
 }
@@ -148,21 +148,6 @@
 .pp-sale strong {
   font-weight: 800;
   color: var(--text);
-}
-
-/* Transparent cutout: shown whole (no crop, frame or overlay) on the section background. */
-.pp-hero-visual {
-  display: flex;
-  justify-content: center;
-}
-
-.pp-hero-visual img {
-  display: block;
-  width: auto;
-  max-width: 100%;
-  height: clamp(200px, 22vw, 300px);
-  aspect-ratio: 960 / 704;
-  object-fit: contain;
 }
 
 .pp-main {
@@ -697,13 +682,7 @@
 
 @media (max-width: 980px) {
   .pp-hero {
-    grid-template-columns: 1fr;
     gap: 1.25rem;
-  }
-
-  .pp-hero-visual {
-    order: -1;
-    border-radius: 18px;
   }
 
   .pp-hero-copy {

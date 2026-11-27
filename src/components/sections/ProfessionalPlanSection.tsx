@@ -5,11 +5,7 @@ import { icons } from '../../lib/icons';
 import { usePlan, withoutSale } from '../../lib/plans';
 import { useSiteSettings } from '../../lib/settings';
 import { useBuyPlan } from '../../lib/useBuyPlan';
-import {
-  pricingFeatureIcons,
-  pricingHeroVisual,
-  pricingPerks,
-} from '../visuals/pricingVisuals';
+import { pricingFeatureIcons, pricingPerks } from '../visuals/pricingVisuals';
 import '../../styles/sections.css';
 import './ProfessionalPlanSection.css';
 
@@ -188,16 +184,6 @@ export function ProfessionalPlanSection({
                 expert.
               </p>
               {promoStrip}
-            </div>
-            <div className="pp-hero-visual">
-              <img
-                src={pricingHeroVisual.src}
-                alt=""
-                width={pricingHeroVisual.width}
-                height={pricingHeroVisual.height}
-                loading="lazy"
-                decoding="async"
-              />
             </div>
           </div>
         ) : promoStrip ? (
