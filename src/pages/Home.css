@@ -614,7 +614,6 @@
 .gs-head {
   position: relative;
   z-index: 2;
-  max-width: 36rem;
   margin-bottom: clamp(2rem, 4vw, 2.85rem);
 }
 
@@ -636,6 +635,8 @@
   color: #f5f7f6;
   line-height: 1.08;
   letter-spacing: var(--tracking-tight);
+  /* Always one line; phones scale the size down below */
+  white-space: nowrap;
 }
 
 .gs-head h2 em {
@@ -961,12 +962,6 @@
   .gs-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.95rem;
-  }
-}
-
-@media (max-width: 1100px) {
-  .gs-head {
-    max-width: min(100%, 28rem);
   }
 }
 
@@ -1448,5 +1443,13 @@
   .impact-section,
   .why-section {
     padding-block: var(--section-y-sm);
+  }
+}
+
+/* "Learn the Realm of Data Recovery" stays on one line: on narrow phones the size follows the
+   container width (the line is ~15.5em wide; 2rem = the two 1rem gutters). */
+@media (max-width: 600px) {
+  .gs-head h2 {
+    font-size: min(var(--text-3xl), calc((100vw - 2rem) / 15.8));
   }
 }
