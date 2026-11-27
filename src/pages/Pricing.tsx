@@ -321,16 +321,14 @@ export function Pricing() {
           <div className="px-consult-card">
             <p className="px-consult-kicker">Need guidance?</p>
             <h2 id="px-consult-title">Not sure which plan is right for you?</h2>
-            <div className="px-consult-row">
-              <p>
-                Tell us about your experience level and learning goals. Our team will help you choose
-                between Essential and Professional.
-              </p>
-              <a className="px-btn px-btn-primary" href={whatsappHref} target="_blank" rel="noopener noreferrer">
-                <img src={icons.whatsapp} alt="" width={16} height={16} decoding="async" aria-hidden />
-                Ask on WhatsApp
-              </a>
-            </div>
+            <p>
+              Tell us about your experience level and learning goals. Our team will help you choose
+              between Essential and Professional.
+            </p>
+            <a className="px-btn px-btn-primary" href={whatsappHref} target="_blank" rel="noopener noreferrer">
+              <img src={icons.whatsapp} alt="" width={16} height={16} decoding="async" aria-hidden />
+              Ask on WhatsApp
+            </a>
           </div>
         </div>
       </section>

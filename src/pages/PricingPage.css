@@ -507,21 +507,8 @@
   max-width: none;
 }
 
-.px-consult-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 1rem 1.25rem;
-  width: 100%;
-}
-
-.px-consult-row p {
-  flex: 1 1 16rem;
-  max-width: 40rem;
-}
-
-.px-consult-row .px-btn {
-  flex: 0 0 auto;
+.px-consult-card .px-btn {
+  margin-top: 0.25rem;
 }
 
 .px-final-actions {
