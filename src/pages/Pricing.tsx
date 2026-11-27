@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ComparePlans } from '../components/sections/ComparePlans';
 import { PricingFaq } from '../components/sections/PricingFaq';
 import { Reveal } from '../components/ui/Reveal';
 import { pricingPerks } from '../components/visuals/pricingVisuals';
@@ -60,27 +61,6 @@ function SaleCountdown({ endsAt, onExpire }: { endsAt: string; onExpire: () => v
   );
 }
 
-type CompareCell = 'yes' | 'no' | 'soon' | string;
-
-const COMPARE_ROWS: { label: string; category?: boolean; essential: CompareCell; professional: CompareCell; expert: CompareCell }[] = [
-  { label: 'Core access', category: true, essential: '', professional: '', expert: '' },
-  { label: 'Logical / basics / electronics tracks', essential: 'yes', professional: 'yes', expert: 'yes' },
-  { label: 'All published training tracks', essential: 'no', professional: 'yes', expert: 'yes' },
-  { label: 'Lifetime access & course updates', essential: 'yes', professional: 'yes', expert: 'yes' },
-  { label: 'Self-paced learning', essential: 'yes', professional: 'yes', expert: 'yes' },
-  { label: 'Curriculum depth', category: true, essential: '', professional: '', expert: '' },
-  { label: 'Training certificate path', essential: 'no', professional: 'yes', expert: 'yes' },
-  { label: 'Firmware repairing software access', essential: 'no', professional: 'yes', expert: 'yes' },
-  { label: 'Seagate & WD firmware training', essential: 'no', professional: 'yes', expert: 'yes' },
-  { label: 'Case study videos', essential: 'no', professional: 'yes', expert: 'yes' },
-  { label: 'BitLocker recovery training', essential: 'no', professional: 'yes', expert: 'yes' },
-  { label: 'MRT introduction & related modules', essential: 'no', professional: 'yes', expert: 'yes' },
-  { label: 'Support', category: true, essential: '', professional: '', expert: '' },
-  { label: 'WhatsApp technical assistance', essential: 'no', professional: 'yes', expert: 'yes' },
-  { label: 'Personal mentoring', essential: 'no', professional: 'no', expert: 'soon' },
-  { label: 'Priority technical assistance', essential: 'no', professional: 'no', expert: 'soon' },
-];
-
 const TRUST_ITEMS = [
   { title: 'One-time payment', text: 'No subscription fees' },
   { title: 'Lifetime access', text: 'Courses in your plan, forever' },
@@ -90,13 +70,6 @@ const TRUST_ITEMS = [
 ];
 
 const CARD_FEATURE_LIMIT = 8;
-
-function cellMarkup(value: CompareCell) {
-  if (value === 'yes') return <span className="px-yes">Included</span>;
-  if (value === 'no') return <span className="px-no">—</span>;
-  if (value === 'soon') return <span className="px-no">Coming soon</span>;
-  return value;
-}
 
 type BuyError = { message: string; owned: boolean };
 
@@ -279,44 +252,7 @@ export function Pricing() {
         </div>
       </section>
 
-      <Reveal as="section" className="px-compare" id="pricing-compare">
-        <div className="container">
-          <header className="px-section-head">
-            <h2 id="px-compare-title">Compare plans</h2>
-            <p>See which entitlements ship with Essential, Professional and Expert.</p>
-          </header>
-          <div className="px-table-wrap">
-            <table className="px-table">
-              <thead>
-                <tr>
-                  <th scope="col">Feature</th>
-                  <th scope="col">Essential</th>
-                  <th scope="col">Professional</th>
-                  <th scope="col">Expert</th>
-                </tr>
-              </thead>
-              <tbody>
-                {COMPARE_ROWS.map((row) =>
-                  row.category ? (
-                    <tr key={row.label}>
-                      <td className="px-cat" colSpan={4}>
-                        {row.label}
-                      </td>
-                    </tr>
-                  ) : (
-                    <tr key={row.label}>
-                      <th scope="row">{row.label}</th>
-                      <td>{cellMarkup(row.essential)}</td>
-                      <td>{cellMarkup(row.professional)}</td>
-                      <td>{cellMarkup(row.expert)}</td>
-                    </tr>
-                  ),
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </Reveal>
+      <ComparePlans />
 
       <Reveal as="section" className="px-benefits" id="pricing-benefits" aria-labelledby="px-benefits-title">
         <div className="container">

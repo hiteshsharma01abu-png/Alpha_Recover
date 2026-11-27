@@ -5,6 +5,7 @@ export const ICON_WHITE = 'white';
 export const ICON_DARK = 'dark';
 export const ICON_IVORY = 'ivory';
 export const ICON_WA = 'wa';
+export const ICON_BRASS = 'brass';
 
 /** @deprecated kept for callers that still pass encoded hex colors */
 const COLOR_ALIAS: Record<string, string> = {
@@ -18,11 +19,13 @@ const COLOR_ALIAS: Record<string, string> = {
   '#06120E': 'dark',
   '#F0EDE4': 'ivory',
   '#25D366': 'wa',
+  '#D9B56E': 'brass',
   mint: 'mint',
   white: 'white',
   dark: 'dark',
   ivory: 'ivory',
   wa: 'wa',
+  brass: 'brass',
 };
 
 export function iconSrc(name: string, color: string = ICON_MINT): string {

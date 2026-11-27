@@ -363,11 +363,6 @@
   line-height: 1.35;
 }
 
-.px-compare {
-  padding: clamp(2rem, 4vw, 3rem) 0;
-  background: var(--surface-alt);
-}
-
 .px-section-head {
   max-width: 40rem;
   margin: 0 auto 1.75rem;
@@ -385,53 +380,6 @@
   margin: 0;
   color: var(--content);
   line-height: 1.5;
-}
-
-.px-table-wrap {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  border-radius: 16px;
-  border: 1px solid color-mix(in srgb, var(--mint) 14%, transparent);
-  background: color-mix(in srgb, var(--surface) 92%, #000);
-}
-
-.px-table {
-  width: 100%;
-  min-width: 640px;
-  border-collapse: collapse;
-  font-size: 0.88rem;
-}
-
-.px-table th,
-.px-table td {
-  padding: 0.75rem 0.9rem;
-  text-align: left;
-  border-bottom: 1px solid color-mix(in srgb, var(--mint) 10%, transparent);
-  vertical-align: middle;
-}
-
-.px-table thead th {
-  font-size: 0.75rem;
-  font-weight: 750;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--mint);
-  background: color-mix(in srgb, var(--dark-band) 55%, transparent);
-}
-
-.px-table .px-cat {
-  font-weight: 750;
-  color: var(--brass);
-  background: color-mix(in srgb, var(--dark-band) 35%, transparent);
-}
-
-.px-yes {
-  color: var(--mint);
-  font-weight: 750;
-}
-
-.px-no {
-  color: color-mix(in srgb, var(--content) 55%, transparent);
 }
 
 .px-benefits {
